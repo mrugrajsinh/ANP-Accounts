@@ -1,16 +1,14 @@
-// ============================================================
-//  STEP: paste your Firebase web config + admin email here.
-//  (Firebase console → Project settings → Your apps → Web app → Config)
-// ============================================================
+// Firebase web config for ANP Accounts + admin email.
 window.GHAR_CONFIG = {
   firebase: {
-    apiKey: "PASTE_API_KEY",
-    authDomain: "PASTE_PROJECT.firebaseapp.com",
-    projectId: "PASTE_PROJECT_ID",
-    storageBucket: "PASTE_PROJECT.appspot.com",
-    messagingSenderId: "PASTE_SENDER_ID",
-    appId: "PASTE_APP_ID"
+    apiKey: "AIzaSyAt-mRGnyqGGf3Pw1jp7budKYxv4KXw_xY",
+    authDomain: "anp-accounts.firebaseapp.com",
+    projectId: "anp-accounts",
+    storageBucket: "anp-accounts.firebasestorage.app",
+    messagingSenderId: "975679826238",
+    appId: "1:975679826238:web:5793d66e23e9e4caa8a46f",
+    measurementId: "G-SD1SRPX13X"
   },
-  // The admin approves everyone else. Use the SAME email in firestore.rules.
+  // The admin approves everyone else. Same email as in the Firestore rules.
   adminEmail: "mrugraj321@gmail.com"
 };
