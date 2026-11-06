@@ -610,7 +610,7 @@ const D = {
   'Delete this entry for everyone?': ['Yeh entry sab ke liye hatani hai?', 'આ એન્ટ્રી બધા માટે કાઢી નાખવી છે?'], 'Delete this task?': ['Yeh kaam hatana hai?', 'આ કામ કાઢી નાખવું છે?'], 'Edit task': ['Kaam badlo', 'કામ સુધારો'], 'Your name': ['Aapka naam', 'તમારું નામ'],
   'to pay': ['dena baaki', 'ચૂકવવાના બાકી'], '↺ Redo:': ['↺ Phir se karo:', '↺ ફરી કરો:'], 'Add to Home Screen': ['Add to Home Screen', 'Add to Home Screen (હોમ સ્ક્રીન પર ઉમેરો)'],
   'Add to Home screen': ['Add to Home screen', 'Add to Home screen (હોમ સ્ક્રીન પર ઉમેરો)'],
-  '👷 Team right now': ['👷 Team abhi', '👷 ટીમ અત્યારે'],
+  '👷 Team right now': ['👷 Team abhi', '👷 ટીમ અત્યારે'], '● Online': ['● Online', '● ઓનલાઇન'],
   "No one else has joined yet. When family and workers sign up (and an admin approves them), you'll see here who is busy and who is free.": ['Abhi koi aur nahi juda. Parivaar aur workers sign up karenge (aur admin approve karega) tab yahan dikhega kaun kaam par hai aur kaun khaali.', 'હજુ બીજું કોઈ જોડાયું નથી. પરિવાર અને કામદારો જોડાશે (અને એડમિન મંજૂર કરશે) ત્યારે અહીં દેખાશે કોણ કામમાં છે અને કોણ ફ્રી.'], 'busy': ['kaam par', 'કામમાં'], 'free': ['khaali', 'ફ્રી'], '🟢 Free': ['🟢 Khaali', '🟢 ફ્રી'], '🔴 Busy': ['🔴 Kaam par', '🔴 કામમાં'],
   'Not opened app yet': ['App abhi nahi khola', 'એપ હજુ ખોલી નથી'], '▶ Start now': ['▶ Abhi shuru karo', '▶ હમણાં શરૂ કરો'], '⏸ Not started yet': ['⏸ Abhi shuru nahi kiya', '⏸ હજુ શરૂ નથી કર્યું'],
   '🔁 Give to someone else': ['🔁 Kisi aur ko do', '🔁 બીજાને આપો'], 'Give to someone else': ['Kisi aur ko do', 'બીજાને આપો'], '🚨 Urgent': ['🚨 Jaldi', '🚨 તાત્કાલિક'],
@@ -720,7 +720,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '11 · team for all';
+const APP_VERSION = '12 · no location';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1076,10 +1076,6 @@ function moreHTML() {
       }).join('')}</div>`;
     }
   }
-  if (S.isAdmin) html += `<div class="fgroup"><h3>🏠 Home location</h3>
-      <p>${S.settings?.home ? 'Saved. Team members show as “At home” within about 150 m of it.' : 'Not set yet. Stand inside the house and tap the button.'}</p>
-      <button class="btn sec" id="setHomeBtn">📍 Set home location (I'm at home now)</button></div>`;
-  html += `<div class="fgroup"><h3>📍 Location</h3><p>While this app is open, it tells the admins only whether you are at home or outside. Your exact location is never shown.</p></div>`;
   if (!standalone) html += `<div class="fgroup"><h3>Add to home screen</h3><ol><li>iPhone: open in <b>Safari</b> → <b>Share</b> → <b>Add to Home Screen</b>.</li><li>Android: open in <b>Chrome</b> → <b>⋮</b> → <b>Add to Home screen</b>.</li></ol></div>`;
   return html + `</div>`;
 }
@@ -1494,16 +1490,12 @@ function personState(uid) {
   const busy = S.taskList.find(t => tStatus(t) === 'working' && t.assignedTo === uid);
   const todo = S.taskList.filter(t => tStatus(t) === 'open' && t.assignedTo === uid && t.date <= today()).length;
   const p = S.presence?.get(uid), fresh = p && Date.now() - p.at < 15 * 6e4;
-  const where = !p ? 'never' : p.loc === 'off' ? 'off' : p.atHome === true ? 'home' : p.atHome === false ? 'out' : 'seen';
-  return {busy, todo, p, fresh, where, available: !busy && where === 'home' && fresh};
+  const where = !p ? 'never' : 'seen';
+  return {busy, todo, p, fresh, where, available: !busy && !!fresh};
 }
 function whereChip(s) {
   if (s.where === 'never') return `<span class="badge b-mute">Not opened app yet</span>`;
-  const ago = agoText(s.p.at);
-  if (s.where === 'off') return `<span class="badge b-mute">📍 Location off · ${ago}</span>`;
-  if (s.where === 'seen') return `<span class="badge b-mute">Last seen ${ago}</span>`;
-  if (!s.fresh) return `<span class="badge b-mute">${s.where === 'home' ? '🏠' : '🚶'} Last seen ${ago}</span>`;
-  return s.where === 'home' ? `<span class="badge b-paid">🏠 At home · ${ago}</span>` : `<span class="badge b-credit">🚶 Outside · ${ago}</span>`;
+  return s.fresh ? `<span class="badge b-paid">● Online</span>` : `<span class="badge b-mute">Last seen ${agoText(s.p.at)}</span>`;
 }
 function teamPeople() { return S.users.filter(u => (u.status === 'approved' || u.role === 'admin') && u.uid !== S.user.uid); }
 function rankPeople() {
@@ -1517,25 +1509,18 @@ function teamHTML() {
     ${ppl.map(({u, s}) => `<div class="tmrow"><div class="main"><div class="t"><span data-nt>${esc(u.name)}</span></div>
       <div class="tmline">${s.busy ? `<span class="badge b-over">🔴 Busy</span> <span class="hint" style="margin:0" data-nt>${esc(s.busy.title)}</span>` : `<span class="badge b-paid">🟢 Free</span>`}${s.todo ? ` <span class="hint" style="margin:0">· ${s.todo} to do</span>` : ''}</div></div>
       <div>${whereChip(s)}</div></div>`).join('')}
-    ${ppl.length && !S.settings?.home ? `<p class="hint">Set your home location in the Users tab to see who is at home.</p>` : ''}
   </details>`;
 }
 function personOptLabel(u) {
   const s = personState(u.uid);
-  return `${u.name} · ${s.busy ? '🔴 ' + tx('busy') : '🟢 ' + tx('free')}${s.fresh && s.where === 'home' ? ' · 🏠' : s.fresh && s.where === 'out' ? ' · 🚶' : ''}`;
+  return `${u.name} · ${s.busy ? '🔴 ' + tx('busy') : '🟢 ' + tx('free')}`;
 }
 let presT;
 function startPresence() {
   clearInterval(presT);
   const tick = () => {
     if (document.hidden || !S.user || !S.me) return;
-    const base = {name: S.me.name || '', at: Date.now()}, home = S.settings?.home;
-    if (!navigator.geolocation || !home) { api.setPresence(S.user.uid, base).catch(() => {}); return; }
-    navigator.geolocation.getCurrentPosition(pos => {
-      const d = distM(home, {lat: pos.coords.latitude, lng: pos.coords.longitude});
-      const atHome = d <= (home.r || HOME_R) + Math.min(pos.coords.accuracy || 0, 100);
-      api.setPresence(S.user.uid, {...base, atHome, loc: 'on'}).catch(() => {});
-    }, () => api.setPresence(S.user.uid, {...base, atHome: null, loc: 'off'}).catch(() => {}), {enableHighAccuracy: true, maximumAge: 60000, timeout: 20000});
+    api.setPresence(S.user.uid, {name: S.me.name || '', at: Date.now(), atHome: null, loc: null}).catch(() => {});
   };
   setTimeout(tick, 2500); presT = setInterval(tick, 120000);
   if (!startPresence.bound) { startPresence.bound = true; document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); }); }
@@ -1640,7 +1625,7 @@ function openTaskForm() {
     $('#ntDate').value = today();
     const best = team.find(x => x.s.available) || team.find(x => !x.s.busy);
     if (best && !$('#ntWho').value) $('#ntWho').value = best.u.uid;
-    $('#ntSuggest').textContent = best ? tx(`Suggested: ${best.u.name}`) + (best.s.available ? ' 🟢🏠' : ' 🟢') : tx('Everyone is busy right now');
+    $('#ntSuggest').textContent = best ? tx(`Suggested: ${best.u.name}`) + ' 🟢' : tx('Everyone is busy right now');
   };
   const drawPhoto = () => { $('#ntPhoto').innerHTML = photo.data ? `<img src="${photo.data}" alt=""><button type="button" class="pbtn" id="ntPh">Change</button><button type="button" class="pdel" id="ntPhDel">Remove</button>` : `<button type="button" class="pbtn" id="ntPh">📷 Add photo</button>`;
     $('#ntPh').onclick = () => pickPhoto(false, d => { photo.data = d; drawPhoto(); }); $('#ntPhDel') && ($('#ntPhDel').onclick = () => { photo.data = null; drawPhoto(); }); };
@@ -1904,12 +1889,6 @@ async function mainClick(ev) {
   const us = t.closest('[data-ustat]'); if (us) return setUserStatus(us.dataset.uid, us.dataset.ustat);
   const ur = t.closest('[data-urole]'); if (ur) return setUserRole(ur.dataset.uid, ur.dataset.urole);
   if (t.closest('#signOutBtn')) return api.signOut();
-  if (t.closest('#setHomeBtn')) {
-    if (!navigator.geolocation) return toast('Location not available on this phone');
-    toast('Finding location…');
-    return navigator.geolocation.getCurrentPosition(pos => api.saveSettings({home: {lat: pos.coords.latitude, lng: pos.coords.longitude, r: HOME_R}}).then(() => toast('Home location saved')).catch(e => toast(errText(e))),
-      () => toast('Location not allowed. Allow it in phone settings.'), {enableHighAccuracy: true, timeout: 20000});
-  }
   if (t.closest('#notifBtn')) { try { const r = await Notification.requestPermission(); toast(r === 'granted' ? 'Alerts on' : 'Alerts not allowed'); } catch {} return render(); }
   if (t.closest('#renameBtn')) { const n = prompt('Your name', S.me.name); if (n && n.trim()) api.updateUser(S.user.uid, {name: n.trim()}).then(() => toast('Name updated')).catch(e => toast(errText(e))); return; }
   const td = t.closest('[data-tday]'); if (td) { const n = +td.dataset.tday; S.taskDay = n === 0 ? today() : addDays(S.taskDay, n); return render(); }
