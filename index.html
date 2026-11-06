@@ -677,7 +677,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '7 · languages';
+const APP_VERSION = '8 · languages';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1396,7 +1396,7 @@ const LANGS = [['', 'Original'], ['en', 'English'], ['gu', 'ગુજરાત�
 const TR = (() => { try { return JSON.parse(localStorage.getItem('trCache') || '{}'); } catch { return {}; } })();
 const trKey = (tl, txt) => tl + '|' + txt;
 let trSaveT;
-function trLang() { const d = APPLANG === 'gu' ? 'gu' : APPLANG === 'hn' ? '' : 'en'; try { return localStorage.getItem('tLang') ?? d; } catch { return d; } }
+function trLang() { return APPLANG === 'gu' ? 'gu' : APPLANG === 'hn' ? '' : 'en'; }
 function trLink(tl, txt) { return `https://translate.google.com/?sl=auto&tl=${tl}&text=${encodeURIComponent(txt)}&op=translate`; }
 const trPending = new Set();
 async function translate(tl, txt) {
@@ -1491,7 +1491,6 @@ function renderTasks() {
   const label = isToday ? 'Today' : d === addDays(t, 1) ? 'Tomorrow' : d === addDays(t, -1) ? 'Yesterday' : '';
   $('#main').innerHTML = `
     <div class="daynav"><button data-tday="-1" aria-label="Previous day">‹</button><span>${label ? label + ' · ' : ''}${prettyDate(d)}</span><button data-tday="1" aria-label="Next day">›</button></div>
-    <div class="langs"><small>Show in</small>${LANGS.map(([c, l]) => `<button class="chip ${trLang() === c ? 'on' : ''}" data-tlang="${c}">${l}</button>`).join('')}</div>
     <div class="stats three">
       <div class="stat ${open.length ? 'warn' : ''}"><small>To do</small><b>${open.length}</b></div>
       <div class="stat"><small>Check</small><b style="color:var(--amber)">${review.length}</b></div>
@@ -1564,13 +1563,7 @@ function openTask(id) {
       ${st === 'done' && S.isAdmin ? `<button class="btn sec" id="tReopen">Reopen task</button>` : ''}
       ${canEdit ? `<button class="btn dan" id="tDel">Delete task</button>` : ''}
     </div>`);
-  (async () => {
-    const box = $('#tTrans'); if (!box) return;
-    const rows = await Promise.all([['en', 'English'], ['gu', 'ગુજરાતી'], ['hi', 'हिन्दी']].map(async ([c, l]) => [c, l, await translate(c, t.title)]));
-    if (!$('#tTrans')) return;
-    const ok = rows.filter(([, , r]) => r && !r.err && r.t && r.t.toLowerCase() !== t.title.toLowerCase());
-    box.innerHTML = ok.map(([, l, r]) => `<div class="kv"><span>${l}</span><span class="tr" style="margin:0" data-nt>${esc(r.t)}</span></div>`).join('');
-  })();
+  { const box = $('#tTrans'); if (box) box.innerHTML = trLine(t.title); }
   if (t.hasVoice) loadPlayer('pv1', 'tv_' + t.id, '🎤 Voice note');
   if (t.declineVoice && st === 'open') loadPlayer('pv2', 'tdv_' + t.id, '🎤 Instructions');
   if (t.hasPhoto) api.getPhoto('tp_' + t.id).then(p => { const el = $('#tpSlot'); if (el) el.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="">` : '<p class="hint" style="margin:0">Photo still uploading.</p>'; }).catch(() => {});
