@@ -363,6 +363,12 @@ b.working{color:var(--amber)}
 .ckrow{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px dashed var(--line)}
 .ckrow span,.ck span{flex:1;min-width:0}.ckrow small{margin-left:0}
 .addck{grid-template-columns:1fr auto;margin-top:10px;align-items:center}
+.addck3{display:grid;grid-template-columns:1fr 86px auto;gap:6px;margin-top:10px;align-items:center}
+.ckhead{display:grid;grid-template-columns:1fr 86px 32px;gap:6px;font-size:11.5px;color:var(--muted);font-weight:650;margin:0 2px 4px}
+.ckrow3{display:grid;grid-template-columns:1fr 86px 32px;gap:6px;margin-bottom:6px;align-items:center}
+.ckrow3 .field{padding:9px 10px}
+.ck .qty{margin-left:auto;font-weight:700;color:var(--ink);background:var(--grid);border-radius:999px;padding:2px 10px;font-size:14px;white-space:nowrap}
+.ck.on .qty{opacity:.5}
 </style>
 </head>
 <body>
@@ -652,7 +658,8 @@ const D = {
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
   'Muhurat': ['Muhurat', 'મુહૂર્ત'], '📅 Add reminder to phone calendar': ['📅 Phone calendar mein reminder lagao', '📅 ફોન કૅલેન્ડરમાં રિમાઇન્ડર મૂકો'], 'Samagri checklist': ['Samagri list', 'સામગ્રી યાદી'],
-  'No items yet. Add them below.': ['Abhi koi saaman nahi. Neeche jodo.', 'હજુ કોઈ વસ્તુ નથી. નીચે ઉમેરો.'], 'Add item, e.g. Diya': ['Saaman jodo, jaise Diya', 'વસ્તુ ઉમેરો, દા.ત. દીવો'], '+ Add': ['+ Jodo', '+ ઉમેરો'],
+  'No items yet. Add them below.': ['Abhi koi saaman nahi. Neeche jodo.', 'હજુ કોઈ વસ્તુ નથી. નીચે ઉમેરો.'], 'Add item, e.g. Diya': ['Saaman jodo, jaise Diya', 'વસ્તુ ઉમેરો, દા.ત. દીવો'], 'Item, e.g. Diya': ['Saaman, jaise Diya', 'વસ્તુ, દા.ત. દીવો'],
+  'Write the item and its quantity (e.g. 11, 1 bowl, 250 g), then tap + Add.': ['Saaman aur matra likho (jaise 11, 1 katori, 250 g), phir + Jodo dabao.', 'વસ્તુ અને જથ્થો લખો (દા.ત. 11, 1 વાટકી, 250 g), પછી + ઉમેરો દબાવો.'], '+ Add': ['+ Jodo', '+ ઉમેરો'],
   '📋 Copy for another date': ['📋 Doosri tareekh ke liye copy', '📋 બીજી તારીખ માટે કૉપી'], 'Copy pooja': ['Pooja copy', 'પૂજા કૉપી'], 'New pooja': ['Nayi pooja', 'નવી પૂજા'], 'Edit pooja': ['Pooja badlo', 'પૂજા સુધારો'],
   'Pooja name': ['Pooja ka naam', 'પૂજાનું નામ'], 'e.g. Lakshmi Pooja': ['jaise Lakshmi Pooja', 'દા.ત. લક્ષ્મી પૂજા'], 'Muhurat from': ['Muhurat se', 'મુહૂર્ત થી'],
   'Type an item and tap + Add (or press Enter). Add quantity after a dash, e.g. "Diya - 11".': ['Saaman likho aur + Jodo dabao. Matra dash ke baad, jaise "Diya - 11".', 'વસ્તુ લખી + ઉમેરો દબાવો. જથ્થો ડૅશ પછી, દા.ત. "દીવો - 11".'],
@@ -774,7 +781,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '16 · pooja';
+const APP_VERSION = '17 · pooja qty';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1373,7 +1380,7 @@ function openPooja(id) {
   const list = (p.checklist || []).map(i => ({...i}));
   const canDel = S.isAdmin || p.createdBy === S.user.uid;
   const draw = () => { const r = list.filter(i => i.done).length;
-    $('#pjList').innerHTML = (list.length ? list.map((i, k) => `<label class="ck ${i.done ? 'on' : ''}"><input type="checkbox" data-ck="${k}" ${i.done ? 'checked' : ''}><span data-nt>${esc(i.name)}</span>${i.qty ? `<small data-nt>${esc(i.qty)}</small>` : ''}</label>`).join('') : `<p class="hint">No items yet. Add them below.</p>`);
+    $('#pjList').innerHTML = (list.length ? list.map((i, k) => `<label class="ck ${i.done ? 'on' : ''}"><input type="checkbox" data-ck="${k}" ${i.done ? 'checked' : ''}><span data-nt>${esc(i.name)}</span><b class="qty" data-nt>${esc(i.qty || '–')}</b></label>`).join('') : `<p class="hint">No items yet. Add them below.</p>`);
     $('#pjCount').textContent = list.length ? `${r}/${list.length} ready` : ''; };
   openSheet(`<div class="sh-head"><button data-close>Close</button><h2>🪔 Pooja</h2><button id="pjEdit">Edit</button></div>
     <div class="sh-body">
@@ -1383,15 +1390,17 @@ function openPooja(id) {
         ${p.note ? `<div class="kv"><span>Notes</span><span data-nt>${esc(p.note)}</span></div>` : ''}</div>
       <button class="btn sec" id="pjCal">📅 Add reminder to phone calendar</button>
       <div class="fgroup"><div class="ptitle"><h3 style="margin:0">Samagri checklist</h3><b id="pjCount" class="hint" style="margin:0"></b></div><div id="pjList" style="margin-top:8px"></div>
-        <div class="row2 addck"><input class="field" id="pjNew" placeholder="Add item, e.g. Diya" autocomplete="off" enterkeyhint="done"><button type="button" class="sbtn" id="pjAdd">+ Add</button></div></div>
+        <div class="addck3"><input class="field" id="pjNew" placeholder="Item, e.g. Diya" autocomplete="off" enterkeyhint="next"><input class="field" id="pjQty" placeholder="Qty" autocomplete="off" enterkeyhint="done"><button type="button" class="sbtn" id="pjAdd">+ Add</button></div></div>
       <button class="btn sec" id="pjCopy">📋 Copy for another date</button>
       ${canDel ? `<button class="btn dan" id="pjDel">Delete</button>` : ''}
     </div>`);
   draw();
   const persist = () => { p.checklist = list; savePooja(p); };
   $('#pjList').onchange = ev => { const k = ev.target.dataset.ck; if (k == null) return; list[+k].done = ev.target.checked; list[+k].doneBy = S.me.name; draw(); persist(); };
-  const addItem = () => { const v = $('#pjNew').value.trim(); if (!v) return; list.push({name: v, done: false}); $('#pjNew').value = ''; draw(); persist(); $('#pjNew').focus(); };
-  $('#pjAdd').onclick = addItem; $('#pjNew').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); addItem(); } };
+  const addItem = () => { const v = $('#pjNew').value.trim(); if (!v) return; list.push({name: v, qty: $('#pjQty').value.trim(), done: false}); $('#pjNew').value = ''; $('#pjQty').value = ''; draw(); persist(); $('#pjNew').focus(); };
+  $('#pjAdd').onclick = addItem;
+  $('#pjNew').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); $('#pjQty').focus(); } };
+  $('#pjQty').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); addItem(); } };
   $('#pjEdit').onclick = () => openPoojaForm(p);
   $('#pjCal').onclick = () => poojaICS(p);
   $('#pjCopy').onclick = () => openPoojaForm({...p, id: null, date: '', checklist: list.map(i => ({name: i.name, qty: i.qty || '', done: false}))}, true);
@@ -1408,22 +1417,27 @@ function openPoojaForm(existing, copy) {
         <div class="row2" style="margin-top:10px"><div><label class="flabel">Muhurat from</label><input type="time" class="field" id="pfStart" value="${p.start || ''}"></div>
           <div><label class="flabel">To</label><input type="time" class="field" id="pfEnd" value="${p.end || ''}"></div></div></div>
       <div class="fgroup"><h3 style="margin:0 0 8px">Samagri checklist</h3><div id="pfList"></div>
-        <div class="row2 addck"><input class="field" id="pfNew" placeholder="Add item, e.g. Diya" autocomplete="off" enterkeyhint="done"><button type="button" class="sbtn" id="pfAdd">+ Add</button></div>
-        <p class="hint">Type an item and tap + Add (or press Enter). Add quantity after a dash, e.g. "Diya - 11".</p></div>
+        <div class="addck3"><input class="field" id="pfNew" placeholder="Item, e.g. Diya" autocomplete="off" enterkeyhint="next"><input class="field" id="pfQty" placeholder="Qty" autocomplete="off" enterkeyhint="done"><button type="button" class="sbtn" id="pfAdd">+ Add</button></div>
+        <p class="hint">Write the item and its quantity (e.g. 11, 1 bowl, 250 g), then tap + Add.</p></div>
       <div class="fgroup"><label class="flabel">Notes (optional)</label><textarea class="field" id="pfNote" rows="2" placeholder="Anything to remember">${esc(p.note || '')}</textarea></div>
       <button class="btn pri" id="pfSave2">Save</button>
     </div>`);
-  const draw = () => { $('#pfList').innerHTML = list.map((i, k) => `<div class="ckrow"><span data-nt>${esc(i.name)}</span>${i.qty ? `<small data-nt>${esc(i.qty)}</small>` : ''}<button type="button" class="i-del" data-rm="${k}">×</button></div>`).join(''); };
+  const draw = () => { $('#pfList').innerHTML = list.length ? `<div class="ckhead"><span>Item</span><span>Qty</span><span></span></div>` + list.map((i, k) => `<div class="ckrow3"><input class="field ck-n" data-k="${k}" value="${esc(i.name)}"><input class="field ck-q" data-k="${k}" value="${esc(i.qty || '')}" placeholder="–"><button type="button" class="i-del" data-rm="${k}">×</button></div>`).join('') : ''; };
   draw();
   $('#pfList').onclick = ev => { const b = ev.target.closest('[data-rm]'); if (b) { list.splice(+b.dataset.rm, 1); draw(); } };
-  const addItem = () => { const v = $('#pfNew').value.trim(); if (!v) return; const [name, qty] = v.split(/\s+-\s+/); list.push({name: name.trim(), qty: (qty || '').trim(), done: false}); $('#pfNew').value = ''; draw(); $('#pfNew').focus(); };
-  $('#pfAdd').onclick = addItem; $('#pfNew').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); addItem(); } };
+  $('#pfList').oninput = ev => { const k = ev.target.dataset.k; if (k == null) return; if (ev.target.classList.contains('ck-n')) list[+k].name = ev.target.value; else list[+k].qty = ev.target.value; };
+  const addItem = () => { let name = $('#pfNew').value.trim(), qty = $('#pfQty').value.trim(); if (!name) return;
+    if (!qty && / - /.test(name)) [name, qty] = name.split(/\s+-\s+/).map(x => x.trim());
+    list.push({name, qty, done: false}); $('#pfNew').value = ''; $('#pfQty').value = ''; draw(); $('#pfNew').focus(); };
+  $('#pfAdd').onclick = addItem;
+  $('#pfNew').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); $('#pfQty').focus(); } };
+  $('#pfQty').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); addItem(); } };
   setTimeout(() => (isNew && !copy ? $('#pfName') : copy ? $('#pfDate') : null)?.focus(), 350);
   const save = () => {
     if ($('#pfNew').value.trim()) addItem();
     const name = $('#pfName').value.trim(), date = $('#pfDate').value;
     if (!name) return toast('Write the pooja name'); if (!date) return toast('Pick the date');
-    const out = {...p, name, date, start: $('#pfStart').value, end: $('#pfEnd').value, note: $('#pfNote').value.trim(), checklist: list};
+    const out = {...p, name, date, start: $('#pfStart').value, end: $('#pfEnd').value, note: $('#pfNote').value.trim(), checklist: list.map(i => ({...i, name: (i.name || '').trim(), qty: (i.qty || '').trim()})).filter(i => i.name)};
     if (!out.id) Object.assign(out, {id: api.newId(), createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name});
     savePooja(out); closeSheet(); toast('Saved');
   };
