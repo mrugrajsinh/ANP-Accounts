@@ -110,7 +110,7 @@ input[type=date].field{min-height:44px}
 
 .irow{border-top:1px dashed var(--line);padding:10px 0}
 .irow:first-of-type{border-top:0;padding-top:2px}
-.igrid{display:grid;grid-template-columns:1fr 1fr 1.2fr 1.3fr 32px;gap:6px;margin-top:6px;align-items:end}
+.igrid{display:grid;grid-template-columns:1fr 1.1fr 1.6fr 32px;gap:6px;margin-top:6px;align-items:end}
 .igrid label span{display:block;font-size:11px;color:var(--muted);font-weight:600;margin:0 0 2px 2px}
 .igrid .field{padding:9px 8px}
 .i-del{width:32px;height:40px;border-radius:10px;color:var(--red);font-size:22px}
@@ -143,6 +143,14 @@ table.items .a{text-align:right;font-weight:600;font-variant-numeric:tabular-num
 .kv span:first-child{color:var(--muted);flex:none}
 .kv span:last-child{text-align:right;font-weight:550;word-break:break-all}
 .bigphoto{width:100%;border-radius:12px;display:block}
+.stat.danger{background:#fdecea;border-color:#f3b8b0}.stat.danger small,.stat.danger b{color:#b3261e}
+tr.notback td{background:#fdf1ef}tr.notback td:first-child{box-shadow:inset 4px 0 0 #c62828}
+.bulkbtn{margin:0 0 8px}
+.scard.urgent{border-color:#f3b8b0;box-shadow:inset 4px 0 0 #c62828}
+.bk-row{display:flex;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line)}.bk-row:last-child{border-bottom:0}
+.bk-row input{width:22px;height:22px;flex:none;accent-color:var(--accent)}.bk-row .main{flex:1;min-width:0}.bk-row .t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bk-row .s{font-size:13px;color:var(--muted)}.bk-row b{flex:none}
+.bk-group{display:flex;align-items:center;justify-content:space-between;margin:14px 2px 2px;font-weight:700}.bk-group label{display:flex;align-items:center;gap:8px}.bk-group input{width:20px;height:20px;accent-color:var(--accent)}
+.bk-foot{position:sticky;bottom:0;background:var(--bg);padding:10px 0 4px}
 .recite{white-space:pre-wrap;font-size:18px;line-height:1.65;background:#fff8ec;border:1px solid #f0dcb8;border-radius:12px;padding:12px 14px;margin:6px 0 10px}
 .rpics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.rpics .rp{position:relative}.rpics img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;display:block}
 .rpics .rp .pdel{position:absolute;right:6px;bottom:6px;padding:5px 10px;font-size:12px;background:rgba(255,255,255,.92);border-radius:14px}
@@ -492,7 +500,8 @@ function demoAPI() {
   users['u-admin'] = {name: 'Mrugraj', email: me.email, status: 'approved', role: 'admin', createdAt: Date.now()};
   users['u-papa'] = {name: 'Papa', email: 'papa@example.com', status: 'approved', role: 'admin', createdAt: Date.now()};
   users['u-2'] = {name: 'Mummy', email: 'mummy@example.com', status: 'approved', role: 'member', createdAt: Date.now()};
-  users['u-ram'] = {name: 'Ramesh (worker)', email: 'ramesh@example.com', status: 'approved', role: 'member', createdAt: Date.now()};
+  users['u-ram'] = {name: 'Ramesh (worker)', email: 'ramesh@example.com', status: 'approved', role: 'staff', createdAt: Date.now()};
+  if (new URLSearchParams(location.search).get('demo') === 'staff') Object.assign(me, {uid: 'u-ram', email: 'ramesh@example.com', name: 'Ramesh (worker)'});
   users['u-3'] = {name: 'Ravi (driver)', email: 'ravi@example.com', status: 'pending', role: 'member', createdAt: Date.now()};
   const G = [['AAA battery', 'pcs', 10], ['Atta', 'kg', 42], ['Toor dal', 'kg', 155], ['Sugar', 'kg', 46], ['Oil', 'L', 165], ['Soap', 'pcs', 45], ['Tea', 'pack', 120], ['Rice', 'kg', 70]];
   const V = [['Tomato', 'kg', 30], ['Onion', 'kg', 35], ['Potato', 'kg', 28], ['Bhindi', 'kg', 60], ['Coriander', 'pcs', 10], ['Lemon', 'pcs', 5], ['Cucumber', 'kg', 40]];
@@ -663,7 +672,12 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], '📖 What to recite': ['📖 Kya padhna hai', '📖 શું બોલવું / વાંચવું'], 'Book / reference': ['Kitaab / reference', 'પુસ્તક / સંદર્ભ'], 'Book / reference (optional)': ['Kitaab / reference (optional)', 'પુસ્તક / સંદર્ભ (વૈકલ્પિક)'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'My tasks': ['Mera kaam', 'મારાં કામ'], 'Staff': ['Staff', 'સ્ટાફ'], 'Family': ['Parivaar', 'પરિવાર'], 'Approve family': ['Parivaar mein jodo', 'પરિવાર તરીકે મંજૂર'], 'Approve staff': ['Staff mein jodo', 'સ્ટાફ તરીકે મંજૂર'],
+  'Make staff': ['Staff banao', 'સ્ટાફ બનાવો'], 'Make family': ['Parivaar banao', 'પરિવાર બનાવો'], '▶ Start': ['▶ Shuru karo', '▶ શરૂ કરો'], '⏸ Not started': ['⏸ Abhi shuru nahi', '⏸ હજી શરૂ નથી'], '📷 Done': ['📷 Ho gaya', '📷 થઈ ગયું'],
+  'Sent': ['Bhej diya', 'મોકલ્યું'], 'No work right now. 🙏': ['Abhi koi kaam nahi. 🙏', 'હમણાં કોઈ કામ નથી. 🙏'], 'Coming days': ['Aane wale din', 'આવતા દિવસો'], 'Sent ✓ Task done': ['Bhej diya ✓ Kaam ho gaya', 'મોકલ્યું ✓ કામ થઈ ગયું'],
+  "After sending, this task closes for you. If the photo isn't clear, it will come back to you to redo.": ['Bhejne ke baad yeh kaam band ho jayega. Photo saaf nahi hui to dobara karne ke liye wapas aayega.', 'મોકલ્યા પછી આ કામ બંધ થશે. ફોટો સાફ ન હોય તો ફરી કરવા પાછું આવશે.'], 'Price ₹': ['Daam ₹', 'કિંમત ₹'], 'Price': ['Daam', 'કિંમત'], 'last': ['pichhli baar', 'છેલ્લે'], 'Others (optional)': ['Aur (optional)', 'બીજું (વૈકલ્પિક)'], 'Other': ['Aur', 'બીજું'],
+  '+ Add another other': ['+ Aur jodo', '+ બીજું ઉમેરો'], 'e.g. Curtain, starch': ['jaise parda, maad', 'દા.ત. પડદો, આર'], 'Mark many as paid': ['Ek saath paid karo', 'એકસાથે ચૂકવ્યું કરો'], 'Select entries to pay': ['Paid karne wali entry chuno', 'ચૂકવવાની એન્ટ્રી પસંદ કરો'],
+  'No due date': ['Koi due date nahi', 'કોઈ તારીખ નથી'], 'Overdue': ['Der ho gayi', 'મોડું'], '📖 What to recite': ['📖 Kya padhna hai', '📖 શું બોલવું / વાંચવું'], 'Book / reference': ['Kitaab / reference', 'પુસ્તક / સંદર્ભ'], 'Book / reference (optional)': ['Kitaab / reference (optional)', 'પુસ્તક / સંદર્ભ (વૈકલ્પિક)'],
   'Mantra / path / aarti (optional)': ['Mantra / path / aarti (optional)', 'મંત્ર / પાઠ / આરતી (વૈકલ્પિક)'], 'Write or paste the verses here': ['Shlok yahan likho ya paste karo', 'શ્લોક અહીં લખો અથવા પેસ્ટ કરો'], 'e.g. Shri Suktam, page 12': ['jaise Shri Suktam, page 12', 'દા.ત. શ્રી સૂક્તમ, પાનું 12'],
   'You can add photos of the book pages after saving, on the pooja page.': ['Save karne ke baad pooja page par kitaab ke panno ki photo jod sakte ho.', 'સેવ કર્યા પછી પૂજાના પેજ પર પુસ્તકનાં પાનાંના ફોટા ઉમેરી શકો.'],
   '📸 Photo of the setup when done (optional)': ['📸 Taiyaar sajawat ki photo (optional)', '📸 તૈયાર ગોઠવણનો ફોટો (વૈકલ્પિક)'], 'Photos of verse / book pages (optional)': ['Shlok / kitaab ke panno ki photo (optional)', 'શ્લોક / પુસ્તકનાં પાનાંના ફોટા (વૈકલ્પિક)'], 'Tap Edit to write the mantra, path or book name.': ['Mantra, path ya kitaab ka naam likhne ke liye Edit dabao.', 'મંત્ર, પાઠ કે પુસ્તકનું નામ લખવા Edit દબાવો.'], '📷 Add photo of verse / book page': ['📷 Shlok / kitaab ke panne ki photo jodo', '📷 શ્લોક / પુસ્તકના પાનાનો ફોટો ઉમેરો'],
@@ -793,7 +807,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '21 · setup photo in form';
+const APP_VERSION = '22 · staff, bulk pay';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -808,8 +822,8 @@ function returnState(e) {
   const g = ironCounts(e), given = g.wash + g.iron, back = num(e.retWash) + num(e.retIron);
   if (!given) return {txt: '', cls: ''};
   if (back >= given) return {txt: `Returned ${e.retOn ? shortDate(e.retOn) : ''}`, cls: 'b-paid', done: true};
-  if (back > 0) return {txt: `Returned ${back}/${given}`, cls: 'b-credit'};
-  return {txt: 'Not returned', cls: 'b-mute'};
+  if (back > 0) return {txt: `Returned ${back}/${given}`, cls: 'b-over'};
+  return {txt: 'Not returned', cls: 'b-over'};
 }
 
 /* ================= state ================= */
@@ -833,7 +847,7 @@ function itemHistory(book) {
   const items = new Map();
   for (const e of S.entries) if (bookOf(e) === book) for (const i of e.items || []) {
     const k = (i.name || '').trim().toLowerCase();
-    if (k && !items.has(k)) items.set(k, {name: i.name.trim(), rate: i.rate, unit: i.unit});
+    if (k && !items.has(k)) items.set(k, {name: i.name.trim(), rate: i.rate, unit: i.unit, qty: i.qty, amount: i.amount});
   }
   $('#dl-items').innerHTML = [...items.values()].map(i => `<option value="${esc(i.name)}">`).join('');
   return items;
@@ -874,6 +888,9 @@ function onUser(user) {
     }
     S.me = doc;
     S.isAdmin = S.isOwner || doc.role === 'admin';
+    S.isStaff = !S.isAdmin && doc.role === 'staff';
+    if (S.started && S.wasStaff !== undefined && S.wasStaff !== S.isStaff) return location.reload();
+    S.wasStaff = S.isStaff;
     if (S.isAdmin || doc.status === 'approved') { if (!S.started) startApp(); else render(); }
     else if (doc.status === 'pending') { S.started = false; screenMsg('Waiting for approval', `Hi <b>${esc(doc.name)}</b>, your account is created.<br>Ask the admin to approve you. This screen opens by itself once approved.`, true); }
     else { S.started = false; screenMsg('Access removed', 'The admin has removed your access. Contact them if this is a mistake.', true); }
@@ -943,12 +960,12 @@ function startApp() {
   <main class="wrap" id="main"></main>
   <button class="fab hidden" id="fab" aria-label="Add">+</button>
   <nav><div class="wrap">
-    ${[['home', 'Home'], ['tasks', 'Tasks'], ['dash', 'Dashboard'], ['more', S.isAdmin ? 'Users' : 'Account']].map(([v, l]) =>
+    ${(S.isStaff ? [['tasks', 'My tasks'], ['more', 'Account']] : [['home', 'Home'], ['tasks', 'Tasks'], ['dash', 'Dashboard'], ['more', S.isAdmin ? 'Users' : 'Account']]).map(([v, l]) =>
       `<button data-view="${v}"><span id="dot-${v}" class="dot hidden"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[v]}</svg>${l}</button>`).join('')}
   </div></nav>`;
   document.querySelector('nav').onclick = ev => { const b = ev.target.closest('[data-view]'); if (b) { S.view = b.dataset.view; render(); scrollTo(0, 0); } };
   $('#backBtn').onclick = () => { S.view = 'home'; S.q = ''; $('#search').value = ''; render(); scrollTo(0, 0); };
-  $('#fab').onclick = () => S.view === 'tasks' ? openTaskForm() : S.view === 'pooja' ? openPoojaForm() : KINDS[S.view] ? openThingForm(null, false, S.view) : openForm(null, S.book);
+  $('#fab').onclick = () => S.view === 'tasks' ? openTaskForm() : openForm(null, S.book);
   $('#xlBtn').onclick = exportExcel;
   $('#mPrev').onclick = () => { S.month = monthStart(S.month + '-01', 1).slice(0, 7); ensureMonth(); render(); };
   $('#mNext').onclick = () => { S.month = monthStart(S.month + '-01', -1).slice(0, 7); ensureMonth(); render(); };
@@ -957,10 +974,16 @@ function startApp() {
   $('#main').addEventListener('change', mainChange);
 
   const err = e => toast(errText(e));
+  if (S.isStaff) {
+    S.view = 'tasks'; S.entries = []; S.users = []; S.settings = {};
+    startPresence();
+    const mergeT = () => { S.taskList = [...new Map([...S.tLive, ...S.tOpen]).values()]; taskAlerts(); render(); };
+    S.unsub.push(api.watchTasks(S.since, l => { S.tLive = new Map(l.map(t => [t.id, t])); mergeT(); }, err));
+    S.unsub.push(api.watchOpenTasks(l => { S.tOpen = new Map(l.map(t => [t.id, t])); mergeT(); }, err));
+    return render();
+  }
   S.unsub.push(api.watchEntries(S.since, list => { S.live = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
   S.unsub.push(api.watchCredits(list => { S.credits = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
-  S.lists = {things: [], guide: [], pooja: []}; S.thingRoom = {};
-  for (const k of ['things', 'guide', 'pooja']) S.unsub.push(api.watchBook(k, list => { S.lists[k] = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); if (k === 'pooja' && !S.pjChecked) { S.pjChecked = true; poojaReminder(); } if (S.view === k || S.view === 'home') render(); }, err));
   S.unsub.push(api.watchUsers(list => { S.users = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); render(); }, () => {}));
   S.unsub.push(api.watchSettings(d => { S.settings = d || {}; render(); }, () => {}));
   S.presence = new Map();
@@ -987,16 +1010,17 @@ function updateSync() {
 
 function render() {
   if (!S.started || !$('#main')) return;
-  const v = S.view, inBook = v === 'book', isK = !!KINDS[v], sub = inBook || isK || v === 'pooja';
+  if (S.isStaff && S.view !== 'tasks' && S.view !== 'more') S.view = 'tasks';
+  const v = S.view, inBook = v === 'book', sub = inBook;
   document.querySelectorAll('nav [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v || (sub && b.dataset.view === 'home')));
-  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'ANP Accounts', tasks: 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account', things: 'Where is it?', guide: 'How it works', pooja: 'Pooja'}[v];
+  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'ANP Accounts', tasks: S.isStaff ? 'My tasks' : 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account'}[v];
   $('#backBtn').classList.toggle('hidden', !sub);
   $('#monthnav').classList.toggle('hidden', !inBook);
-  $('#search').classList.toggle('hidden', !(inBook && S.book !== 'iron') && !isK);
-  $('#search').placeholder = isK ? tx(KINDS[v].search) : tx('Search item…');
+  $('#search').classList.toggle('hidden', !(inBook && S.book !== 'iron'));
+  $('#search').placeholder = tx('Search item…');
   $('#xlBtn').classList.toggle('hidden', v !== 'dash');
   $('#hdrLang').classList.toggle('hidden', v !== 'home');
-  $('#fab').classList.toggle('hidden', !(sub || v === 'tasks'));
+  $('#fab').classList.toggle('hidden', !(sub || (v === 'tasks' && !S.isStaff)));
   $('#mLabel').textContent = monthLabel(S.month);
   const act = myTaskActions().length;
   $('#dot-tasks').textContent = act; $('#dot-tasks').classList.toggle('hidden', !act);
@@ -1004,9 +1028,8 @@ function render() {
   $('#dot-more').textContent = pendingUsers; $('#dot-more').classList.toggle('hidden', !pendingUsers);
   updateSync();
   if (v === 'dash') return renderDash();
-  if (v === 'tasks') return renderTasks();
-  $('#main').innerHTML = v === 'home' ? homeHTML() : v === 'pooja' ? poojaHTML() : isK ? thingsHTML(v) : inBook ? (S.book === 'iron' ? ironHTML() : bookHTML()) : moreHTML();
-  if (isK) loadThumbs();
+  if (v === 'tasks') return S.isStaff ? renderStaffTasks() : renderTasks();
+  $('#main').innerHTML = v === 'home' ? homeHTML() : inBook ? (S.book === 'iron' ? ironHTML() : bookHTML()) : moreHTML();
 }
 
 /* ================= home ================= */
@@ -1020,20 +1043,13 @@ function homeHTML() {
     const b = BOOKS[k], all = S.entries.filter(e => bookOf(e) === k), mon = all.filter(e => e.date.startsWith(m));
     const due = sum(all.filter(isPending), total);
     let extra = '';
-    if (k === 'iron') { const nr = all.filter(e => !returnState(e).done && returnState(e).txt).reduce((t, e) => { const g = ironCounts(e); return t + g.wash + g.iron - num(e.retWash) - num(e.retIron); }, 0); if (nr > 0) extra = `<span class="badge b-mute">${nr} clothes not returned</span>`; }
+    if (k === 'iron') { const nr = all.filter(e => !returnState(e).done && returnState(e).txt).reduce((t, e) => { const g = ironCounts(e); return t + g.wash + g.iron - num(e.retWash) - num(e.retIron); }, 0); if (nr > 0) extra = `<span class="badge b-over">${nr} clothes not returned</span>`; }
     return `<button class="bookbtn" data-book="${k}">
       <span class="bicon">${b.icon}</span>
       <span class="bmain"><span class="bname">${b.name}</span><span class="bsub">This month <b>${money(sum(mon, total))}</b></span>
         <span class="bbadges">${due ? `<span class="badge b-credit">${money(due)} to pay</span>` : ''}${extra}</span></span>
       <span class="chev">›</span></button>`;
   }).join('')}</div>
-  <button class="bookbtn" data-goto="things"><span class="bicon thing">🔎</span><span class="bmain"><span class="bname">Where is it?</span>
-      <span class="bsub">${(S.lists?.things || []).length} things saved</span></span><span class="chev">›</span></button>
-  ${(() => { const n = nextPooja(); return `<button class="bookbtn" data-goto="pooja"><span class="bicon pooja">🪔</span><span class="bmain"><span class="bname">Pooja</span>
-      <span class="bsub">${n ? `Next: <b data-nt>${esc(n.name)}</b> · ${shortDate(n.date)}${n.start ? ' ' + fmtTime(n.start) : ''}` : 'Dates, muhurat & samagri checklist'}</span>
-      ${n && inDays(n.date) && daysBetween(today(), n.date) <= 7 ? `<span class="bbadges"><span class="badge ${daysBetween(today(), n.date) === 0 ? 'b-over' : 'b-credit'}">${inDays(n.date)}</span></span>` : ''}</span><span class="chev">›</span></button>`; })()}
-  <button class="bookbtn" data-goto="guide"><span class="bicon guide">💡</span><span class="bmain"><span class="bname">How it works</span>
-      <span class="bsub">Lights, geyser, steam, sauna, shower…</span></span><span class="chev">›</span></button>
   ${acts ? `<button class="bookbtn small" data-goto="tasks"><span class="bicon">✅</span><span class="bmain"><span class="bname">${acts} task${acts === 1 ? '' : 's'} need you</span><span class="bsub">Open Tasks</span></span><span class="chev">›</span></button>` : ''}`;
 }
 
@@ -1066,6 +1082,7 @@ function bookHTML() {
     <div class="stat wide"><div><small>${BOOKS[k].name} · ${monthLabel(S.month)}</small><b>${money(st.t)}</b></div><small>${mon.length} entr${mon.length === 1 ? 'y' : 'ies'}</small></div>
     <div class="stat"><small>Paid</small><b>${money(st.paid)}</b></div>
     <div class="stat ${due ? 'warn' : ''}"><small>Credit to pay (all)</small><b>${money(due)}</b></div></div>
+  ${bulkBtn(all)}
   <div class="chips">${[['all', 'All'], ['paid', 'Paid'], ['credit', 'Credit pending']].map(([f, l]) => `<button class="chip ${S.filter === f ? 'on' : ''}" data-filter="${f}">${l}</button>`).join('')}</div>`;
   if (!list.length) return html + `<div class="empty"><div class="big">${BOOKS[k].icon}</div>${q ? 'Nothing matches that search.' : 'Nothing written this month.<br>Tap <b>+</b> to add.'}</div>`;
   const groups = new Map();
@@ -1073,7 +1090,7 @@ function bookHTML() {
   for (const [date, es] of groups) {
     html += `<div class="dhead"><span>${date === today() ? 'Today · ' : ''}${prettyDate(date)}</span><b>${money(sum(es, total))}</b></div>`;
     html += es.map(e => `<button class="card" data-open="${e.id}">
-      <div class="main">${(e.items || []).map(i => `<div class="line"><span data-nt>${esc(i.name)}</span><span class="q">${+i.qty || 0} ${esc(i.unit || '')} × ${money(i.rate)}${rateUnit(i.unit)}</span></div>`).join('')}
+      <div class="main">${(e.items || []).map(i => `<div class="line"><span data-nt>${esc(i.name)}</span><span class="q">${+i.qty || 0} ${esc(i.unit || '')} · ${money(i.amount)}</span></div>`).join('')}
         <div class="s">by ${esc(e.createdByName || '—')}${e.hasPhoto ? ' · 📎' : ''}${e._pending ? ' · syncing' : ''}</div></div>
       <div class="r"><div class="amt">${money(total(e))}</div>${badge(e)}</div></button>`).join('');
   }
@@ -1090,11 +1107,12 @@ function ironHTML() {
   let html = `<div class="stats">
     <div class="stat wide"><div><small>Iron · ${monthLabel(S.month)}</small><b>${money(st.t)}</b></div><small>Wash ${cnt.wash} · Iron ${cnt.iron}</small></div>
     <div class="stat ${due ? 'warn' : ''}"><small>To pay (all)</small><b>${money(due)}</b></div>
-    <div class="stat"><small>Not returned yet</small><b>${notBack} clothes</b></div></div>
+    <div class="stat ${notBack ? 'danger' : ''}"><small>Not returned yet</small><b>${notBack} clothes</b></div></div>
+  ${bulkBtn(all)}
   <button class="btn sec" data-rates style="margin:0 0 6px">📋 Rate card${unset ? ' · not set yet' : ''}</button>`;
   if (!mon.length) return html + `<div class="empty"><div class="big">👕</div>Nothing given this month.<br>Tap <b>+</b> when you give clothes.</div>`;
   html += `<div class="tscroll" style="margin:10px 0 0;padding:0;max-height:none"><table class="dt nb" style="min-width:0"><thead><tr><th>Date</th><th class="num">Wash</th><th class="num">Iron</th><th class="num">Others</th><th class="num">Total</th><th>Return</th></tr></thead><tbody>
-    ${mon.map(e => { const c = ironCounts(e), r = returnState(e); return `<tr data-open="${e.id}"><td>${shortDate(e.date)}</td><td class="num">${c.wash || '–'}</td><td class="num">${c.iron || '–'}</td><td class="num">${ironOthers(e) ? money(ironOthers(e)) : '–'}</td><td class="num"><b>${c.wash + c.iron}</b><div class="sub-amt">${money(total(e))}</div></td><td>${r.txt ? `<span class="badge ${r.cls}">${r.txt}</span>` : ''}</td></tr>`; }).join('')}
+    ${mon.map(e => { const c = ironCounts(e), r = returnState(e); return `<tr data-open="${e.id}" class="${r.txt && !r.done ? 'notback' : ''}"><td>${shortDate(e.date)}</td><td class="num">${c.wash || '–'}</td><td class="num">${c.iron || '–'}</td><td class="num">${ironOthers(e) ? money(ironOthers(e)) : '–'}</td><td class="num"><b>${c.wash + c.iron}</b><div class="sub-amt">${money(total(e))}</div></td><td>${r.txt ? `<span class="badge ${r.cls}">${r.txt}</span>` : ''}</td></tr>`; }).join('')}
     </tbody><tfoot><tr><td>Total</td><td class="num">${cnt.wash}</td><td class="num">${cnt.iron}</td><td class="num">${money(mon.reduce((t, e) => t + ironOthers(e), 0))}</td><td class="num">${cnt.wash + cnt.iron}<div class="sub-amt strong">${money(st.t)}</div></td><td></td></tr></tfoot></table></div>
     <p class="hint" style="text-align:center">Tap a row to see details, mark returned or pay.</p>`;
   return html;
@@ -1143,7 +1161,7 @@ function moreHTML() {
   const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
   const notif = 'Notification' in window ? Notification.permission : 'unsupported';
   let html = `<div class="more">
-    <div class="fgroup"><h3 data-nt>${esc(me.name || '')}</h3><p>${esc(S.user.email)} · ${S.isOwner ? 'Main admin' : S.isAdmin ? 'Admin' : 'Member'}${api.demo ? ' · DEMO' : ''}</p><p class="hint">App version: ${APP_VERSION}</p>
+    <div class="fgroup"><h3 data-nt>${esc(me.name || '')}</h3><p>${esc(S.user.email)} · ${S.isOwner ? 'Main admin' : S.isAdmin ? 'Admin' : S.isStaff ? 'Staff' : 'Family'}${api.demo ? ' · DEMO' : ''}</p><p class="hint">App version: ${APP_VERSION}</p>
       <div class="flabel" style="margin-top:10px">Language</div>${langSwitch()}
       <button class="btn sec" id="renameBtn">Change my name</button>
       ${notif === 'default' ? `<button class="btn sec" id="notifBtn">🔔 Turn on task alerts</button>` : notif === 'granted' ? `<p class="hint">🔔 Task alerts are on for this phone.</p>` : ''}
@@ -1155,399 +1173,26 @@ function moreHTML() {
       if (!us.length && st !== 'pending') continue;
       html += `<div class="fgroup"><h3>${label} (${us.length})</h3>${!us.length ? `<p>No one waiting. Share the app link; people sign up and show up here.</p>` : us.map(u => {
         const self = u.uid === S.user.uid, owner = (u.email || '').toLowerCase() === ADMIN;
-        let acts = self ? `<span class="badge b-mute">You</span>` : st === 'pending' ? `<button class="sbtn" data-ustat="approved" data-uid="${u.uid}">Approve</button><button class="sbtn red" data-ustat="removed" data-uid="${u.uid}">Reject</button>`
-          : st === 'approved' ? `${owner ? '' : `<button class="sbtn ghost" data-urole="${u.role === 'admin' ? 'member' : 'admin'}" data-uid="${u.uid}">${u.role === 'admin' ? 'Remove admin' : 'Make admin'}</button><button class="sbtn ghost" data-ustat="removed" data-uid="${u.uid}">Remove</button>`}` : `<button class="sbtn" data-ustat="approved" data-uid="${u.uid}">Give access</button>`;
-        return `<div class="urow"><div class="main"><div class="t"><span data-nt>${esc(u.name)}</span> ${u.role === 'admin' || owner ? '<span class="badge b-paid" style="margin:0 0 0 4px">Admin</span>' : ''}</div><div class="s" data-nt>${esc(u.email)}</div></div><div class="acts">${acts}</div></div>`;
+        let acts = self ? `<span class="badge b-mute">You</span>` : st === 'pending' ? `<button class="sbtn" data-ustat="approved" data-uid="${u.uid}">Approve family</button><button class="sbtn" data-ustat="approved" data-asrole="staff" data-uid="${u.uid}">Approve staff</button><button class="sbtn red" data-ustat="removed" data-uid="${u.uid}">Reject</button>`
+          : st === 'approved' ? `${owner ? '' : `${u.role === 'admin' ? '' : `<button class="sbtn ghost" data-urole="${u.role === 'staff' ? 'member' : 'staff'}" data-uid="${u.uid}">${u.role === 'staff' ? 'Make family' : 'Make staff'}</button>`}<button class="sbtn ghost" data-urole="${u.role === 'admin' ? 'member' : 'admin'}" data-uid="${u.uid}">${u.role === 'admin' ? 'Remove admin' : 'Make admin'}</button><button class="sbtn ghost" data-ustat="removed" data-uid="${u.uid}">Remove</button>`}` : `<button class="sbtn" data-ustat="approved" data-uid="${u.uid}">Give access</button>`;
+        return `<div class="urow"><div class="main"><div class="t"><span data-nt>${esc(u.name)}</span> ${u.role === 'admin' || owner ? '<span class="badge b-paid" style="margin:0 0 0 4px">Admin</span>' : u.role === 'staff' ? '<span class="badge b-credit" style="margin:0 0 0 4px">Staff</span>' : ''}</div><div class="s" data-nt>${esc(u.email)}</div></div><div class="acts">${acts}</div></div>`;
       }).join('')}</div>`;
     }
   }
   if (!standalone) html += `<div class="fgroup"><h3>Add to home screen</h3><ol><li>iPhone: open in <b>Safari</b> → <b>Share</b> → <b>Add to Home Screen</b>.</li><li>Android: open in <b>Chrome</b> → <b>⋮</b> → <b>Add to Home screen</b>.</li></ol></div>`;
   return html + `</div>`;
 }
-async function setUserStatus(uid, status) {
+async function setUserStatus(uid, status, role) {
   const u = S.users.find(x => x.uid === uid);
   if (status === 'removed' && !confirm(`Remove access for ${u?.name}?`)) return;
-  try { await api.updateUser(uid, {status, reviewedAt: Date.now()}); toast(status === 'approved' ? `${u?.name} can now use the app` : 'Access removed'); }
+  try { await api.updateUser(uid, {status, reviewedAt: Date.now(), ...(role ? {role} : {})}); toast(status === 'approved' ? `${u?.name} can now use the app` : 'Access removed'); }
   catch (e) { toast(errText(e)); }
 }
 async function setUserRole(uid, role) {
   const u = S.users.find(x => x.uid === uid);
-  if (!confirm(role === 'admin' ? `Make ${u?.name} an admin? Admins approve tasks, people and rates.` : `Remove admin rights from ${u?.name}?`)) return;
-  try { await api.updateUser(uid, {role}); toast(role === 'admin' ? `${u?.name} is now an admin` : 'Admin removed'); } catch (e) { toast(errText(e)); }
-}
-
-/* ================= home guides: "Where is it?" + "How it works" ================= */
-const ROOMS = ['Pooja room', 'Kitchen', 'Hall', 'Bedroom', 'Store room', 'Bathroom', 'Steam & sauna', 'Terrace', 'Garden', 'Garage', 'Office', 'Other'];
-const KINDS = {
-  things: {book: 'things', title: 'Where is it?', icon: '🔎', empty: '📦', nameLabel: 'What is it?', namePh: 'e.g. Pooja thali', placeLabel: 'Exactly where?', placePh: 'e.g. Mandir ke neeche wali drawer, left side',
-    voiceLabel: 'Or say it (voice note)', photoLabel: 'Photo of where it is kept', kept: 'Kept at', newTitle: 'Save a thing', emptyText: 'Save where things are kept, with a photo.', search: 'Search: thali, keys, warranty…', video: false},
-  guide: {book: 'guide', title: 'How it works', icon: '💡', empty: '💡', nameLabel: 'What is it?', namePh: 'e.g. Hall lights, Steam room, Geyser', placeLabel: 'How to use it', placePh: 'e.g. Board near door: 1st switch = fan, 2nd = chandelier, 3rd = night lamp',
-    voiceLabel: 'Or explain by voice', photoLabel: 'Photo (e.g. the switch board)', kept: 'How to use', newTitle: 'Add how it works', emptyText: 'Explain lights, geyser, steam, sauna, shower… with photo, voice or video.', search: 'Search: lights, geyser, steam…', video: true},
-};
-const kindOf = e => e.book === 'guide' ? 'guide' : 'things';
-const thumbCache = new Map();
-function thingsHTML(kind) {
-  const K = KINDS[kind], all = S.lists?.[kind] || [], q = S.q.trim().toLowerCase(), room = S.thingRoom?.[kind] || '';
-  let list = all;
-  if (room) list = list.filter(t => t.room === room);
-  if (q) list = list.filter(t => [t.name, t.place, t.room, t.note].some(v => v && String(v).toLowerCase().includes(q)));
-  const rooms = [...new Set(all.map(t => t.room).filter(Boolean))];
-  let html = rooms.length > 1 ? `<div class="chips"><button class="chip ${!room ? 'on' : ''}" data-troom="">All</button>${rooms.map(r => `<button class="chip ${room === r ? 'on' : ''}" data-troom="${esc(r)}">${esc(r)}</button>`).join('')}</div>` : '';
-  if (!list.length) return html + `<div class="empty"><div class="big">${K.icon}</div>${all.length ? 'Nothing matches that search.' : `${K.emptyText}<br>Tap <b>+</b> to add the first one.`}</div>`;
-  return html + list.map(t => `<button class="card thing" data-thing="${t.id}">
-      <div class="th-img" data-thumb="${t.hasPhoto ? t.id : ''}">${t.hasPhoto ? (thumbCache.get(t.id) ? `<img src="${thumbCache.get(t.id)}" alt="">` : '📷') : K.empty}</div>
-      <div class="main"><div class="t" data-nt>${esc(t.name)}</div>
-        <div class="s">${kind === 'things' ? '📍 ' : ''}${t.room ? `<b>${esc(t.room)}</b> · ` : ''}<span data-nt>${esc((t.place || '').slice(0, 90))}${(t.place || '').length > 90 ? '…' : ''}</span></div>
-        <div class="s">${t.hasVoice ? '🎤 ' : ''}${t.videoChunks || t.videoLink ? '🎥 ' : ''}by ${esc(t.updatedByName || t.createdByName || '—')}</div></div></button>`).join('');
-}
-function loadThumbs() {
-  document.querySelectorAll('[data-thumb]').forEach(el => {
-    const id = el.dataset.thumb; if (!id || thumbCache.has(id)) return;
-    thumbCache.set(id, null);
-    api.getPhoto('th_' + id).then(d => { if (!d) return; thumbCache.set(id, d); document.querySelectorAll(`[data-thumb="${id}"]`).forEach(x => x.innerHTML = `<img src="${d}" alt="">`); }).catch(() => {});
-  });
-}
-const findThing = id => [...(S.lists?.things || []), ...(S.lists?.guide || [])].find(t => t.id === id);
-
-/* ---- small videos: recorded in-app at low quality, stored in ~900 KB pieces ---- */
-const VCHUNK = 900000, VMAX = 8 * 1024 * 1024;
-async function saveVideo(id, blob, oldChunks) {
-  const clean = new Blob([blob], {type: (blob.type || 'video/mp4').split(';')[0]});   // "codecs=vp8,opus" has a comma that breaks data URLs
-  const data = await blobToDataURL(clean), n = Math.ceil(data.length / VCHUNK);
-  for (let i = 0; i < n; i++) await api.savePhoto(`gv_${id}_${i}`, data.slice(i * VCHUNK, (i + 1) * VCHUNK));
-  for (let i = n; i < (oldChunks || 0); i++) api.deletePhoto(`gv_${id}_${i}`).catch(() => {});
-  return n;
-}
-async function loadVideo(id, n) {
-  const parts = await Promise.all([...Array(n)].map((_, i) => api.getPhoto(`gv_${id}_${i}`)));
-  if (parts.some(p => !p)) return null;
-  return URL.createObjectURL(await (await fetch(parts.join(''))).blob());
-}
-function deleteVideo(id, n) { for (let i = 0; i < (n || 0); i++) api.deletePhoto(`gv_${id}_${i}`).catch(() => {}); }
-const VRec = {
-  stream: null, mr: null, chunks: [], timer: null,
-  supported: () => !!(navigator.mediaDevices?.getUserMedia && window.MediaRecorder),
-  async start(previewEl, onTick, onLimit) {
-    this.stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment', width: {ideal: 640}, height: {ideal: 480}}, audio: true});
-    previewEl.srcObject = this.stream; previewEl.muted = true; previewEl.play().catch(() => {});
-    const type = ['video/mp4', 'video/webm;codecs=vp8,opus', 'video/webm'].find(t => MediaRecorder.isTypeSupported?.(t)) || '';
-    this.mr = new MediaRecorder(this.stream, {...(type ? {mimeType: type} : {}), videoBitsPerSecond: 450000, audioBitsPerSecond: 32000});
-    this.chunks = []; this.mr.ondataavailable = e => e.data && e.data.size && this.chunks.push(e.data);
-    this.mr.start(500); const t0 = Date.now();
-    this.timer = setInterval(() => { const s = Math.round((Date.now() - t0) / 1000); onTick(s); if (s >= 60) onLimit(); }, 250);
-  },
-  stop() { return new Promise(res => { const mr = this.mr; if (!mr) return res(null); clearInterval(this.timer);
-    mr.onstop = () => { this.stream?.getTracks().forEach(t => t.stop()); const b = new Blob(this.chunks, {type: mr.mimeType || 'video/mp4'}); this.mr = null; this.stream = null; res(b.size ? b : null); };
-    mr.stop(); }); },
-  cancel() { clearInterval(this.timer); try { if (this.mr) { this.mr.onstop = null; this.mr.stop(); } } catch {} this.stream?.getTracks().forEach(t => t.stop()); this.mr = null; this.stream = null; },
-};
-function mountVideo(el, state) {
-  const draw = (mode, secs) => {
-    if (mode === 'rec') el.innerHTML = `<video class="vprev" playsinline muted autoplay></video><button type="button" class="vbtn rec" data-gstop>■ Stop · ${secs || 0}s</button><span class="hint">Max 60s</span>`;
-    else if (state.url) el.innerHTML = `<video class="vprev" src="${state.url}" controls playsinline></video><button type="button" class="pdel" data-gdel>Remove video</button>`;
-    else el.innerHTML = `${VRec.supported() ? `<button type="button" class="vbtn" data-grec>🎥 Record video</button>` : ''}<button type="button" class="pbtn" data-gpick>📁 Choose small video</button>
-      <span class="hint" style="width:100%">Record in the app (up to 60s) or pick a video under 8 MB.</span>`;
-  };
-  draw();
-  el.onclick = async ev => {
-    if (ev.target.closest('[data-grec]')) {
-      draw('rec', 0);
-      try { await VRec.start(el.querySelector('video'), s => { const b = el.querySelector('[data-gstop]'); if (b) b.textContent = `■ Stop · ${s}s`; }, () => el.querySelector('[data-gstop]')?.click()); }
-      catch { VRec.cancel(); draw(); toast('Camera not allowed. Allow it in phone settings.'); }
-    }
-    if (ev.target.closest('[data-gstop]')) {
-      const b = await VRec.stop();
-      if (b && b.size > VMAX) toast('Video too big. Keep it shorter.');
-      else if (b) { state.blob = b; state.url = URL.createObjectURL(b); state.changed = true; }
-      draw();
-    }
-    if (ev.target.closest('[data-gpick]')) {
-      const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'video/*';
-      inp.onchange = () => { const f = inp.files[0]; if (!f) return;
-        if (f.size > VMAX) return toast(tx('Video too big') + ` (${Math.round(f.size / 1048576)} MB). ` + tx('Record in the app instead (max 60s).'));
-        state.blob = f; state.url = URL.createObjectURL(f); state.changed = true; draw(); };
-      inp.click();
-    }
-    if (ev.target.closest('[data-gdel]')) { state.blob = null; state.url = null; state.changed = true; draw(); }
-  };
-}
-
-function openThing(id) {
-  const t = findThing(id); if (!t) return;
-  const kind = kindOf(t), K = KINDS[kind], canDel = S.isAdmin || t.createdBy === S.user.uid;
-  openSheet(`<div class="sh-head"><button data-close>Close</button><h2>${K.title}</h2><button id="thEdit">Edit</button></div>
-    <div class="sh-body">
-      ${t.hasPhoto ? `<div class="fgroup" id="thPhoto"><p class="hint" style="margin:0">Loading photo…</p></div>` : ''}
-      <div class="fgroup"><div style="font-size:21px;font-weight:800" data-nt>${esc(t.name)}</div>
-        ${t.room ? `<div class="kv"><span>Room</span><span>${esc(t.room)}</span></div>` : ''}
-        ${kind === 'guide' ? `<div class="flabel" style="margin-top:10px">${K.kept}</div><div class="steps" data-nt>${esc(t.place || '—')}</div>` : `<div class="kv"><span>${K.kept}</span><span data-nt>${esc(t.place || '—')}</span></div>`}
-        ${t.hasVoice ? playerHTML('thv', '🎤 Voice note') : ''}
-        ${t.note ? `<div class="kv"><span>Notes</span><span data-nt>${esc(t.note)}</span></div>` : ''}
-        <div class="kv"><span>Updated by</span><span>${esc(t.updatedByName || t.createdByName || '—')} · ${shortDate(ds(new Date(t.updatedAt || t.createdAt)))}</span></div></div>
-      ${t.videoChunks ? `<div class="fgroup"><div class="flabel">🎥 Video</div><div id="thVid"><p class="hint" style="margin:0">Loading video…</p></div></div>` : ''}
-      ${t.videoLink ? `<a class="btn sec" href="${esc(t.videoLink)}" target="_blank" rel="noopener">🎥 Open video link ↗</a>` : ''}
-      ${kind === 'things' ? `<button class="btn pri" id="thMoved">📍 I moved it – update place</button>` : ''}
-      ${canDel ? `<button class="btn dan" id="thDel">Delete</button>` : ''}
-    </div>`);
-  if (t.hasPhoto) api.getPhoto('th_' + t.id).then(p => { const el = $('#thPhoto'); if (el) el.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="">` : '<p class="hint" style="margin:0">Photo still uploading.</p>'; }).catch(() => {});
-  if (t.hasVoice) loadPlayer('thv', 'thv_' + t.id, '🎤 Voice note');
-  if (t.videoChunks) loadVideo(t.id, t.videoChunks).then(u => { const el = $('#thVid'); if (el) el.innerHTML = u ? `<video class="vprev big" src="${u}" controls playsinline preload="metadata"></video>` : '<p class="hint" style="margin:0">Video still uploading.</p>'; }).catch(() => {});
-  $('#thEdit').onclick = () => openThingForm(t, false, kind); $('#thMoved') && ($('#thMoved').onclick = () => openThingForm(t, true, kind));
-  $('#thDel') && ($('#thDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(t.id).catch(e => toast(errText(e)));
-    if (t.hasPhoto) api.deletePhoto('th_' + t.id).catch(() => {}); if (t.hasVoice) api.deletePhoto('thv_' + t.id).catch(() => {}); deleteVideo(t.id, t.videoChunks); thumbCache.delete(t.id); closeSheet(); toast('Deleted'); });
-}
-function openThingForm(existing, moved, kind) {
-  kind = kind || (existing ? kindOf(existing) : S.view); const K = KINDS[kind];
-  const t = existing ? {...strip(existing)} : {name: '', room: '', place: '', note: '', hasPhoto: false};
-  const photo = {changed: false, data: existing && thumbCache.get(existing.id) || null}, video = {changed: false, url: null, blob: null};
-  openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>${existing ? (moved ? 'New place' : 'Edit') : K.newTitle}</h2><button class="save" id="thSave">Save</button></div>
-    <div class="sh-body">
-      <div class="fgroup"><label class="flabel">${K.nameLabel}</label><input class="field" id="thName" placeholder="${K.namePh}" value="${esc(t.name)}" autocomplete="off" autocapitalize="sentences"></div>
-      <div class="fgroup"><label class="flabel">Room</label>
-        <div class="modes" id="thRooms">${ROOMS.map(r => `<button type="button" class="chip ${t.room === r ? 'on' : ''}" data-room="${r}">${r}</button>`).join('')}</div>
-        <label class="flabel" style="margin-top:6px">${K.placeLabel}</label>
-        <textarea class="field" id="thPlace" rows="${kind === 'guide' ? 4 : 2}" placeholder="${K.placePh}">${esc(t.place)}</textarea>
-        <label class="flabel" style="margin-top:10px">${K.voiceLabel}</label><div class="voice" id="thVoice"></div></div>
-      <div class="fgroup"><label class="flabel">${K.photoLabel}</label><div class="photo-box" id="thPh"></div></div>
-      ${K.video ? `<div class="fgroup"><label class="flabel">🎥 Video (optional)</label><div class="voice" id="thVid"></div>
-        <label class="flabel" style="margin-top:10px">Or paste a video link (YouTube / Google Drive)</label><input class="field" id="thLink" type="url" inputmode="url" autocapitalize="none" placeholder="https://…" value="${esc(t.videoLink || '')}"></div>` : ''}
-      <div class="fgroup"><label class="flabel">Notes (optional)</label><textarea class="field" id="thNote" rows="2" placeholder="Anything to remember">${esc(t.note || '')}</textarea></div>
-      <button class="btn pri" id="thSave2">Save</button>
-    </div>`);
-  let room = t.room;
-  const voice = {data: null}; let placeTouched = !!t.place;
-  $('#thPlace').oninput = () => { placeTouched = true; };
-  const onText = txt => { if (!placeTouched) $('#thPlace').value = txt; };
-  mountVoice($('#thVoice'), voice, onText);
-  if (existing && t.hasVoice) api.getPhoto('thv_' + t.id).then(d => { if (d && !voice.data) { voice.data = d; voice.orig = d; mountVoice($('#thVoice'), voice, onText); } }).catch(() => {});
-  if (K.video) {
-    mountVideo($('#thVid'), video);
-    if (existing && t.videoChunks) loadVideo(t.id, t.videoChunks).then(u => { if (u && !video.changed) { video.url = u; mountVideo($('#thVid'), video); } }).catch(() => {});
-  }
-  $('#thRooms').onclick = ev => { const b = ev.target.closest('[data-room]'); if (!b) return; room = room === b.dataset.room ? '' : b.dataset.room;
-    $('#thRooms').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.room === room)); };
-  const draw = () => { const has = photo.data || (t.hasPhoto && !photo.changed);
-    $('#thPh').innerHTML = has ? `${photo.data ? `<img src="${photo.data}" alt="">` : '<span class="hint">Photo attached</span>'}<button type="button" class="pbtn" id="thPick">📷 Change</button><button type="button" class="pdel" id="thPhDel">Remove</button>`
-      : `<button type="button" class="pbtn" id="thPick">📷 Add photo</button>`;
-    $('#thPick').onclick = () => pickPhoto(false, d => { photo.data = d; photo.changed = true; draw(); });
-    $('#thPhDel') && ($('#thPhDel').onclick = () => { photo.data = null; photo.changed = true; draw(); }); };
-  draw();
-  if (existing && t.hasPhoto && !photo.data) api.getPhoto('th_' + t.id).then(d => { if (d && !photo.changed) { photo.data = d; draw(); } }).catch(() => {});
-  setTimeout(() => (moved ? $('#thPlace') : existing ? null : $('#thName'))?.focus(), 350);
-  let saving = false;
-  const save = async () => {
-    if (saving) return;
-    if (Rec.mr) { const r = await Rec.stop(); if (r) voice.data = r.data; }
-    if (VRec.mr) { const b = await VRec.stop(); if (b) { video.blob = b; video.changed = true; } }
-    const name = $('#thName').value.trim(); if (!name) return toast('Write what it is');
-    const isNew = !t.id;
-    const out = {...t, book: K.book, name, room, place: $('#thPlace').value.trim(), note: $('#thNote').value.trim(), items: [], date: t.date || today(),
-      updatedAt: Date.now(), updatedByName: S.me.name};
-    if (K.video) out.videoLink = ($('#thLink').value || '').trim();
-    if (isNew) Object.assign(out, {id: api.newId(), createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name});
-    if (voice.data !== (voice.orig || null)) {
-      out.hasVoice = !!voice.data;
-      (voice.data ? api.savePhoto('thv_' + out.id, voice.data) : api.deletePhoto('thv_' + out.id)).catch(e => toast('Voice: ' + errText(e)));
-    }
-    if (photo.changed) {
-      out.hasPhoto = !!photo.data;
-      (photo.data ? api.savePhoto('th_' + out.id, photo.data) : api.deletePhoto('th_' + out.id)).catch(e => toast('Photo: ' + errText(e)));
-      if (photo.data) thumbCache.set(out.id, photo.data); else thumbCache.delete(out.id);
-    }
-    if (K.video && video.changed) {
-      if (video.blob) {
-        saving = true; const btn = $('#thSave2'); if (btn) { btn.disabled = true; btn.textContent = tx('Uploading video…'); }
-        try { out.videoChunks = await saveVideo(out.id, video.blob, t.videoChunks); }
-        catch (e) { saving = false; if (btn) { btn.disabled = false; btn.textContent = tx('Save'); } return toast('Video: ' + errText(e)); }
-      } else { deleteVideo(out.id, t.videoChunks); out.videoChunks = 0; }
-    }
-    api.saveEntry(out).catch(e => toast(errText(e)));
-    closeSheet(); toast(isNew ? 'Saved' : 'Updated');
-  };
-  $('#thSave').onclick = save; $('#thSave2').onclick = save;
-}
-
-/* ================= pooja planner: date, muhurat, samagri checklist, calendar reminder ================= */
-const poojaList = () => S.lists?.pooja || [];
-const poojaWhen = p => `${prettyDate(p.date)}${p.start ? ' · ' + fmtTime(p.start) + (p.end ? ' – ' + fmtTime(p.end) : '') : ''}`;
-function fmtTime(hm) { if (!hm) return ''; const [h, m] = hm.split(':').map(Number); const d = new Date(); d.setHours(h, m || 0, 0, 0); return d.toLocaleTimeString(LOC(), {hour: 'numeric', minute: '2-digit'}); }
-const poojaReady = p => { const c = p.checklist || []; return [c.filter(i => i.done).length, c.length]; };
-function nextPooja() { const t = today(); return poojaList().filter(p => p.date >= t).sort((a, b) => (a.date + (a.start || '')).localeCompare(b.date + (b.start || '')))[0]; }
-function inDays(d) { const n = daysBetween(today(), d); return n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : n > 1 ? `In ${n} days` : ''; }
-function poojaHTML() {
-  const t = today(), all = poojaList();
-  const up = all.filter(p => p.date >= t).sort((a, b) => (a.date + (a.start || '')).localeCompare(b.date + (b.start || '')));
-  const past = all.filter(p => p.date < t).sort((a, b) => b.date.localeCompare(a.date));
-  if (!all.length) return `<div class="empty"><div class="big">🪔</div>Plan a pooja: date, muhurat time and samagri checklist.<br>Tap <b>+</b> to add.</div>`;
-  const card = p => { const [r, n] = poojaReady(p), soon = inDays(p.date);
-    return `<button class="card pooja" data-pooja="${p.id}"><div class="th-img">🪔</div>
-      <div class="main"><div class="t" data-nt>${esc(p.name)}</div><div class="s">${poojaWhen(p)}</div>
-        <div class="tmline">${soon ? `<span class="badge ${soon === 'Today' ? 'b-over' : 'b-credit'}">${soon}</span>` : ''}${n ? `<span class="badge ${r === n ? 'b-paid' : 'b-mute'}">${r}/${n} ready</span>` : ''}${p.hasSetup ? '<span class="badge b-mute">📸</span>' : ''}</div></div></button>`; };
-  return (up.length ? `<div class="section-t">Coming up</div>` + up.map(card).join('') : '') + (past.length ? `<div class="section-t">Done before</div>` + past.map(card).join('') : '');
-}
-const findPooja = id => poojaList().find(p => p.id === id);
-function savePooja(p) { return api.saveEntry({...strip(p), book: 'pooja', items: [], updatedAt: Date.now(), updatedByName: S.me.name}).catch(e => toast(errText(e))); }
-function openPooja(id) {
-  const p = findPooja(id); if (!p) return;
-  const list = (p.checklist || []).map(i => ({...i}));
-  const canDel = S.isAdmin || p.createdBy === S.user.uid;
-  const draw = () => { const r = list.filter(i => i.done).length;
-    $('#pjList').innerHTML = (list.length ? list.map((i, k) => `<label class="ck ${i.done ? 'on' : ''}"><input type="checkbox" data-ck="${k}" ${i.done ? 'checked' : ''}><span data-nt>${esc(i.name)}</span><b class="qty" data-nt>${esc(i.qty || '–')}</b></label>`).join('') : `<p class="hint">No items yet. Add them below.</p>`);
-    $('#pjCount').textContent = list.length ? `${r}/${list.length} ready` : ''; };
-  openSheet(`<div class="sh-head"><button data-close>Close</button><h2>🪔 Pooja</h2><button id="pjEdit">Edit</button></div>
-    <div class="sh-body">
-      <div class="fgroup"><div style="font-size:21px;font-weight:800" data-nt>${esc(p.name)}</div>
-        <div class="kv"><span>Date</span><span>${prettyDate(p.date)}${inDays(p.date) ? ` · ${inDays(p.date)}` : ''}</span></div>
-        ${p.start ? `<div class="kv"><span>Muhurat</span><span>${fmtTime(p.start)}${p.end ? ' – ' + fmtTime(p.end) : ''}</span></div>` : ''}
-        ${p.note ? `<div class="kv"><span>Notes</span><span data-nt>${esc(p.note)}</span></div>` : ''}</div>
-      <button class="btn sec" id="pjCal">📅 Add reminder to phone calendar</button>
-      <div class="fgroup"><div class="ptitle"><h3 style="margin:0">Samagri checklist</h3><b id="pjCount" class="hint" style="margin:0"></b></div><div id="pjList" style="margin-top:8px"></div>
-        <div class="addck3"><input class="field" id="pjNew" placeholder="Item, e.g. Diya" autocomplete="off" enterkeyhint="next"><input class="field" id="pjQty" placeholder="Qty" autocomplete="off" enterkeyhint="done"><button type="button" class="sbtn" id="pjAdd">+ Add</button></div></div>
-      <div class="fgroup"><div class="flabel">📖 What to recite</div>
-        ${p.recite ? `<div class="recite" data-nt>${esc(p.recite)}</div>` : ''}
-        ${p.recRef ? `<div class="kv"><span>Book / reference</span><span data-nt>${esc(p.recRef)}</span></div>` : ''}
-        ${!p.recite && !p.recRef ? `<p class="hint" style="margin:0">Tap Edit to write the mantra, path or book name.</p>` : ''}
-        <div id="pjRec"></div></div>
-      ${p.refFrom ? `<div class="fgroup"><div class="flabel">🖼 Last time's setup (reference)</div><div id="pjRef"><p class="hint" style="margin:0">Loading…</p></div></div>` : ''}
-      <div class="fgroup"><div class="flabel">📸 Photo of the setup when done</div><div id="pjSetup"></div>
-        <p class="hint">Keep it for next time, so the setup can be done the same way.</p></div>
-      <button class="btn sec" id="pjCopy">📋 Copy for another date</button>
-      ${canDel ? `<button class="btn dan" id="pjDel">Delete</button>` : ''}
-    </div>`);
-  draw();
-  const setup = {data: null};
-  const drawSetup = () => { const has = setup.data || p.hasSetup;
-    $('#pjSetup').innerHTML = has ? `${setup.data ? `<img class="bigphoto" src="${setup.data}" alt="">` : '<p class="hint" style="margin:0">Loading photo…</p>'}<div style="display:flex;gap:8px;margin-top:8px"><button type="button" class="pbtn" id="pjSetPick">📷 Change</button><button type="button" class="pdel" id="pjSetDel">Remove</button></div>`
-      : `<button type="button" class="pbtn" id="pjSetPick">📷 Add setup photo</button>`;
-    $('#pjSetPick').onclick = () => pickPhoto(false, d => { setup.data = d; p.hasSetup = true; api.savePhoto('pjs_' + p.id, d).catch(e => toast('Photo: ' + errText(e))); savePooja(p); drawSetup(); toast('Setup photo saved'); });
-    $('#pjSetDel') && ($('#pjSetDel').onclick = () => { if (!confirm('Delete this?')) return; setup.data = null; p.hasSetup = false; api.deletePhoto('pjs_' + p.id).catch(() => {}); savePooja(p); drawSetup(); }); };
-  drawSetup();
-  if (p.hasSetup) api.getPhoto('pjs_' + p.id).then(d => { if (d) { setup.data = d; drawSetup(); } }).catch(() => {});
-  if (p.refFrom) {
-    // the reference is the setup photo of the pooja this one was copied from (or its own reference, further back)
-    const src = findPooja(p.refFrom);
-    api.getPhoto('pjs_' + p.refFrom).then(d => { const el = $('#pjRef'); if (el) el.innerHTML = d ? `<img class="bigphoto" src="${d}" alt=""><p class="hint">${src ? esc(src.name) + ' · ' + prettyDate(src.date) : ''}</p>` : '<p class="hint" style="margin:0">No setup photo was saved last time.</p>'; }).catch(() => {});
-  }
-  // photos of the verse / book pages (several allowed); shared with copies, so only deleted when no pooja uses them
-  const recPics = [...(p.recPics || [])], recData = {};
-  const drawRec = () => {
-    $('#pjRec').innerHTML = (recPics.length ? `<div class="rpics">${recPics.map((id, k) => `<div class="rp">${recData[id] ? `<img src="${recData[id]}" data-pv="${id}" alt="">` : '<p class="hint">Loading…</p>'}<button type="button" class="pdel" data-rrm="${k}">Remove</button></div>`).join('')}</div><p class="hint">Tap a photo to read it full screen.</p>` : '')
-      + (recPics.length < 8 ? `<button type="button" class="pbtn" id="pjRecAdd" style="margin-top:8px">📷 Add photo of verse / book page</button>` : '');
-    $('#pjRecAdd') && ($('#pjRecAdd').onclick = () => pickPhoto(false, d => { const id = 'pjr_' + api.newId(); recData[id] = d; recPics.push(id); p.recPics = [...recPics];
-      api.savePhoto(id, d).catch(e => toast('Photo: ' + errText(e))); savePooja(p); drawRec(); toast('Photo saved'); })); };
-  $('#pjRec').onclick = ev => { const v = ev.target.closest('[data-pv]'); if (v) return viewPhoto(recData[v.dataset.pv]);
-    const r = ev.target.closest('[data-rrm]'); if (!r || !confirm('Delete this?')) return; const [id] = recPics.splice(+r.dataset.rrm, 1); p.recPics = [...recPics];
-    if (!poojaList().some(x => x.id !== p.id && (x.recPics || []).includes(id))) api.deletePhoto(id).catch(() => {}); savePooja(p); drawRec(); };
-  drawRec();
-  recPics.forEach(id => api.getPhoto(id).then(d => { if (d) { recData[id] = d; drawRec(); } }).catch(() => {}));
-  const persist = () => { p.checklist = list; savePooja(p); };
-  $('#pjList').onchange = ev => { const k = ev.target.dataset.ck; if (k == null) return; list[+k].done = ev.target.checked; list[+k].doneBy = S.me.name; draw(); persist(); };
-  const addItem = () => { const v = $('#pjNew').value.trim(); if (!v) return; list.push({name: v, qty: $('#pjQty').value.trim(), done: false}); $('#pjNew').value = ''; $('#pjQty').value = ''; draw(); persist(); $('#pjNew').focus(); };
-  $('#pjAdd').onclick = addItem;
-  $('#pjNew').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); $('#pjQty').focus(); } };
-  $('#pjQty').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); addItem(); } };
-  $('#pjEdit').onclick = () => openPoojaForm(p);
-  $('#pjCal').onclick = () => poojaICS(p);
-  $('#pjCopy').onclick = () => openPoojaForm({...p, id: null, date: '', hasSetup: false, refFrom: p.hasSetup ? p.id : (p.refFrom || ''), checklist: list.map(i => ({name: i.name, qty: i.qty || '', done: false}))}, true);
-  $('#pjDel') && ($('#pjDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(p.id).catch(e => toast(errText(e))); if (p.hasSetup && !poojaList().some(x => x.refFrom === p.id)) api.deletePhoto('pjs_' + p.id).catch(() => {});
-    (p.recPics || []).forEach(id => { if (!poojaList().some(x => x.id !== p.id && (x.recPics || []).includes(id))) api.deletePhoto(id).catch(() => {}); }); closeSheet(); toast('Deleted'); });
-}
-function openPoojaForm(existing, copy) {
-  const p = existing ? {...existing} : {name: '', date: '', start: '', end: '', note: '', checklist: []};
-  const list = (p.checklist || []).map(i => ({...i}));
-  const isNew = !p.id;
-  openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>${copy ? 'Copy pooja' : isNew ? 'New pooja' : 'Edit pooja'}</h2><button class="save" id="pfSave">Save</button></div>
-    <div class="sh-body">
-      <div class="fgroup"><label class="flabel">Pooja name</label><input class="field" id="pfName" placeholder="e.g. Lakshmi Pooja" value="${esc(p.name)}" autocomplete="off" autocapitalize="words">
-        <label class="flabel" style="margin-top:10px">Date</label><input type="date" class="field" id="pfDate" value="${p.date || ''}">
-        <div class="row2" style="margin-top:10px"><div><label class="flabel">Muhurat from</label><input type="time" class="field" id="pfStart" value="${p.start || ''}"></div>
-          <div><label class="flabel">To</label><input type="time" class="field" id="pfEnd" value="${p.end || ''}"></div></div></div>
-      <div class="fgroup"><h3 style="margin:0 0 8px">Samagri checklist</h3><div id="pfList"></div>
-        <div class="addck3"><input class="field" id="pfNew" placeholder="Item, e.g. Diya" autocomplete="off" enterkeyhint="next"><input class="field" id="pfQty" placeholder="Qty" autocomplete="off" enterkeyhint="done"><button type="button" class="sbtn" id="pfAdd">+ Add</button></div>
-        <p class="hint">Write the item and its quantity (e.g. 11, 1 bowl, 250 g), then tap + Add.</p></div>
-      <div class="fgroup"><h3 style="margin:0 0 8px">📖 What to recite</h3>
-        <label class="flabel">Mantra / path / aarti (optional)</label><textarea class="field" id="pfRecite" rows="5" placeholder="Write or paste the verses here">${esc(p.recite || '')}</textarea>
-        <label class="flabel" style="margin-top:10px">Book / reference (optional)</label><input class="field" id="pfBook" placeholder="e.g. Shri Suktam, page 12" value="${esc(p.recRef || '')}" autocomplete="off">
-        <label class="flabel" style="margin-top:10px">Photos of verse / book pages (optional)</label><div id="pfRec"></div></div>
-      <div class="fgroup"><label class="flabel">📸 Photo of the setup when done (optional)</label><div id="pfSetup"></div>
-        <p class="hint">Keep it for next time, so the setup can be done the same way.</p></div>
-      <div class="fgroup"><label class="flabel">Notes (optional)</label><textarea class="field" id="pfNote" rows="2" placeholder="Anything to remember">${esc(p.note || '')}</textarea></div>
-      <button class="btn pri" id="pfSave2">Save</button>
-    </div>`);
-  // verse / book page photos: new ones are kept here until Save
-  const recPics = [...(p.recPics || [])], recData = {}, recNew = new Set();
-  const drawRec = () => {
-    $('#pfRec').innerHTML = (recPics.length ? `<div class="rpics">${recPics.map((id, k) => `<div class="rp">${recData[id] ? `<img src="${recData[id]}" data-pv="${id}" alt="">` : '<p class="hint">Loading…</p>'}<button type="button" class="pdel" data-rrm="${k}">Remove</button></div>`).join('')}</div>` : '')
-      + (recPics.length < 8 ? `<button type="button" class="pbtn" id="pfRecAdd" style="margin-top:8px">📷 Add photo of verse / book page</button>` : '');
-    $('#pfRecAdd') && ($('#pfRecAdd').onclick = () => pickPhoto(false, d => { const id = 'pjr_' + api.newId(); recData[id] = d; recPics.push(id); recNew.add(id); drawRec(); })); };
-  $('#pfRec').onclick = ev => { const v = ev.target.closest('[data-pv]'); if (v) return viewPhoto(recData[v.dataset.pv]);
-    const r = ev.target.closest('[data-rrm]'); if (!r) return; const [id] = recPics.splice(+r.dataset.rrm, 1); recNew.delete(id); drawRec(); };
-  drawRec();
-  recPics.forEach(id => api.getPhoto(id).then(d => { if (d) { recData[id] = d; drawRec(); } }).catch(() => {}));
-  // setup photo (a copy starts without one)
-  const setup = {data: null, has: !copy && !!p.hasSetup, changed: false};
-  const drawSetup = () => {
-    $('#pfSetup').innerHTML = setup.has ? `${setup.data ? `<img class="bigphoto" src="${setup.data}" alt="">` : '<p class="hint" style="margin:0">Loading photo…</p>'}<div style="display:flex;gap:8px;margin-top:8px"><button type="button" class="pbtn" id="pfSetPick">📷 Change</button><button type="button" class="pdel" id="pfSetDel">Remove</button></div>`
-      : `<button type="button" class="pbtn" id="pfSetPick">📷 Add setup photo</button>`;
-    $('#pfSetPick').onclick = () => pickPhoto(false, d => { Object.assign(setup, {data: d, has: true, changed: true}); drawSetup(); });
-    $('#pfSetDel') && ($('#pfSetDel').onclick = () => { Object.assign(setup, {data: null, has: false, changed: true}); drawSetup(); }); };
-  drawSetup();
-  if (setup.has) api.getPhoto('pjs_' + p.id).then(d => { if (d && !setup.changed) { setup.data = d; drawSetup(); } }).catch(() => {});
-  const draw = () => { $('#pfList').innerHTML = list.length ? `<div class="ckhead"><span>Item</span><span>Qty</span><span></span></div>` + list.map((i, k) => `<div class="ckrow3"><input class="field ck-n" data-k="${k}" value="${esc(i.name)}"><input class="field ck-q" data-k="${k}" value="${esc(i.qty || '')}" placeholder="–"><button type="button" class="i-del" data-rm="${k}">×</button></div>`).join('') : ''; };
-  draw();
-  $('#pfList').onclick = ev => { const b = ev.target.closest('[data-rm]'); if (b) { list.splice(+b.dataset.rm, 1); draw(); } };
-  $('#pfList').oninput = ev => { const k = ev.target.dataset.k; if (k == null) return; if (ev.target.classList.contains('ck-n')) list[+k].name = ev.target.value; else list[+k].qty = ev.target.value; };
-  const addItem = () => { let name = $('#pfNew').value.trim(), qty = $('#pfQty').value.trim(); if (!name) return;
-    if (!qty && / - /.test(name)) [name, qty] = name.split(/\s+-\s+/).map(x => x.trim());
-    list.push({name, qty, done: false}); $('#pfNew').value = ''; $('#pfQty').value = ''; draw(); $('#pfNew').focus(); };
-  $('#pfAdd').onclick = addItem;
-  $('#pfNew').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); $('#pfQty').focus(); } };
-  $('#pfQty').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); addItem(); } };
-  setTimeout(() => (isNew && !copy ? $('#pfName') : copy ? $('#pfDate') : null)?.focus(), 350);
-  const save = () => {
-    if ($('#pfNew').value.trim()) addItem();
-    const name = $('#pfName').value.trim(), date = $('#pfDate').value;
-    if (!name) return toast('Write the pooja name'); if (!date) return toast('Pick the date');
-    const out = {...p, name, date, start: $('#pfStart').value, end: $('#pfEnd').value, note: $('#pfNote').value.trim(), recite: $('#pfRecite').value.trim(), recRef: $('#pfBook').value.trim(), checklist: list.map(i => ({...i, name: (i.name || '').trim(), qty: (i.qty || '').trim()})).filter(i => i.name)};
-    if (!out.id) Object.assign(out, {id: api.newId(), createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name});
-    recNew.forEach(id => api.savePhoto(id, recData[id]).catch(e => toast('Photo: ' + errText(e))));
-    if (!copy) (p.recPics || []).forEach(id => { if (!recPics.includes(id) && !poojaList().some(x => x.id !== p.id && (x.recPics || []).includes(id))) api.deletePhoto(id).catch(() => {}); });
-    out.recPics = [...recPics];
-    if (copy) out.hasSetup = false;
-    if (setup.changed) { out.hasSetup = setup.has;
-      if (setup.has) api.savePhoto('pjs_' + out.id, setup.data).catch(e => toast('Photo: ' + errText(e)));
-      else if (!poojaList().some(x => x.refFrom === out.id)) api.deletePhoto('pjs_' + out.id).catch(() => {}); }
-    savePooja(out); closeSheet(); toast('Saved');
-  };
-  $('#pfSave').onclick = save; $('#pfSave2').onclick = save;
-}
-function poojaICS(p) {
-  const pad2 = n => String(n).padStart(2, '0');
-  const [y, m, d] = p.date.split('-');
-  const st = (p.start || '09:00').split(':'), en = (p.end || '').split(':');
-  const utc = (hh, mm) => new Date(`${y}-${m}-${d}T${pad2(hh)}:${pad2(mm)}:00+05:30`).toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
-  const startU = utc(st[0], st[1]);
-  let endU = p.end ? utc(en[0], en[1]) : new Date(new Date(`${y}-${m}-${d}T${pad2(st[0])}:${pad2(st[1])}:00+05:30`).getTime() + 36e5).toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
-  if (endU <= startU) endU = new Date(new Date(`${y}-${m}-${d}T${pad2(st[0])}:${pad2(st[1])}:00+05:30`).getTime() + 36e5).toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
-  const items = (p.checklist || []).map(i => i.name + (i.qty ? ' (' + i.qty + ')' : '')).join(', ');
-  const escI = s => String(s || '').replace(/[\\,;]/g, m => '\\' + m).replace(/\n/g, '\\n');
-  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ANP Accounts//Pooja//EN', 'BEGIN:VEVENT', `UID:${p.id}@anp-accounts`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`,
-    `DTSTART:${startU}`, `DTEND:${endU}`, `SUMMARY:🪔 ${escI(p.name)}`,
-    `DESCRIPTION:${escI((p.note ? p.note + '\n' : '') + (items ? 'Samagri: ' + items : ''))}`,
-    'BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', `DESCRIPTION:Tomorrow: ${escI(p.name)}`, 'END:VALARM',
-    'BEGIN:VALARM', 'TRIGGER:-PT1H', 'ACTION:DISPLAY', `DESCRIPTION:${escI(p.name)} in 1 hour`, 'END:VALARM',
-    'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
-  const blob = new Blob([ics], {type: 'text/calendar'}), url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = (p.name || 'pooja').replace(/[^\w]+/g, '-') + '.ics';
-  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
-  toast('Opening calendar… tap Add to save the reminder');
-}
-function poojaReminder() {
-  const n = nextPooja(); if (!n) return;
-  const d = daysBetween(today(), n.date); if (d > 1) return;
-  const key = 'pjRem_' + n.id + '_' + today(); try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch {}
-  const [r, c] = poojaReady(n), msg = `🪔 ${n.name} ${d === 0 ? 'today' : 'tomorrow'}${n.start ? ' at ' + fmtTime(n.start) : ''}${c ? ` · ${r}/${c} ready` : ''}`;
-  setTimeout(() => { toast(msg); notify('ANP Accounts', msg); }, 1500);
+  const q = role === 'admin' ? `Make ${u?.name} an admin? Admins approve tasks, people and rates.` : role === 'staff' ? `Make ${u?.name} staff? Staff only see their own tasks: no accounts, no photos.` : u?.role === 'admin' ? `Remove admin rights from ${u?.name}?` : `Make ${u?.name} family? Family can see all accounts.`;
+  if (!confirm(q)) return;
+  try { await api.updateUser(uid, {role}); toast(role === 'admin' ? `${u?.name} is now an admin` : role === 'staff' ? `${u?.name} is now staff` : 'Saved'); } catch (e) { toast(errText(e)); }
 }
 
 /* ================= sheet ================= */
@@ -1556,7 +1201,7 @@ function openSheet(html) {
   $('#overlay').classList.add('open'); $('#sheet').classList.add('open');
   $('#sheet .sh-body')?.scrollTo(0, 0);
 }
-function closeSheet() { $('#overlay').classList.remove('open'); $('#sheet').classList.remove('open'); S.editing = null; Rec.cancel(); try { VRec.cancel(); } catch {} document.querySelectorAll('#sheet video').forEach(v => v.pause()); document.querySelectorAll('#sheet audio').forEach(a => a.pause()); }
+function closeSheet() { $('#overlay').classList.remove('open'); $('#sheet').classList.remove('open'); S.editing = null; Rec.cancel(); document.querySelectorAll('#sheet video').forEach(v => v.pause()); document.querySelectorAll('#sheet audio').forEach(a => a.pause()); }
 $('#overlay').onclick = closeSheet;
 const findEntry = id => S.entries.find(x => x.id === id) || S.rangeCache?.list.find(x => x.id === id);
 
@@ -1565,9 +1210,9 @@ function openDetail(id) {
   const e = findEntry(id); if (!e) return;
   const k = bookOf(e), iron = k === 'iron';
   const rows = (e.items || []).map(i => iron
-    ? (i.other ? `<tr><td><div class="n">Others</div>${i.note ? `<div class="q">${esc(i.note)}</div>` : ''}</td><td class="a">${money(i.amount)}</td></tr>`
+    ? (i.other ? `<tr><td><div class="n" data-nt>${esc(i.note || 'Others')}</div><div class="q">Others · ${num(i.qty) || 1} × ${money(num(i.rate) || num(i.amount))}</div></td><td class="a">${money(i.amount)}</td></tr>`
       : `<tr><td><div class="n" data-nt>${esc(i.name)}</div><div class="q">${num(i.wash) ? `Wash ${i.wash} × ${money(i.washRate)}` : ''}${num(i.wash) && num(i.iron) ? ' · ' : ''}${num(i.iron) ? `Iron ${i.iron} × ${money(i.ironRate)}` : ''}</div></td><td class="a">${money(i.amount)}</td></tr>`)
-    : `<tr><td><div class="n" data-nt>${esc(i.name)}</div><div class="q">${+i.qty || 0} ${esc(i.unit)} × ${money(i.rate)}${rateUnit(i.unit)}</div></td><td class="a">${money(i.amount)}</td></tr>`).join('');
+    : `<tr><td><div class="n" data-nt>${esc(i.name)}</div><div class="q">${+i.qty || 0} ${esc(i.unit)}</div></td><td class="a">${money(i.amount)}</td></tr>`).join('');
   const pay = e.status === 'paid'
     ? `<div class="kv"><span>Payment</span><span>Paid · ${esc(e.mode)}</span></div>${e.ref ? `<div class="kv"><span>UTR</span><span>${esc(e.ref)}</span></div>` : ''}`
     : `<div class="kv"><span>Payment</span><span>${badge(e)}</span></div>${e.dueDate && !e.paidOn ? `<div class="kv"><span>Due date</span><span>${prettyDate(e.dueDate)}</span></div>` : ''}
@@ -1631,6 +1276,56 @@ function openMarkPaid(id) {
   };
 }
 
+/* ================= pay many credit entries at once ================= */
+function bulkBtn(all) {
+  const pend = all.filter(isPending);
+  return pend.length > 1 ? `<button class="btn amber bulkbtn" data-bulkpay>✓ Mark many as paid · ${pend.length} entries · ${money(sum(pend, total))}</button>` : '';
+}
+function openBulkPay() {
+  const k = S.book, list = S.entries.filter(e => bookOf(e) === k && isPending(e)).sort((a, b) => (a.dueDate || a.date).localeCompare(b.dueDate || b.date) || a.date.localeCompare(b.date));
+  if (!list.length) return toast('Nothing to pay');
+  const sel = new Set(); let mode = 'Cash';
+  const groups = new Map(); for (const e of list) { const d = e.dueDate || ''; if (!groups.has(d)) groups.set(d, []); groups.get(d).push(e); }
+  const what = e => k === 'iron' ? (() => { const c = ironCounts(e); return `Wash ${c.wash} · Iron ${c.iron}`; })() : (e.items || []).map(i => i.name).join(', ');
+  openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>Mark many as paid</h2><span></span></div>
+    <div class="sh-body">
+      <p class="hint" style="margin-top:0">${BOOKS[k].icon} ${BOOKS[k].name} · tick the entries you are paying now.</p>
+      <label class="bk-group" style="margin-top:0"><label><input type="checkbox" id="bkAll"> Select all (${list.length})</label></label>
+      <div class="fgroup" id="bkList">${[...groups].map(([d, es]) => `
+        <div class="bk-group"><label><input type="checkbox" data-bkg="${d}"> ${d ? `Due ${prettyDate(d)}` : 'No due date'}${d && d < today() ? ' <span class="badge b-over" style="margin:0">Overdue</span>' : d === today() ? ' <span class="badge b-over" style="margin:0">Today</span>' : ''}</label><span class="hint" style="margin:0">${money(sum(es, total))}</span></div>
+        ${es.map(e => `<label class="bk-row"><input type="checkbox" data-bk="${e.id}"><div class="main"><div class="t" data-nt>${esc(what(e))}</div><div class="s">${prettyDate(e.date)}</div></div><b>${money(total(e))}</b></label>`).join('')}`).join('')}</div>
+      <div class="fgroup">
+        <label class="flabel">Paid on</label><input type="date" class="field" id="bkDate" value="${today()}">
+        <label class="flabel" style="margin-top:12px">Paid by</label>
+        <div class="modes" id="bkModes">${PAY.map(m => `<button type="button" class="chip big ${m === mode ? 'on' : ''}" data-pm="${m}">${m === 'Cash' ? '💵' : '📱'} ${m}</button>`).join('')}</div>
+        <div id="bkRefWrap" class="hidden"><label class="flabel">UTR (optional)</label><input class="field" id="bkRef" autocomplete="off" autocapitalize="characters" placeholder="e.g. 431245678901"></div></div>
+      <div class="bk-foot"><button class="btn amber" id="bkSave" disabled>Select entries to pay</button></div>
+    </div>`);
+  const sync = () => {
+    document.querySelectorAll('#bkList [data-bk]').forEach(c => c.checked = sel.has(c.dataset.bk));
+    document.querySelectorAll('#bkList [data-bkg]').forEach(c => { const es = groups.get(c.dataset.bkg); c.checked = es.every(e => sel.has(e.id)); });
+    $('#bkAll').checked = sel.size === list.length;
+    const amt = sum(list.filter(e => sel.has(e.id)), total);
+    $('#bkSave').disabled = !sel.size; $('#bkSave').textContent = sel.size ? `${tx('Mark as paid')} · ${sel.size} · ${money(amt)}` : tx('Select entries to pay');
+  };
+  $('#bkList').onchange = ev => { const c = ev.target;
+    if (c.dataset.bk) c.checked ? sel.add(c.dataset.bk) : sel.delete(c.dataset.bk);
+    if (c.dataset.bkg != null) groups.get(c.dataset.bkg).forEach(e => c.checked ? sel.add(e.id) : sel.delete(e.id));
+    sync(); };
+  $('#bkAll').onchange = ev => { list.forEach(e => ev.target.checked ? sel.add(e.id) : sel.delete(e.id)); sync(); };
+  $('#bkModes').onclick = ev => { const b = ev.target.closest('[data-pm]'); if (!b) return; mode = b.dataset.pm;
+    $('#bkModes').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); $('#bkRefWrap').classList.toggle('hidden', mode === 'Cash'); };
+  $('#bkSave').onclick = () => {
+    const chosen = list.filter(e => sel.has(e.id)); if (!chosen.length) return;
+    const amt = sum(chosen, total);
+    if (!confirm(`${tx('Mark as paid')}: ${chosen.length} · ${money(amt)}?`)) return;
+    const base = {paidOn: $('#bkDate').value || today(), paidMode: mode, paidRef: mode === 'Cash' ? '' : $('#bkRef').value.trim(), paidByName: S.me.name, updatedAt: Date.now(), updatedByName: S.me.name};
+    for (const e of chosen) { const u = {...strip(e), ...base}; api.saveEntry(u).catch(err => toast(errText(err))); Object.assign(e, u); }
+    closeSheet(); mergeEntries(); render(); toast(`${chosen.length} paid · ${money(amt)}`);
+  };
+  sync();
+}
+
 /* ================= add / edit form ================= */
 function itemRow(it = {}, unit = 'pcs') {
   return `<div class="irow">
@@ -1638,8 +1333,7 @@ function itemRow(it = {}, unit = 'pcs') {
     <div class="igrid">
       <label><span>Qty</span><input class="field i-qty" type="number" inputmode="decimal" step="any" min="0" value="${esc(it.qty ?? 1)}"></label>
       <label><span>Unit</span><select class="field i-unit">${UNITS.map(u => `<option ${u === (it.unit || unit) ? 'selected' : ''}>${u}</option>`).join('')}</select></label>
-      <label><span class="i-rlab">Rate ₹${rateUnit(it.unit || unit)}</span><input class="field i-rate" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${esc(it.rate ?? '')}"></label>
-      <label><span>Total ₹</span><input class="field i-amt" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${esc(it.amount ?? '')}"></label>
+      <label class="wide"><span>Price ₹</span><input class="field i-amt" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${esc(it.amount ?? '')}"></label>
       <button type="button" class="i-del" aria-label="Remove item">×</button>
     </div></div>`;
 }
@@ -1653,6 +1347,15 @@ function ironRow(it = {}) {
       <label><span>Iron</span><input class="field n-i" type="number" inputmode="numeric" min="0" placeholder="0" value="${num(it.iron) || ''}"></label>
       <button type="button" class="i-del" aria-label="Remove">×</button>
     </div><div class="hint n-hint">Wash ${money(r.wash)} · Iron ${money(r.iron)} per cloth</div></div>`;
+}
+function otherRow(it = {}) {
+  const q = it.other ? (num(it.qty) || 1) : '', r = it.other ? (num(it.rate) || num(it.amount)) : '';
+  return `<div class="irow orow"><div class="igrid3">
+      <label><span>Other</span><input class="field o-name" placeholder="e.g. Curtain, starch" value="${esc(it.note || '')}" autocomplete="off" autocapitalize="sentences"></label>
+      <label><span>Qty</span><input class="field o-q" type="number" inputmode="numeric" min="0" placeholder="1" value="${q}"></label>
+      <label><span>Rate ₹</span><input class="field o-r" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${r}"></label>
+      <button type="button" class="i-del o-del" aria-label="Remove">×</button>
+    </div></div>`;
 }
 function calcIronRow(el) {
   const r = rateOf(el.querySelector('.n-cat').value), w = num(el.querySelector('.n-w').value), i = num(el.querySelector('.n-i').value);
@@ -1669,15 +1372,16 @@ function openForm(existing, book) {
   if (!PAY.includes(e.mode)) e.mode = 'Cash';
   S.editing = e; S.dueDays = existing ? null : 30; S.photo = {changed: false, data: null};
   S.history = iron ? new Map() : itemHistory(k);
-  const ironItems = iron ? e.items.filter(i => !i.other) : [], other = iron ? e.items.find(i => i.other) : null;
+  const ironItems = iron ? e.items.filter(i => !i.other) : [], others = iron ? e.items.filter(i => i.other) : [];
   openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>${existing ? 'Edit' : 'Add'} · ${B.icon} ${B.name}</h2><button class="save" id="saveBtn">Save</button></div>
     <div class="sh-body" id="form">
       <div class="fgroup"><label class="flabel">Date</label><input type="date" class="field" id="fDate" value="${e.date}"></div>
       ${iron ? `<div class="fgroup"><h3>Clothes given</h3>
           <div id="items">${(ironItems.length ? ironItems : [{}]).map(ironRow).join('')}</div>
           <button type="button" class="addi" id="addItem">+ Add another cloth type</button>
-          <div class="row2" style="margin-top:10px"><div><label class="flabel">Others ₹ (optional)</label><input class="field" id="fOther" type="number" inputmode="decimal" min="0" placeholder="0" value="${other ? num(other.amount) || '' : ''}"></div>
-            <div><label class="flabel">Others note</label><input class="field" id="fOtherNote" placeholder="e.g. starch" value="${esc(other?.note || '')}"></div></div>
+          <h3 style="margin:14px 0 4px">Others (optional)</h3>
+          <div id="others">${(others.length ? others : [{}]).map(otherRow).join('')}</div>
+          <button type="button" class="addi" id="addOther">+ Add another other</button>
           <div class="totalbar"><span>Total</span><b id="fTotal">₹0</b></div>
           ${ironRates().every(r => !num(r.wash) && !num(r.iron)) ? `<p class="hint">Rates not set yet. Counts are saved now; amounts fill in when the admin sets the rate card.</p>` : ''}</div>`
       : `<div class="fgroup"><h3>Items</h3>
@@ -1706,31 +1410,21 @@ function openForm(existing, book) {
   const form = $('#form');
   form.addEventListener('input', ev => {
     const row = ev.target.closest('.irow');
-    if (row && !iron) {
-      const q = row.querySelector('.i-qty'), r = row.querySelector('.i-rate'), a = row.querySelector('.i-amt');
-      const u = row.querySelector('.i-unit').value;
-      if (ev.target === q || ev.target === r) { if (r.value !== '') a.value = lineAmt(q.value, r.value, u); }
-      else if (ev.target === a) { if (num(q.value) > 0) r.value = r2(num(a.value) / (num(q.value) * unitFactor(u))); }
-    }
-    if (row && iron) calcIronRow(row);
+    if (row && iron && !row.classList.contains('orow')) calcIronRow(row);
     updateTotal();
     if (ev.target.id === 'fDue') { S.dueDays = null; $('#dueChips').querySelectorAll('.chip').forEach(c => c.classList.remove('on')); }
     if (ev.target.id === 'fDate' && S.dueDays) $('#fDue').value = addDays(ev.target.value || today(), S.dueDays);
   });
   form.addEventListener('change', ev => {
     if (ev.target.classList.contains('n-cat')) { calcIronRow(ev.target.closest('.irow')); updateTotal(); return; }
-    if (ev.target.classList.contains('i-unit')) {
-      const row = ev.target.closest('.irow'), u = ev.target.value, r = row.querySelector('.i-rate');
-      row.querySelector('.i-rlab').textContent = 'Rate ₹' + rateUnit(u);
-      if (r.value !== '') row.querySelector('.i-amt').value = lineAmt(row.querySelector('.i-qty').value, r.value, u);
-      updateTotal(); return;
-    }
     if (!ev.target.classList.contains('i-name')) return;
-    const row = ev.target.closest('.irow'), h = S.history.get(ev.target.value.trim().toLowerCase()), r = row.querySelector('.i-rate');
-    if (h && r.value === '') { const u = h.unit || B.unit; r.value = h.rate; row.querySelector('.i-unit').value = u; row.querySelector('.i-rlab').textContent = 'Rate ₹' + rateUnit(u); row.querySelector('.i-amt').value = lineAmt(row.querySelector('.i-qty').value, h.rate, u); updateTotal(); }
+    const row = ev.target.closest('.irow'), h = S.history.get(ev.target.value.trim().toLowerCase());
+    if (h) { if (h.unit) row.querySelector('.i-unit').value = h.unit; const a = row.querySelector('.i-amt'); if (h.amount) a.placeholder = `${tx('last')} ${num(h.qty)} ${h.unit || ''} = ₹${num(h.amount)}`; }
   });
   form.addEventListener('click', ev => {
     const t = ev.target;
+    if (t.closest('.o-del')) { const rows = form.querySelectorAll('#others .orow'); if (rows.length > 1) t.closest('.orow').remove(); else t.closest('.orow').outerHTML = otherRow(); updateTotal(); return; }
+    if (t.closest('#addOther')) { $('#others').insertAdjacentHTML('beforeend', otherRow()); const r = $('#others').querySelectorAll('.o-name'); r[r.length - 1].focus(); return; }
     if (t.closest('.i-del')) { const rows = form.querySelectorAll('#items .irow'); if (rows.length > 1) t.closest('.irow').remove(); else t.closest('.irow').outerHTML = iron ? ironRow() : itemRow({}, B.unit); updateTotal(); }
     const st = t.closest('[data-st]');
     if (st) { e.status = st.dataset.st; $('#statusSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === st));
@@ -1760,8 +1454,10 @@ function readIronItems() {
     const cat = el.querySelector('.n-cat').value, r = rateOf(cat), w = num(el.querySelector('.n-w').value), i = num(el.querySelector('.n-i').value);
     return {name: cat, cat, wash: w, iron: i, qty: w + i, unit: 'pcs', washRate: num(r.wash), ironRate: num(r.iron), rate: 0, amount: r2(w * num(r.wash) + i * num(r.iron))};
   }).filter(x => x.wash || x.iron);
-  const oa = num($('#fOther')?.value);
-  if (oa) items.push({name: 'Others', other: true, note: $('#fOtherNote').value.trim(), qty: 1, unit: '', rate: oa, amount: oa});
+  document.querySelectorAll('#others .orow').forEach(el => {
+    const note = el.querySelector('.o-name').value.trim(), rate = num(el.querySelector('.o-r').value), qRaw = el.querySelector('.o-q').value, qty = qRaw === '' ? 1 : num(qRaw);
+    if (rate || note) items.push({name: 'Others', other: true, note, qty, unit: 'pcs', rate, amount: r2(qty * rate)});
+  });
   return items;
 }
 function updateTotal() {
@@ -1777,12 +1473,8 @@ function saveForm() {
     if (!items.length) return toast('Enter how many clothes');
   } else {
     items = [...document.querySelectorAll('#items .irow')].map(r => {
-      const qty = num(r.querySelector('.i-qty').value);
-      let rate = num(r.querySelector('.i-rate').value), amount = num(r.querySelector('.i-amt').value);
-      const unit = r.querySelector('.i-unit').value;
-      if (!amount && rate) amount = lineAmt(qty, rate, unit);
-      if (!rate && amount && qty) rate = r2(amount / (qty * unitFactor(unit)));
-      return {name: r.querySelector('.i-name').value.trim(), qty, unit, rate, amount};
+      const qty = num(r.querySelector('.i-qty').value), amount = num(r.querySelector('.i-amt').value), unit = r.querySelector('.i-unit').value;
+      return {name: r.querySelector('.i-name').value.trim(), qty, unit, rate: amount, amount, priceOnly: true};
     }).filter(i => i.name || i.amount);
     if (!items.length) return toast('Add at least one item');
     if (items.some(i => !i.name)) return toast('An item is missing its name');
@@ -2001,6 +1693,7 @@ function taskAlerts() {
     if (!seen || seen[t.id] === now[t.id] || t._pending) continue;
     const st = tStatus(t), by = t.updatedBy || t.createdBy;
     if (by === S.user.uid) continue;
+    if (S.isStaff && !staffMine(t)) continue;
     const newForMe = isMine(t) && openish(st) && (!(t.id in seen) || String(seen[t.id]).split('|')[2] !== (t.assignedTo || ''));
     if (newForMe && st === 'open' && !t.declinedAt) msgs.push(`${t.urgent ? '🚨 Urgent task' : 'New task'} from ${t.reassignedByName || t.createdByName}: ${t.title}`);
     else if (st === 'review' && S.isAdmin) msgs.push(`${t.submittedByName || 'Someone'} finished: ${t.title}. Please approve.`);
@@ -2063,6 +1756,35 @@ function renderTasks() {
     ${done.length ? `<div class="section-t">Done (${done.length})</div>` + done.map(x => taskRow(x)).join('') : ''}`;
 }
 
+/* ---- staff (workers): only their tasks, voice note to listen, done with a camera photo. No photos are shown. ---- */
+const staffMine = t => !t.assignedTo || t.assignedTo === S.user.uid;
+function renderStaffTasks() {
+  const t = today(), mine = S.taskList.filter(staffMine);
+  const todo = mine.filter(x => openish(tStatus(x)) && x.date <= t).sort((a, b) => (b.urgent ? 1 : 0) - (a.urgent ? 1 : 0) || (tStatus(b) === 'working') - (tStatus(a) === 'working') || a.date.localeCompare(b.date) || (a.createdAt || 0) - (b.createdAt || 0));
+  const later = mine.filter(x => openish(tStatus(x)) && x.date > t).sort((a, b) => a.date.localeCompare(b.date));
+  const sent = mine.filter(x => !openish(tStatus(x)) && (x.submittedBy === S.user.uid) && ((x.submittedAt || 0) > Date.now() - 3 * 864e5)).sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0));
+  const card = x => { const st = tStatus(x);
+    return `<div class="fgroup scard ${x.urgent ? 'urgent' : ''}">
+      ${x.urgent ? '<span class="badge b-over" style="margin:0 0 6px">🚨 Urgent</span>' : ''}
+      <div style="font-size:19px;font-weight:700" data-nt>${esc(x.title)}</div>
+      <div class="hint" style="margin:2px 0 6px">${x.date < t ? `From ${shortDate(x.date)} · ` : ''}by ${esc(x.reassignedByName || x.createdByName || '—')}</div>
+      ${x.hasVoice ? playerHTML('sv_' + x.id, '🎤 Voice note') : ''}
+      ${x.declinedAt ? `<div class="redo-box" style="margin-top:8px"><b>↺ Please redo</b> · ${esc(x.declinedByName || '')}${x.declineNote ? `<div data-nt>${esc(x.declineNote)}</div>` : ''}${x.declineVoice ? playerHTML('sd_' + x.id, '🎤 Instructions') : ''}</div>` : ''}
+      ${st === 'working' ? `<div class="hint" style="margin:8px 0 0"><b class="working">▶ Working since ${timeStr(x.startedAt)}</b></div>` : ''}
+      <div class="row2" style="margin-top:10px">${st === 'open' ? `<button class="btn sec" data-sstart="${x.id}" style="margin:0">▶ Start</button>` : `<button class="btn sec" data-sunstart="${x.id}" style="margin:0">⏸ Not started</button>`}
+        <button class="btn pri" data-sdone="${x.id}" style="margin:0">📷 Done</button></div></div>`; };
+  $('#main').innerHTML = `
+    <div class="stats three"><div class="stat ${todo.length ? 'warn' : ''}"><small>To do</small><b>${todo.length}</b></div>
+      <div class="stat"><small>Sent</small><b style="color:var(--amber)">${sent.filter(x => tStatus(x) === 'review').length}</b></div>
+      <div class="stat"><small>Done</small><b style="color:var(--accent)">${sent.filter(x => tStatus(x) === 'done').length}</b></div></div>
+    ${'Notification' in window && Notification.permission === 'default' ? `<button class="btn sec" id="notifBtn">🔔 Turn on task alerts</button>` : ''}
+    <div class="section-t">To do (${todo.length})</div>
+    ${todo.length ? todo.map(card).join('') : `<div class="empty" style="padding:22px">No work right now. 🙏</div>`}
+    ${later.length ? `<div class="section-t">Coming days (${later.length})</div>` + later.map(x => `<div class="trow"><span class="tick"></span><div class="main"><div class="t" data-nt>${esc(x.title)}</div><div class="s">${prettyDate(x.date)}</div></div></div>`).join('') : ''}
+    ${sent.length ? `<div class="section-t">Sent (${sent.length})</div>` + sent.map(x => `<div class="trow ${tStatus(x)}"><span class="tick">${tStatus(x) === 'done' ? '✓' : '⏳'}</span><div class="main"><div class="t" data-nt>${esc(x.title)}</div><div class="s">${tStatus(x) === 'done' ? 'Done ✓' : 'Sent · waiting for check'} · ${timeStr(x.submittedAt)}</div></div></div>`).join('') : ''}`;
+  for (const x of todo) { if (x.hasVoice) loadPlayer('sv_' + x.id, 'tv_' + x.id, '🎤 Voice note'); if (x.declinedAt && x.declineVoice) loadPlayer('sd_' + x.id, 'tdv_' + x.id, '🎤 Instructions'); }
+}
+
 function openTaskForm() {
   const people = S.users.filter(u => u.status === 'approved' || u.role === 'admin');
   const team = rankPeople(), others = people.filter(u => !team.some(x => x.u.uid === u.uid));
@@ -2111,6 +1833,7 @@ function openTaskForm() {
 }
 
 function openTask(id) {
+  if (S.isStaff) return closeSheet();
   const t = findTask(id); if (!t) return;
   const st = tStatus(t), canEdit = S.isAdmin || t.createdBy === S.user.uid;
   openSheet(`<div class="sh-head"><button data-close>Close</button><h2>Task</h2>${canEdit && st !== 'done' ? `<button id="tEdit">Edit</button>` : '<span></span>'}</div>
@@ -2184,6 +1907,7 @@ function openSubmit(id) {
       <div class="fgroup"><label class="flabel">Voice reply (optional)</label><div class="voice" id="sbVoice"></div></div>
       <div class="fgroup"><label class="flabel">Note (optional)</label><textarea class="field" id="sbNote" rows="2" placeholder="e.g. Paid ₹1,240"></textarea></div>
       <button class="btn pri" id="sbSave2">Send for approval</button>
+      ${S.isStaff ? `<p class="hint">After sending, this task closes for you. If the photo isn't clear, it will come back to you to redo.</p>` : ''}
     </div>`);
   const draw = () => { $('#sbPhoto').innerHTML = photo.data ? `<img src="${photo.data}" alt=""><button type="button" class="pbtn" id="sbPh">Retake</button>` : `<button type="button" class="pbtn" id="sbPh">📷 Take photo</button>`; $('#sbPh').onclick = () => pickPhoto(true, d => { photo.data = d; draw(); }); };
   draw();
@@ -2195,7 +1919,7 @@ function openSubmit(id) {
     api.savePhoto('tproof_' + t.id, photo.data).catch(e => toast('Photo: ' + errText(e)));
     if (voice.data) api.savePhoto('tpv_' + t.id, voice.data).catch(e => toast('Voice: ' + errText(e)));
     api.saveTask({...strip(t), status: 'review', done: false, hasProof: true, proofVoice: !!voice.data, proofNote: $('#sbNote').value.trim(), submittedBy: S.user.uid, submittedByName: S.me.name, submittedAt: Date.now(), updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
-    closeSheet(); toast('Sent for approval');
+    closeSheet(); toast(S.isStaff ? 'Sent ✓ Task done' : 'Sent for approval');
   };
   $('#sbSave').onclick = send; $('#sbSave2').onclick = send;
 }
@@ -2275,9 +1999,9 @@ async function renderDash() {
         ${es.map(e => { const g = ironCounts(e), r = returnState(e); return `<tr data-open="${e.id}"><td>${shortDate(e.date)}</td><td class="num">${g.wash || '–'}</td><td class="num">${g.iron || '–'}</td><td class="num">${ironOthers(e) ? money(ironOthers(e)) : '–'}</td><td class="num"><b>${g.wash + g.iron}</b><div class="sub-amt">${money(total(e))}</div></td><td>${r.txt ? `<span class="badge ${r.cls}" style="margin:0">${r.txt}</span>` : ''}</td></tr>`; }).join('')}
         </tbody><tfoot><tr><td>Total</td><td class="num">${c.w}</td><td class="num">${c.i}</td><td class="num">${money(es.reduce((t, e) => t + ironOthers(e), 0))}</td><td class="num">${c.w + c.i}<div class="sub-amt strong">${money(bt)}</div></td><td></td></tr></tfoot></table>`;
     } else {
-      html += `<table class="dt nb"><thead><tr><th>Date</th><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Total</th></tr></thead><tbody>
-        ${es.flatMap(e => (e.items || []).map((i, n) => `<tr data-open="${e.id}"><td>${n ? '' : shortDate(e.date)}</td><td><span data-nt>${esc(i.name)}</span>${n === 0 && isPending(e) ? ' <span class="badge b-credit" style="margin:0">to pay</span>' : ''}</td><td class="num">${+i.qty || 0} ${esc(i.unit || '')}</td><td class="num">${money(i.rate)}${rateUnit(i.unit)}</td><td class="num">${money(i.amount)}</td></tr>`)).join('')}
-        </tbody><tfoot><tr><td colspan="4">Total</td><td class="num">${money(bt)}</td></tr></tfoot></table>`;
+      html += `<table class="dt nb"><thead><tr><th>Date</th><th>Item</th><th class="num">Qty</th><th class="num">Price</th></tr></thead><tbody>
+        ${es.flatMap(e => (e.items || []).map((i, n) => `<tr data-open="${e.id}"><td>${n ? '' : shortDate(e.date)}</td><td><span data-nt>${esc(i.name)}</span>${n === 0 && isPending(e) ? ' <span class="badge b-credit" style="margin:0">to pay</span>' : ''}</td><td class="num">${+i.qty || 0} ${esc(i.unit || '')}</td><td class="num">${money(i.amount)}</td></tr>`)).join('')}
+        </tbody><tfoot><tr><td colspan="3">Total</td><td class="num">${money(bt)}</td></tr></tfoot></table>`;
     }
     html += `</div></div>`;
   }
@@ -2307,10 +2031,10 @@ function reportRows() {
   for (const k of BOOK_KEYS) {
     const es = list.filter(e => bookOf(e) === k); if (d.book && d.book !== k) continue;
     if (k === 'iron') sheets.Iron = [['Date', 'Cloth', 'Wash', 'Iron', 'Wash rate', 'Iron rate', 'Amount', 'Entry total', 'Returned wash', 'Returned iron', 'Returned on', 'Status', 'Paid by', 'UTR', 'Added by'],
-      ...es.flatMap(e => (e.items || []).map((i, n) => [e.date, i.other ? 'Others' + (i.note ? ' (' + i.note + ')' : '') : i.name, i.other ? '' : num(i.wash), i.other ? '' : num(i.iron), i.other ? '' : num(i.washRate), i.other ? '' : num(i.ironRate), num(i.amount),
+      ...es.flatMap(e => (e.items || []).map((i, n) => [e.date, i.other ? (i.note || 'Others') + (num(i.qty) > 1 || num(i.rate) !== num(i.amount) ? ` (${num(i.qty)} × ${num(i.rate)})` : '') : i.name, i.other ? '' : num(i.wash), i.other ? '' : num(i.iron), i.other ? '' : num(i.washRate), i.other ? '' : num(i.ironRate), num(i.amount),
         n ? '' : total(e), n ? '' : num(e.retWash), n ? '' : num(e.retIron), n ? '' : (e.retOn || ''), n ? '' : statusText(e), n ? '' : (e.status === 'paid' ? e.mode : e.paidMode || ''), n ? '' : (e.ref || e.paidRef || ''), n ? '' : (e.createdByName || '')]))];
-    else sheets[BOOKS[k].name] = [['Date', 'Item', 'Qty', 'Unit', 'Rate', 'Amount', 'Entry total', 'Status', 'Paid by', 'Paid on', 'UTR', 'Added by', 'Notes'],
-      ...es.flatMap(e => (e.items || []).map((i, n) => [e.date, i.name, num(i.qty), i.unit, num(i.rate), num(i.amount), n ? '' : total(e), n ? '' : statusText(e),
+    else sheets[BOOKS[k].name] = [['Date', 'Item', 'Qty', 'Unit', 'Price', 'Entry total', 'Status', 'Paid by', 'Paid on', 'UTR', 'Added by', 'Notes'],
+      ...es.flatMap(e => (e.items || []).map((i, n) => [e.date, i.name, num(i.qty), i.unit, num(i.amount), n ? '' : total(e), n ? '' : statusText(e),
         n ? '' : (e.status === 'paid' ? e.mode : e.paidMode || ''), n ? '' : (e.status === 'paid' ? e.date : e.paidOn || ''), n ? '' : (e.ref || e.paidRef || ''), n ? '' : (e.createdByName || ''), n ? '' : (e.notes || '')]))];
   }
   return sheets;
@@ -2345,14 +2069,12 @@ async function mainClick(ev) {
   const o = t.closest('[data-open]'); if (o) return openDetail(o.dataset.open);
   const f = t.closest('[data-filter]'); if (f) { S.filter = f.dataset.filter; return render(); }
   const g = t.closest('[data-goto]'); if (g) { S.view = g.dataset.goto; S.q = ''; $('#search').value = ''; render(); return scrollTo(0, 0); }
-  const th = t.closest('[data-thing]'); if (th) return openThing(th.dataset.thing);
-  const pj = t.closest('[data-pooja]'); if (pj) return openPooja(pj.dataset.pooja);
-  const tr2 = t.closest('[data-troom]'); if (tr2) { S.thingRoom[S.view] = tr2.dataset.troom; return render(); }
   if (t.closest('[data-rates]')) return openRateCard();
+  if (t.closest('[data-bulkpay]')) return openBulkPay();
   const db = t.closest('[data-dbook]'); if (db) { S.dash.book = db.dataset.dbook; return renderDash(); }
   const p = t.closest('[data-preset]');
   if (p) { S.dash.preset = p.dataset.preset; if (p.dataset.preset !== 'custom') [S.dash.from, S.dash.to] = presetRange(p.dataset.preset); return renderDash(); }
-  const us = t.closest('[data-ustat]'); if (us) return setUserStatus(us.dataset.uid, us.dataset.ustat);
+  const us = t.closest('[data-ustat]'); if (us) return setUserStatus(us.dataset.uid, us.dataset.ustat, us.dataset.asrole);
   const ur = t.closest('[data-urole]'); if (ur) return setUserRole(ur.dataset.uid, ur.dataset.urole);
   if (t.closest('#signOutBtn')) return api.signOut();
   if (t.closest('#notifBtn')) { try { const r = await Notification.requestPermission(); toast(r === 'granted' ? 'Alerts on' : 'Alerts not allowed'); } catch {} return render(); }
@@ -2360,6 +2082,11 @@ async function mainClick(ev) {
   const td = t.closest('[data-tday]'); if (td) { const n = +td.dataset.tday; S.taskDay = n === 0 ? today() : addDays(S.taskDay, n); return render(); }
   const tl = t.closest('[data-tlang]'); if (tl) { try { localStorage.setItem('tLang', tl.dataset.tlang); } catch {} return render(); }
   if (t.closest('[data-newtask]')) return openTaskForm();
+  const ss = t.closest('[data-sstart],[data-sunstart],[data-sdone]');
+  if (ss) { const id = ss.dataset.sstart || ss.dataset.sunstart || ss.dataset.sdone, x = findTask(id); if (!x) return;
+    if (ss.dataset.sdone) return openSubmit(id);
+    const patch = ss.dataset.sstart ? {status: 'working', startedAt: Date.now(), startedByName: S.me.name, ...(x.assignedTo ? {} : {assignedTo: S.user.uid, assignedName: S.me.name})} : {status: 'open', startedAt: null};
+    api.saveTask({...strip(x), ...patch, updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e))); return toast(ss.dataset.sstart ? 'Started' : 'OK'); }
   const tr = t.closest('[data-task]'); if (tr) return openTask(tr.dataset.task);
 }
 function mainChange(ev) {
