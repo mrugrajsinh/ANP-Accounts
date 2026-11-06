@@ -6,12 +6,16 @@ service cloud.firestore {
 
     function signedIn() { return request.auth != null; }
 
-    function isAdmin() {
-      return signedIn()
-        && request.auth.token.email.lower() == 'mrugraj321@gmail.com';
+    function myDoc() { return /databases/$(database)/documents/users/$(request.auth.uid); }
+
+    function isOwner() {
+      return signedIn() && request.auth.token.email.lower() == 'mrugraj321@gmail.com';
     }
 
-    function myDoc() { return /databases/$(database)/documents/users/$(request.auth.uid); }
+    function isAdmin() {
+      return isOwner() || (signedIn() && exists(myDoc()) && get(myDoc()).data.role == 'admin'
+        && get(myDoc()).data.status == 'approved');
+    }
 
     function approved() {
       return isAdmin() || (signedIn() && exists(myDoc()) && get(myDoc()).data.status == 'approved');
@@ -46,7 +50,9 @@ service cloud.firestore {
     match /tasks/{id} {
       allow read: if approved();
       allow create: if approved() && request.resource.data.createdBy == request.auth.uid;
-      allow update: if approved() && request.resource.data.createdBy == resource.data.createdBy;
+      // only admins can mark a task approved (done)
+      allow update: if approved() && request.resource.data.createdBy == resource.data.createdBy
+        && (request.resource.data.get('status', '') != 'done' || resource.data.get('status', '') == 'done' || isAdmin());
       allow delete: if approved() && (isAdmin() || resource.data.createdBy == request.auth.uid);
     }
 

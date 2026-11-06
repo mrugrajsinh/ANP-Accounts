@@ -1,6 +1,6 @@
 // App files: network-first (so GitHub updates show up), cache fallback when offline.
 // Firebase / Excel libraries: cache-first (their URLs are versioned).
-const CACHE = 'anp-accounts-v3';
+const CACHE = 'anp-accounts-v4';
 const ASSETS = ['./', './index.html', './firebase-config.js', './manifest.json', './apple-touch-icon.png', './icon-192.png', './icon-512.png'];
 const LIBS = ['www.gstatic.com', 'cdn.sheetjs.com'];
 
