@@ -497,6 +497,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
+const APP_VERSION = '6 · 6 Nov homely';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -550,7 +551,12 @@ async function boot() {
   try { api = demo ? demoAPI() : await firebaseAPI(CFG.firebase); }
   catch (e) { return screenMsg('Could not connect', `Check your internet connection and reload.<br><small>${esc(e.message)}</small>`, true); }
   api.onAuth(onUser);
-  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    const hadSW = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register('sw.js', {updateViaCache: 'none'}).then(r => r.update()).catch(() => {});
+    // when a new version installs, reload once so it shows straight away
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadSW && !S.reloaded) { S.reloaded = true; location.reload(); } });
+  }
   addEventListener('online', updateSync); addEventListener('offline', updateSync);
 }
 
@@ -823,7 +829,7 @@ function moreHTML() {
   const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
   const notif = 'Notification' in window ? Notification.permission : 'unsupported';
   let html = `<div class="more">
-    <div class="fgroup"><h3>${esc(me.name || '')}</h3><p>${esc(S.user.email)} · ${S.isOwner ? 'Main admin' : S.isAdmin ? 'Admin' : 'Member'}${api.demo ? ' · DEMO' : ''}</p>
+    <div class="fgroup"><h3>${esc(me.name || '')}</h3><p>${esc(S.user.email)} · ${S.isOwner ? 'Main admin' : S.isAdmin ? 'Admin' : 'Member'}${api.demo ? ' · DEMO' : ''}</p><p class="hint">App version: ${APP_VERSION}</p>
       <button class="btn sec" id="renameBtn">Change my name</button>
       ${notif === 'default' ? `<button class="btn sec" id="notifBtn">🔔 Turn on task alerts</button>` : notif === 'granted' ? `<p class="hint">🔔 Task alerts are on for this phone.</p>` : ''}
       <button class="btn dan" id="signOutBtn">Sign out</button></div>`;

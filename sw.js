@@ -1,6 +1,6 @@
 // App files: network-first (so GitHub updates show up), cache fallback when offline.
 // Firebase / Excel libraries: cache-first (their URLs are versioned).
-const CACHE = 'anp-accounts-v5';
+const CACHE = 'anp-accounts-v6';
 const ASSETS = ['./', './index.html', './firebase-config.js', './manifest.json', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './logo.jpg'];
 const LIBS = ['www.gstatic.com', 'cdn.sheetjs.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
@@ -33,7 +33,7 @@ self.addEventListener('fetch', e => {
   if (url.origin !== location.origin) return; // Firebase data calls go straight to the network
 
   e.respondWith(
-    fetch(e.request)
+    fetch(e.request, {cache: 'no-cache'})   // always check GitHub for the newest version
       .then(res => {
         const copy = res.clone();
         caches.open(CACHE).then(c => c.put(e.request, copy));
