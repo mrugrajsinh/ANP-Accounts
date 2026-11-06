@@ -354,6 +354,15 @@ b.working{color:var(--amber)}
 .vprev{width:100%;max-width:340px;border-radius:12px;background:#000;display:block}
 .vprev.big{max-width:100%}
 .steps{white-space:pre-wrap;font-size:16px;line-height:1.5;background:var(--bg);border-radius:12px;padding:10px 12px;border:1px solid var(--line)}
+.bookbtn .bicon.pooja{background:#ffe0c2}
+@media (prefers-color-scheme:dark){.bookbtn .bicon.pooja{background:#4a2c14}}
+.card.pooja{align-items:flex-start}.card.pooja .th-img{font-size:30px;background:#ffe9d4}
+.ck{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px dashed var(--line);font-size:16px}
+.ck:last-child{border-bottom:0}.ck input{width:22px;height:22px;accent-color:var(--accent);flex:none}
+.ck small,.ckrow small{color:var(--muted);margin-left:auto}.ck.on span{text-decoration:line-through;color:var(--muted)}
+.ckrow{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px dashed var(--line)}
+.ckrow span,.ck span{flex:1;min-width:0}.ckrow small{margin-left:0}
+.addck{grid-template-columns:1fr auto;margin-top:10px;align-items:center}
 </style>
 </head>
 <body>
@@ -640,7 +649,14 @@ const D = {
   'Set your home location in the Users tab to see who is at home.': ['Kaun ghar par hai dekhne ke liye Users mein ghar ki location set karo.', 'કોણ ઘરે છે તે જોવા સભ્યો ટેબમાં ઘરનું લોકેશન સેટ કરો.'],
   'Home location saved': ['Ghar ki location save hui', 'ઘરનું લોકેશન સેવ થયું'], 'Finding location…': ['Location dhundh rahe…', 'લોકેશન શોધે છે…'], 'just now': ['abhi', 'હમણાં'],
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
-  'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'How it works': ['Kaise chalta hai', 'કેવી રીતે ચાલે છે'],
+  'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
+  'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], '📅 Add reminder to phone calendar': ['📅 Phone calendar mein reminder lagao', '📅 ફોન કૅલેન્ડરમાં રિમાઇન્ડર મૂકો'], 'Samagri checklist': ['Samagri list', 'સામગ્રી યાદી'],
+  'No items yet. Add them below.': ['Abhi koi saaman nahi. Neeche jodo.', 'હજુ કોઈ વસ્તુ નથી. નીચે ઉમેરો.'], 'Add item, e.g. Diya': ['Saaman jodo, jaise Diya', 'વસ્તુ ઉમેરો, દા.ત. દીવો'], '+ Add': ['+ Jodo', '+ ઉમેરો'],
+  '📋 Copy for another date': ['📋 Doosri tareekh ke liye copy', '📋 બીજી તારીખ માટે કૉપી'], 'Copy pooja': ['Pooja copy', 'પૂજા કૉપી'], 'New pooja': ['Nayi pooja', 'નવી પૂજા'], 'Edit pooja': ['Pooja badlo', 'પૂજા સુધારો'],
+  'Pooja name': ['Pooja ka naam', 'પૂજાનું નામ'], 'e.g. Lakshmi Pooja': ['jaise Lakshmi Pooja', 'દા.ત. લક્ષ્મી પૂજા'], 'Muhurat from': ['Muhurat se', 'મુહૂર્ત થી'],
+  'Type an item and tap + Add (or press Enter). Add quantity after a dash, e.g. "Diya - 11".': ['Saaman likho aur + Jodo dabao. Matra dash ke baad, jaise "Diya - 11".', 'વસ્તુ લખી + ઉમેરો દબાવો. જથ્થો ડૅશ પછી, દા.ત. "દીવો - 11".'],
+  'Write the pooja name': ['Pooja ka naam likho', 'પૂજાનું નામ લખો'], 'Pick the date': ['Tareekh chuno', 'તારીખ પસંદ કરો'], 'Opening calendar… tap Add to save the reminder': ['Calendar khul raha… reminder ke liye Add dabao', 'કૅલેન્ડર ખૂલે છે… રિમાઇન્ડર માટે Add દબાવો'], 'How it works': ['Kaise chalta hai', 'કેવી રીતે ચાલે છે'],
   'Lights, geyser, steam, sauna, shower…': ['Light, geyser, steam, sauna, shower…', 'લાઇટ, ગીઝર, સ્ટીમ, સૉના, શાવર…'], 'Search: lights, geyser, steam…': ['Dhundho: light, geyser, steam…', 'શોધો: લાઇટ, ગીઝર, સ્ટીમ…'],
   'Explain lights, geyser, steam, sauna, shower… with photo, voice or video.': ['Light, geyser, steam, sauna, shower… photo, voice ya video se samjhao.', 'લાઇટ, ગીઝર, સ્ટીમ, સૉના, શાવર… ફોટો, અવાજ કે વીડિયોથી સમજાવો.'],
   'Add how it works': ['Kaise chalta hai, jodo', 'કેવી રીતે ચાલે, ઉમેરો'], 'How to use it': ['Kaise chalana hai', 'કેવી રીતે વાપરવું'], 'How to use': ['Kaise chalayein', 'કેવી રીતે વાપરવું'],
@@ -663,7 +679,8 @@ const D = {
   'Too long. Keep voice notes under 1 minute.': ['Bahut lamba. 1 minute se kam rakho.', 'બહુ લાંબું. 1 મિનિટથી ઓછું રાખો.'], 'Name updated': ['Naam badal gaya', 'નામ બદલાયું'],
 };
 const PATTERNS = [
-  [/^by (.+)$/, ['$1 ne joda', '$1 એ ઉમેર્યું']], [/^■ Stop · (\d+)s$/, ['■ Ruko · $1s', '■ બંધ · $1s']], [/^(\d+) things saved$/, ['$1 cheezein save', '$1 વસ્તુ સેવ']],
+  [/^by (.+)$/, ['$1 ne joda', '$1 એ ઉમેર્યું']], [/^(\d+)\/(\d+) ready$/, ['$1/$2 taiyaar', '$1/$2 તૈયાર']], [/^In (\d+) days$/, ['$1 din mein', '$1 દિવસમાં']],
+  [/^Next: (.+)$/, ['Agli: $1', 'આગળ: $1']], [/^🪔 (.+) (today|tomorrow)(.*)$/, ['🪔 $1 $2$3', '🪔 $1 $2$3']], [/^■ Stop · (\d+)s$/, ['■ Ruko · $1s', '■ બંધ · $1s']], [/^(\d+) things saved$/, ['$1 cheezein save', '$1 વસ્તુ સેવ']],
   [/^(\d+) min ago$/, ['$1 min pehle', '$1 મિનિટ પહેલાં']], [/^(\d+) h ago$/, ['$1 ghante pehle', '$1 કલાક પહેલાં']],
   [/^🏠 At home$/, ['🏠 Ghar par', '🏠 ઘરે']], [/^🚶 Outside$/, ['🚶 Bahar', '🚶 બહાર']], [/^Last seen (.+)$/, ['Aakhri baar $1', 'છેલ્લે $1']], [/^(🏠|🚶) Last seen (.+)$/, ['$1 Aakhri baar $2', '$1 છેલ્લે $2']],
   [/^📍 Location off$/, ['📍 Location band', '📍 લોકેશન બંધ']], [/^▶ Working since (.+)$/, ['▶ $1 se kaam chal raha', '▶ $1 થી કામ ચાલુ']],
@@ -757,7 +774,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '15 · how it works';
+const APP_VERSION = '16 · pooja';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -789,7 +806,7 @@ const S = {
 
 function mergeEntries() {
   const m = new Map([...S.live, ...S.credits]);
-  for (const [k, e] of m) if (e.book === 'things' || e.book === 'guide') m.delete(k);
+  for (const [k, e] of m) if (e.book === 'things' || e.book === 'guide' || e.book === 'pooja') m.delete(k);
   S.entries = [...m.values()].sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || 0) - (a.createdAt || 0));
   S.rangeCache = null;
 }
@@ -912,7 +929,7 @@ function startApp() {
   </div></nav>`;
   document.querySelector('nav').onclick = ev => { const b = ev.target.closest('[data-view]'); if (b) { S.view = b.dataset.view; render(); scrollTo(0, 0); } };
   $('#backBtn').onclick = () => { S.view = 'home'; S.q = ''; $('#search').value = ''; render(); scrollTo(0, 0); };
-  $('#fab').onclick = () => S.view === 'tasks' ? openTaskForm() : KINDS[S.view] ? openThingForm(null, false, S.view) : openForm(null, S.book);
+  $('#fab').onclick = () => S.view === 'tasks' ? openTaskForm() : S.view === 'pooja' ? openPoojaForm() : KINDS[S.view] ? openThingForm(null, false, S.view) : openForm(null, S.book);
   $('#xlBtn').onclick = exportExcel;
   $('#mPrev').onclick = () => { S.month = monthStart(S.month + '-01', 1).slice(0, 7); ensureMonth(); render(); };
   $('#mNext').onclick = () => { S.month = monthStart(S.month + '-01', -1).slice(0, 7); ensureMonth(); render(); };
@@ -923,8 +940,8 @@ function startApp() {
   const err = e => toast(errText(e));
   S.unsub.push(api.watchEntries(S.since, list => { S.live = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
   S.unsub.push(api.watchCredits(list => { S.credits = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
-  S.lists = {things: [], guide: []}; S.thingRoom = {};
-  for (const k of ['things', 'guide']) S.unsub.push(api.watchBook(k, list => { S.lists[k] = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); if (S.view === k || S.view === 'home') render(); }, err));
+  S.lists = {things: [], guide: [], pooja: []}; S.thingRoom = {};
+  for (const k of ['things', 'guide', 'pooja']) S.unsub.push(api.watchBook(k, list => { S.lists[k] = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); if (k === 'pooja' && !S.pjChecked) { S.pjChecked = true; poojaReminder(); } if (S.view === k || S.view === 'home') render(); }, err));
   S.unsub.push(api.watchUsers(list => { S.users = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); render(); }, () => {}));
   S.unsub.push(api.watchSettings(d => { S.settings = d || {}; render(); }, () => {}));
   S.presence = new Map();
@@ -951,9 +968,9 @@ function updateSync() {
 
 function render() {
   if (!S.started || !$('#main')) return;
-  const v = S.view, inBook = v === 'book', isK = !!KINDS[v], sub = inBook || isK;
+  const v = S.view, inBook = v === 'book', isK = !!KINDS[v], sub = inBook || isK || v === 'pooja';
   document.querySelectorAll('nav [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v || (sub && b.dataset.view === 'home')));
-  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'ANP Accounts', tasks: 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account', things: 'Where is it?', guide: 'How it works'}[v];
+  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'ANP Accounts', tasks: 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account', things: 'Where is it?', guide: 'How it works', pooja: 'Pooja'}[v];
   $('#backBtn').classList.toggle('hidden', !sub);
   $('#monthnav').classList.toggle('hidden', !inBook);
   $('#search').classList.toggle('hidden', !(inBook && S.book !== 'iron') && !isK);
@@ -969,7 +986,7 @@ function render() {
   updateSync();
   if (v === 'dash') return renderDash();
   if (v === 'tasks') return renderTasks();
-  $('#main').innerHTML = v === 'home' ? homeHTML() : isK ? thingsHTML(v) : inBook ? (S.book === 'iron' ? ironHTML() : bookHTML()) : moreHTML();
+  $('#main').innerHTML = v === 'home' ? homeHTML() : v === 'pooja' ? poojaHTML() : isK ? thingsHTML(v) : inBook ? (S.book === 'iron' ? ironHTML() : bookHTML()) : moreHTML();
   if (isK) loadThumbs();
 }
 
@@ -993,6 +1010,9 @@ function homeHTML() {
   }).join('')}</div>
   <button class="bookbtn" data-goto="things"><span class="bicon thing">🔎</span><span class="bmain"><span class="bname">Where is it?</span>
       <span class="bsub">${(S.lists?.things || []).length} things saved</span></span><span class="chev">›</span></button>
+  ${(() => { const n = nextPooja(); return `<button class="bookbtn" data-goto="pooja"><span class="bicon pooja">🪔</span><span class="bmain"><span class="bname">Pooja</span>
+      <span class="bsub">${n ? `Next: <b data-nt>${esc(n.name)}</b> · ${shortDate(n.date)}${n.start ? ' ' + fmtTime(n.start) : ''}` : 'Dates, muhurat & samagri checklist'}</span>
+      ${n && inDays(n.date) && daysBetween(today(), n.date) <= 7 ? `<span class="bbadges"><span class="badge ${daysBetween(today(), n.date) === 0 ? 'b-over' : 'b-credit'}">${inDays(n.date)}</span></span>` : ''}</span><span class="chev">›</span></button>`; })()}
   <button class="bookbtn" data-goto="guide"><span class="bicon guide">💡</span><span class="bmain"><span class="bname">How it works</span>
       <span class="bsub">Lights, geyser, steam, sauna, shower…</span></span><span class="chev">›</span></button>
   ${acts ? `<button class="bookbtn small" data-goto="tasks"><span class="bicon">✅</span><span class="bmain"><span class="bname">${acts} task${acts === 1 ? '' : 's'} need you</span><span class="bsub">Open Tasks</span></span><span class="chev">›</span></button>` : ''}`;
@@ -1326,6 +1346,116 @@ function openThingForm(existing, moved, kind) {
     closeSheet(); toast(isNew ? 'Saved' : 'Updated');
   };
   $('#thSave').onclick = save; $('#thSave2').onclick = save;
+}
+
+/* ================= pooja planner: date, muhurat, samagri checklist, calendar reminder ================= */
+const poojaList = () => S.lists?.pooja || [];
+const poojaWhen = p => `${prettyDate(p.date)}${p.start ? ' · ' + fmtTime(p.start) + (p.end ? ' – ' + fmtTime(p.end) : '') : ''}`;
+function fmtTime(hm) { if (!hm) return ''; const [h, m] = hm.split(':').map(Number); const d = new Date(); d.setHours(h, m || 0, 0, 0); return d.toLocaleTimeString(LOC(), {hour: 'numeric', minute: '2-digit'}); }
+const poojaReady = p => { const c = p.checklist || []; return [c.filter(i => i.done).length, c.length]; };
+function nextPooja() { const t = today(); return poojaList().filter(p => p.date >= t).sort((a, b) => (a.date + (a.start || '')).localeCompare(b.date + (b.start || '')))[0]; }
+function inDays(d) { const n = daysBetween(today(), d); return n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : n > 1 ? `In ${n} days` : ''; }
+function poojaHTML() {
+  const t = today(), all = poojaList();
+  const up = all.filter(p => p.date >= t).sort((a, b) => (a.date + (a.start || '')).localeCompare(b.date + (b.start || '')));
+  const past = all.filter(p => p.date < t).sort((a, b) => b.date.localeCompare(a.date));
+  if (!all.length) return `<div class="empty"><div class="big">🪔</div>Plan a pooja: date, muhurat time and samagri checklist.<br>Tap <b>+</b> to add.</div>`;
+  const card = p => { const [r, n] = poojaReady(p), soon = inDays(p.date);
+    return `<button class="card pooja" data-pooja="${p.id}"><div class="th-img">🪔</div>
+      <div class="main"><div class="t" data-nt>${esc(p.name)}</div><div class="s">${poojaWhen(p)}</div>
+        <div class="tmline">${soon ? `<span class="badge ${soon === 'Today' ? 'b-over' : 'b-credit'}">${soon}</span>` : ''}${n ? `<span class="badge ${r === n ? 'b-paid' : 'b-mute'}">${r}/${n} ready</span>` : ''}</div></div></button>`; };
+  return (up.length ? `<div class="section-t">Coming up</div>` + up.map(card).join('') : '') + (past.length ? `<div class="section-t">Done before</div>` + past.map(card).join('') : '');
+}
+const findPooja = id => poojaList().find(p => p.id === id);
+function savePooja(p) { return api.saveEntry({...strip(p), book: 'pooja', items: [], updatedAt: Date.now(), updatedByName: S.me.name}).catch(e => toast(errText(e))); }
+function openPooja(id) {
+  const p = findPooja(id); if (!p) return;
+  const list = (p.checklist || []).map(i => ({...i}));
+  const canDel = S.isAdmin || p.createdBy === S.user.uid;
+  const draw = () => { const r = list.filter(i => i.done).length;
+    $('#pjList').innerHTML = (list.length ? list.map((i, k) => `<label class="ck ${i.done ? 'on' : ''}"><input type="checkbox" data-ck="${k}" ${i.done ? 'checked' : ''}><span data-nt>${esc(i.name)}</span>${i.qty ? `<small data-nt>${esc(i.qty)}</small>` : ''}</label>`).join('') : `<p class="hint">No items yet. Add them below.</p>`);
+    $('#pjCount').textContent = list.length ? `${r}/${list.length} ready` : ''; };
+  openSheet(`<div class="sh-head"><button data-close>Close</button><h2>🪔 Pooja</h2><button id="pjEdit">Edit</button></div>
+    <div class="sh-body">
+      <div class="fgroup"><div style="font-size:21px;font-weight:800" data-nt>${esc(p.name)}</div>
+        <div class="kv"><span>Date</span><span>${prettyDate(p.date)}${inDays(p.date) ? ` · ${inDays(p.date)}` : ''}</span></div>
+        ${p.start ? `<div class="kv"><span>Muhurat</span><span>${fmtTime(p.start)}${p.end ? ' – ' + fmtTime(p.end) : ''}</span></div>` : ''}
+        ${p.note ? `<div class="kv"><span>Notes</span><span data-nt>${esc(p.note)}</span></div>` : ''}</div>
+      <button class="btn sec" id="pjCal">📅 Add reminder to phone calendar</button>
+      <div class="fgroup"><div class="ptitle"><h3 style="margin:0">Samagri checklist</h3><b id="pjCount" class="hint" style="margin:0"></b></div><div id="pjList" style="margin-top:8px"></div>
+        <div class="row2 addck"><input class="field" id="pjNew" placeholder="Add item, e.g. Diya" autocomplete="off" enterkeyhint="done"><button type="button" class="sbtn" id="pjAdd">+ Add</button></div></div>
+      <button class="btn sec" id="pjCopy">📋 Copy for another date</button>
+      ${canDel ? `<button class="btn dan" id="pjDel">Delete</button>` : ''}
+    </div>`);
+  draw();
+  const persist = () => { p.checklist = list; savePooja(p); };
+  $('#pjList').onchange = ev => { const k = ev.target.dataset.ck; if (k == null) return; list[+k].done = ev.target.checked; list[+k].doneBy = S.me.name; draw(); persist(); };
+  const addItem = () => { const v = $('#pjNew').value.trim(); if (!v) return; list.push({name: v, done: false}); $('#pjNew').value = ''; draw(); persist(); $('#pjNew').focus(); };
+  $('#pjAdd').onclick = addItem; $('#pjNew').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); addItem(); } };
+  $('#pjEdit').onclick = () => openPoojaForm(p);
+  $('#pjCal').onclick = () => poojaICS(p);
+  $('#pjCopy').onclick = () => openPoojaForm({...p, id: null, date: '', checklist: list.map(i => ({name: i.name, qty: i.qty || '', done: false}))}, true);
+  $('#pjDel') && ($('#pjDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(p.id).catch(e => toast(errText(e))); closeSheet(); toast('Deleted'); });
+}
+function openPoojaForm(existing, copy) {
+  const p = existing ? {...existing} : {name: '', date: '', start: '', end: '', note: '', checklist: []};
+  const list = (p.checklist || []).map(i => ({...i}));
+  const isNew = !p.id;
+  openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>${copy ? 'Copy pooja' : isNew ? 'New pooja' : 'Edit pooja'}</h2><button class="save" id="pfSave">Save</button></div>
+    <div class="sh-body">
+      <div class="fgroup"><label class="flabel">Pooja name</label><input class="field" id="pfName" placeholder="e.g. Lakshmi Pooja" value="${esc(p.name)}" autocomplete="off" autocapitalize="words">
+        <label class="flabel" style="margin-top:10px">Date</label><input type="date" class="field" id="pfDate" value="${p.date || ''}">
+        <div class="row2" style="margin-top:10px"><div><label class="flabel">Muhurat from</label><input type="time" class="field" id="pfStart" value="${p.start || ''}"></div>
+          <div><label class="flabel">To</label><input type="time" class="field" id="pfEnd" value="${p.end || ''}"></div></div></div>
+      <div class="fgroup"><h3 style="margin:0 0 8px">Samagri checklist</h3><div id="pfList"></div>
+        <div class="row2 addck"><input class="field" id="pfNew" placeholder="Add item, e.g. Diya" autocomplete="off" enterkeyhint="done"><button type="button" class="sbtn" id="pfAdd">+ Add</button></div>
+        <p class="hint">Type an item and tap + Add (or press Enter). Add quantity after a dash, e.g. "Diya - 11".</p></div>
+      <div class="fgroup"><label class="flabel">Notes (optional)</label><textarea class="field" id="pfNote" rows="2" placeholder="Anything to remember">${esc(p.note || '')}</textarea></div>
+      <button class="btn pri" id="pfSave2">Save</button>
+    </div>`);
+  const draw = () => { $('#pfList').innerHTML = list.map((i, k) => `<div class="ckrow"><span data-nt>${esc(i.name)}</span>${i.qty ? `<small data-nt>${esc(i.qty)}</small>` : ''}<button type="button" class="i-del" data-rm="${k}">×</button></div>`).join(''); };
+  draw();
+  $('#pfList').onclick = ev => { const b = ev.target.closest('[data-rm]'); if (b) { list.splice(+b.dataset.rm, 1); draw(); } };
+  const addItem = () => { const v = $('#pfNew').value.trim(); if (!v) return; const [name, qty] = v.split(/\s+-\s+/); list.push({name: name.trim(), qty: (qty || '').trim(), done: false}); $('#pfNew').value = ''; draw(); $('#pfNew').focus(); };
+  $('#pfAdd').onclick = addItem; $('#pfNew').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); addItem(); } };
+  setTimeout(() => (isNew && !copy ? $('#pfName') : copy ? $('#pfDate') : null)?.focus(), 350);
+  const save = () => {
+    if ($('#pfNew').value.trim()) addItem();
+    const name = $('#pfName').value.trim(), date = $('#pfDate').value;
+    if (!name) return toast('Write the pooja name'); if (!date) return toast('Pick the date');
+    const out = {...p, name, date, start: $('#pfStart').value, end: $('#pfEnd').value, note: $('#pfNote').value.trim(), checklist: list};
+    if (!out.id) Object.assign(out, {id: api.newId(), createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name});
+    savePooja(out); closeSheet(); toast('Saved');
+  };
+  $('#pfSave').onclick = save; $('#pfSave2').onclick = save;
+}
+function poojaICS(p) {
+  const pad2 = n => String(n).padStart(2, '0');
+  const [y, m, d] = p.date.split('-');
+  const st = (p.start || '09:00').split(':'), en = (p.end || '').split(':');
+  const utc = (hh, mm) => new Date(`${y}-${m}-${d}T${pad2(hh)}:${pad2(mm)}:00+05:30`).toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+  const startU = utc(st[0], st[1]);
+  let endU = p.end ? utc(en[0], en[1]) : new Date(new Date(`${y}-${m}-${d}T${pad2(st[0])}:${pad2(st[1])}:00+05:30`).getTime() + 36e5).toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+  if (endU <= startU) endU = new Date(new Date(`${y}-${m}-${d}T${pad2(st[0])}:${pad2(st[1])}:00+05:30`).getTime() + 36e5).toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+  const items = (p.checklist || []).map(i => i.name + (i.qty ? ' (' + i.qty + ')' : '')).join(', ');
+  const escI = s => String(s || '').replace(/[\\,;]/g, m => '\\' + m).replace(/\n/g, '\\n');
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ANP Accounts//Pooja//EN', 'BEGIN:VEVENT', `UID:${p.id}@anp-accounts`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`,
+    `DTSTART:${startU}`, `DTEND:${endU}`, `SUMMARY:🪔 ${escI(p.name)}`,
+    `DESCRIPTION:${escI((p.note ? p.note + '\n' : '') + (items ? 'Samagri: ' + items : ''))}`,
+    'BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', `DESCRIPTION:Tomorrow: ${escI(p.name)}`, 'END:VALARM',
+    'BEGIN:VALARM', 'TRIGGER:-PT1H', 'ACTION:DISPLAY', `DESCRIPTION:${escI(p.name)} in 1 hour`, 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const blob = new Blob([ics], {type: 'text/calendar'}), url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = (p.name || 'pooja').replace(/[^\w]+/g, '-') + '.ics';
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
+  toast('Opening calendar… tap Add to save the reminder');
+}
+function poojaReminder() {
+  const n = nextPooja(); if (!n) return;
+  const d = daysBetween(today(), n.date); if (d > 1) return;
+  const key = 'pjRem_' + n.id + '_' + today(); try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch {}
+  const [r, c] = poojaReady(n), msg = `🪔 ${n.name} ${d === 0 ? 'today' : 'tomorrow'}${n.start ? ' at ' + fmtTime(n.start) : ''}${c ? ` · ${r}/${c} ready` : ''}`;
+  setTimeout(() => { toast(msg); notify('ANP Accounts', msg); }, 1500);
 }
 
 /* ================= sheet ================= */
@@ -2015,7 +2145,7 @@ async function rangeEntries() {
   if (from >= S.since) return S.entries.filter(e => e.date >= from && e.date <= to);
   const key = from + '|' + to;
   if (S.rangeCache?.key === key) return S.rangeCache.list;
-  const list = (await api.fetchRange(from, to)).filter(e => e.book !== 'things' && e.book !== 'guide');
+  const list = (await api.fetchRange(from, to)).filter(e => !['things', 'guide', 'pooja'].includes(e.book));
   const m = new Map(list.map(e => [e.id, e]));
   S.entries.forEach(e => { if (e.date >= from && e.date <= to) m.set(e.id, e); });
   S.rangeCache = {key, list: [...m.values()]};
@@ -2120,6 +2250,7 @@ async function mainClick(ev) {
   const f = t.closest('[data-filter]'); if (f) { S.filter = f.dataset.filter; return render(); }
   const g = t.closest('[data-goto]'); if (g) { S.view = g.dataset.goto; S.q = ''; $('#search').value = ''; render(); return scrollTo(0, 0); }
   const th = t.closest('[data-thing]'); if (th) return openThing(th.dataset.thing);
+  const pj = t.closest('[data-pooja]'); if (pj) return openPooja(pj.dataset.pooja);
   const tr2 = t.closest('[data-troom]'); if (tr2) { S.thingRoom[S.view] = tr2.dataset.troom; return render(); }
   if (t.closest('[data-rates]')) return openRateCard();
   const db = t.closest('[data-dbook]'); if (db) { S.dash.book = db.dataset.dbook; return renderDash(); }
