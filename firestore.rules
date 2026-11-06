@@ -42,6 +42,14 @@ service cloud.firestore {
     }
 
     // ----- bill photos (kept separate so lists load fast) -----
+    // ----- daily home tasks -----
+    match /tasks/{id} {
+      allow read: if approved();
+      allow create: if approved() && request.resource.data.createdBy == request.auth.uid;
+      allow update: if approved() && request.resource.data.createdBy == resource.data.createdBy;
+      allow delete: if approved() && (isAdmin() || resource.data.createdBy == request.auth.uid);
+    }
+
     // ----- shared settings (pressing rate) -----
     match /settings/{id} {
       allow read: if approved();

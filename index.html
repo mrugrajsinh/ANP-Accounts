@@ -155,6 +155,17 @@ table.items .a{text-align:right;font-weight:600;font-variant-numeric:tabular-num
 .toast.show{opacity:1;transform:translateX(-50%)}
 .more p{color:var(--muted);font-size:14px;margin:6px 0}
 .more ol{padding-left:20px;margin:6px 0;font-size:14.5px}
+.trow{display:flex;gap:12px;align-items:center;width:100%;background:var(--card);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);border:1px solid var(--line);text-align:left}
+.trow .main{flex:1;min-width:0}
+.trow .t{font-weight:600;font-size:16px;word-break:break-word}
+.trow .s{font-size:13px;color:var(--muted);margin-top:2px}
+.trow.done .t{text-decoration:line-through;color:var(--muted)}
+.tick{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;color:transparent;font-size:17px;font-weight:800}
+.trow.done .tick{background:var(--accent);color:var(--on-accent)}
+.trow .old{color:var(--red);font-weight:600}
+.daynav{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;margin:6px 0 12px;box-shadow:var(--shadow)}
+.daynav button{width:38px;height:38px;border-radius:50%;font-size:22px;color:var(--accent)}
+.daynav span{font-weight:650}
 .urow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
 .urow:last-child{border-bottom:0}
 .urow .main{flex:1;min-width:0}
@@ -224,6 +235,7 @@ table.dt .clip{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-spac
 <div class="sheet" id="sheet"></div>
 <div class="toast" id="toast"></div>
 <input type="file" id="photoInput" accept="image/*" class="hidden">
+<input type="file" id="taskPhotoInput" accept="image/*" capture="environment" class="hidden">
 <input type="file" id="importInput" accept="application/json,.json" class="hidden">
 <datalist id="dl-items"></datalist>
 <datalist id="dl-shops"></datalist>
@@ -310,6 +322,11 @@ async function firebaseAPI(cfg) {
     savePhoto: (id, data) => F.setDoc(F.doc(db, 'photos', id), {data}),
     getPhoto: async id => { const s = await F.getDoc(F.doc(db, 'photos', id)); return s.exists() ? s.data().data : null; },
     deletePhoto: id => F.deleteDoc(F.doc(db, 'photos', id)),
+    watchTasks: (since, cb, err) => F.onSnapshot(F.query(col('tasks'), F.where('date', '>=', since)), {includeMetadataChanges: true}, s => cb(list(s)), err),
+    watchOpenTasks: (cb, err) => F.onSnapshot(F.query(col('tasks'), F.where('done', '==', false)), {includeMetadataChanges: true}, s => cb(list(s)), err),
+    newTaskId: () => F.doc(col('tasks')).id,
+    saveTask: t => F.setDoc(F.doc(db, 'tasks', t.id), clean(t)),
+    deleteTask: id => F.deleteDoc(F.doc(db, 'tasks', id)),
     watchSettings: (cb, err) => F.onSnapshot(F.doc(db, 'settings', 'app'), s => cb(s.exists() ? s.data() : {}), err),
     saveSettings: p => F.setDoc(F.doc(db, 'settings', 'app'), p, {merge: true}),
   };
@@ -317,7 +334,12 @@ async function firebaseAPI(cfg) {
 
 /* ================= data layer: demo mode (?demo) for trying it out ================= */
 function demoAPI() {
-  const listeners = new Set(), users = {}, entries = {}, photos = {}, settings = {pressRate: 0};
+  const listeners = new Set(), users = {}, entries = {}, photos = {}, settings = {pressRate: 0}, tasks = {};
+  [['Pay electricity bill', 0, 'u-2', false], ['Get gas cylinder refilled', 0, '', false], ['Water the plants', 0, 'u-2', true], ['Call plumber for bathroom tap', -1, '', false]].forEach(([title, off, who, done], k) => {
+    const id = 'tk' + k, date = addDays(today(), off);
+    tasks[id] = {id, date, title, note: '', assignedTo: who, assignedName: who === 'u-2' ? 'Mummy' : '', createdBy: 'u-admin', createdByName: 'Papa', createdAt: Date.now() - k * 6e5,
+      done, doneBy: done ? 'u-2' : null, doneByName: done ? 'Mummy' : null, doneAt: done ? Date.now() - 3e6 : null, doneDate: done ? today() : null, hasPhoto: false};
+  });
   const me = {uid: 'u-admin', email: ADMIN || 'admin@example.com', emailVerified: true, name: 'Mrugraj'};
   users['u-admin'] = {name: 'Mrugraj', email: me.email, status: 'approved', role: 'admin', createdAt: Date.now()};
   users['u-2'] = {name: 'Mummy', email: 'mummy@example.com', status: 'approved', role: 'member', createdAt: Date.now()};
@@ -357,6 +379,11 @@ function demoAPI() {
     deleteEntry: async id => { delete entries[id]; emit(); },
     savePhoto: async (id, d) => { photos[id] = d; }, getPhoto: async id => photos[id] || null, deletePhoto: async id => { delete photos[id]; },
     watchSettings: cb => watch(() => cb({...settings})),
+    watchTasks: (since, cb) => watch(() => cb(Object.values(tasks).filter(t => t.date >= since).map(t => ({...t})))),
+    watchOpenTasks: cb => watch(() => cb(Object.values(tasks).filter(t => !t.done).map(t => ({...t})))),
+    newTaskId: () => 't' + (n++),
+    saveTask: async t => { tasks[t.id] = JSON.parse(JSON.stringify(t)); emit(); },
+    deleteTask: async id => { delete tasks[id]; emit(); },
     saveSettings: async p => { Object.assign(settings, p); emit(); },
   };
 }
@@ -369,7 +396,7 @@ const S = {
   view: 'diary', month: today().slice(0, 7), filter: 'all', q: '',
   editing: null, dueDays: 30, unsub: [],
   dash: {preset: 'month', from: monthStart(today()), to: today(), who: '', pay: '', mode: '', shop: '', q: ''},
-  rangeCache: null, settings: {},
+  rangeCache: null, settings: {}, tLive: new Map(), tOpen: new Map(), taskList: [], taskDay: today(),
 };
 
 function mergeEntries() {
@@ -499,12 +526,13 @@ function startApp() {
   <nav><div class="wrap">
     <button data-view="diary" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/><path d="M9 8h6"/></svg>Diary</button>
     <button data-view="credit"><span id="credDot" class="dot hidden"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Credit</button>
+    <button data-view="tasks"><span id="taskDot" class="dot hidden"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Tasks</button>
     <button data-view="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>Dashboard</button>
     <button data-view="more"><span id="userDot" class="dot hidden"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>${S.isAdmin ? 'Users' : 'Account'}</button>
   </div></nav>`;
 
   document.querySelector('nav').onclick = ev => { const b = ev.target.closest('[data-view]'); if (b) { S.view = b.dataset.view; render(); scrollTo(0, 0); } };
-  $('#fab').onclick = () => openForm();
+  $('#fab').onclick = () => S.view === 'tasks' ? $('#tNew')?.focus() : openForm();
   $('#xlBtn').onclick = exportExcel;
   $('#mPrev').onclick = () => { S.month = monthStart(S.month + '-01', 1).slice(0, 7); ensureMonth(); render(); };
   $('#mNext').onclick = () => { S.month = monthStart(S.month + '-01', -1).slice(0, 7); ensureMonth(); render(); };
@@ -516,6 +544,9 @@ function startApp() {
   const err = e => toast(errText(e));
   S.unsub.push(api.watchEntries(S.since, list => { S.live = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
   S.unsub.push(api.watchCredits(list => { S.credits = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
+  const mergeTasks = () => { S.taskList = [...new Map([...S.tLive, ...S.tOpen]).values()]; render(); };
+  S.unsub.push(api.watchTasks(S.since, l => { S.tLive = new Map(l.map(t => [t.id, t])); mergeTasks(); }, err));
+  S.unsub.push(api.watchOpenTasks(l => { S.tOpen = new Map(l.map(t => [t.id, t])); mergeTasks(); }, err));
   S.unsub.push(api.watchSettings(d => { S.settings = d || {}; render(); }, () => {}));
   S.unsub.push(api.watchUsers(list => { S.users = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); render(); }, () => {}));
   render();
@@ -542,19 +573,26 @@ function render() {
   const v = S.view;
   document.body.classList.toggle('wide', v === 'dash');
   document.querySelectorAll('nav [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v));
-  $('#title').textContent = {diary: 'Diary', credit: 'Credit', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account'}[v];
+  $('#title').textContent = {diary: 'Diary', credit: 'Credit', tasks: 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account'}[v];
   $('#monthnav').classList.toggle('hidden', v !== 'diary');
   $('#search').classList.toggle('hidden', v !== 'diary');
   $('#xlBtn').classList.toggle('hidden', v !== 'dash');
-  $('#fab').classList.toggle('hidden', !(v === 'diary' || v === 'credit'));
+  $('#fab').classList.toggle('hidden', !(v === 'diary' || v === 'credit' || v === 'tasks'));
   $('#mLabel').textContent = monthLabel(S.month);
   const overdue = S.entries.filter(e => isPending(e) && e.dueDate && e.dueDate <= today()).length;
   $('#credDot').textContent = overdue; $('#credDot').classList.toggle('hidden', !overdue);
+  const openToday = S.taskList.filter(t => !t.done && t.date <= today()).length;
+  $('#taskDot').textContent = openToday; $('#taskDot').classList.toggle('hidden', !openToday);
   const pendingUsers = S.isAdmin ? S.users.filter(u => u.status === 'pending').length : 0;
   $('#userDot').textContent = pendingUsers; $('#userDot').classList.toggle('hidden', !pendingUsers);
   updateSync();
 
   if (v === 'dash') return renderDash();
+  if (v === 'tasks') {
+    const txt = $('#tNew')?.value || '', who = $('#tWho')?.value || '', foc = document.activeElement?.id === 'tNew';
+    $('#main').innerHTML = tasksHTML(); $('#tNew').value = txt; $('#tWho').value = who; if (foc) $('#tNew').focus();
+    return;
+  }
   $('#main').innerHTML = v === 'diary' ? diaryHTML() : v === 'credit' ? creditHTML() : moreHTML();
 }
 
@@ -702,6 +740,106 @@ async function uploadOld(list) {
   localStorage.setItem('migrated', JSON.stringify(done));
   toast(`Uploaded ${todo.length} bill(s)`);
 }
+
+/* ================= tasks ================= */
+const timeStr = ms => ms ? new Date(ms).toLocaleTimeString('en-IN', {hour: 'numeric', minute: '2-digit'}) : '';
+function taskRow(t, carried) {
+  const bits = [];
+  if (t.assignedName) bits.push('for ' + esc(t.assignedName));
+  bits.push('by ' + esc(t.createdByName || '—'));
+  if (carried) bits.push(`<span class="old">from ${shortDate(t.date)}</span>`);
+  if (t.done) bits.splice(0, bits.length, `Done by ${esc(t.doneByName || '—')} · ${timeStr(t.doneAt)}${t.hasPhoto ? ' · 📷' : ''}`);
+  if (t._pending) bits.push('syncing');
+  return `<div class="trow ${t.done ? 'done' : ''}" data-task="${t.id}">
+    <button class="tick" data-tick="${t.id}" aria-label="${t.done ? 'Done' : 'Mark done'}">✓</button>
+    <div class="main"><div class="t">${esc(t.title)}</div><div class="s">${bits.join(' · ')}</div></div></div>`;
+}
+function tasksHTML() {
+  const d = S.taskDay, t = today(), isToday = d === t;
+  const mine = x => !x.assignedTo || x.assignedTo === S.user.uid;
+  const carry = isToday ? S.taskList.filter(x => !x.done && x.date < t).sort((a, b) => a.date.localeCompare(b.date)) : [];
+  const open = [...carry, ...S.taskList.filter(x => x.date === d && !x.done).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))];
+  const done = S.taskList.filter(x => x.done && (x.doneDate === d || (x.date === d && !x.doneDate))).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+  const people = S.users.filter(u => u.status === 'approved' || u.role === 'admin');
+  const label = isToday ? 'Today' : d === addDays(t, 1) ? 'Tomorrow' : d === addDays(t, -1) ? 'Yesterday' : '';
+  return `
+    <div class="daynav"><button data-tday="-1" aria-label="Previous day">‹</button><span>${label ? label + ' · ' : ''}${prettyDate(d)}</span><button data-tday="1" aria-label="Next day">›</button></div>
+    <div class="stats">
+      <div class="stat ${open.length ? 'warn' : ''}"><small>To do</small><b>${open.length}</b></div>
+      <div class="stat"><small>Done</small><b style="color:var(--accent)">${done.length}</b></div>
+    </div>
+    <div class="fgroup">
+      <label class="flabel">Add a task for ${label ? label.toLowerCase() : shortDate(d)}</label>
+      <input class="field" id="tNew" placeholder="e.g. Pay electricity bill" autocomplete="off" autocapitalize="sentences" enterkeyhint="done">
+      <div class="row2" style="margin-top:8px;align-items:center">
+        <select class="field" id="tWho"><option value="">For anyone</option>${people.map(u => `<option value="${u.uid}">For ${esc(u.name)}</option>`).join('')}</select>
+        <button class="btn pri" id="tAdd" style="margin:0">Add task</button>
+      </div>
+    </div>
+    ${!isToday ? `<button class="chip" data-tday="0" style="margin-bottom:6px">↩ Back to today</button>` : ''}
+    <div class="section-t">To do (${open.length})</div>
+    ${open.length ? open.map(x => taskRow(x, x.date < d)).join('') : `<div class="empty" style="padding:22px">${isToday ? 'Nothing pending. 🎉' : 'No tasks for this day.'}</div>`}
+    ${done.length ? `<div class="section-t">Done (${done.length})</div>` + done.map(x => taskRow(x)).join('') : ''}`;
+}
+function addTask() {
+  const title = $('#tNew').value.trim(); if (!title) { $('#tNew').focus(); return toast('Type the task first'); }
+  const who = $('#tWho').value, u = S.users.find(x => x.uid === who);
+  const t = {id: api.newTaskId(), date: S.taskDay, title, note: '', assignedTo: who || '', assignedName: u ? u.name : '',
+    createdBy: S.user.uid, createdByName: S.me.name, createdAt: Date.now(), done: false, doneBy: null, doneByName: null, doneAt: null, doneDate: null, hasPhoto: false};
+  api.saveTask(t).catch(e => toast(errText(e)));
+  $('#tNew').value = ''; $('#tWho').value = ''; toast('Task added');
+}
+const findTask = id => S.taskList.find(x => x.id === id);
+function openTaskDone(id) {
+  const t = findTask(id); if (!t) return;
+  S.taskPhoto = null;
+  openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>Mark done</h2><button class="save" id="tDoneSave">Done</button></div>
+    <div class="sh-body">
+      <div class="fgroup"><div style="font-size:18px;font-weight:700">${esc(t.title)}</div><div class="hint">${t.assignedName ? 'For ' + esc(t.assignedName) + ' · ' : ''}added by ${esc(t.createdByName || '')} · ${shortDate(t.date)}</div></div>
+      <div class="fgroup"><label class="flabel">Photo as proof</label><div class="photo-box" id="tPhotoBox"></div></div>
+      <div class="fgroup"><label class="flabel">Note (optional)</label><textarea class="field" id="tNote" rows="2" placeholder="e.g. Paid ₹1,240 by UPI"></textarea></div>
+      <button class="btn pri" id="tDoneSave2">✓ Mark as done</button>
+    </div>`);
+  const draw = () => { $('#tPhotoBox').innerHTML = S.taskPhoto ? `<img src="${S.taskPhoto}" alt=""><button type="button" class="pbtn" id="tPhotoBtn">Retake</button>` : `<button type="button" class="pbtn" id="tPhotoBtn">📷 Take photo</button><span class="hint">optional</span>`; $('#tPhotoBtn').onclick = () => $('#taskPhotoInput').click(); };
+  S.drawTaskPhoto = draw; draw();
+  const save = () => {
+    const u = {...strip(t), done: true, doneBy: S.user.uid, doneByName: S.me.name, doneAt: Date.now(), doneDate: today(), note: $('#tNote').value.trim(), hasPhoto: !!S.taskPhoto};
+    if (S.taskPhoto) api.savePhoto('task_' + t.id, S.taskPhoto).catch(e => toast('Photo: ' + errText(e)));
+    api.saveTask(u).catch(e => toast(errText(e)));
+    closeSheet(); toast('Done ✓');
+  };
+  $('#tDoneSave').onclick = save; $('#tDoneSave2').onclick = save;
+}
+function openTask(id) {
+  const t = findTask(id); if (!t) return;
+  const canEdit = S.isAdmin || t.createdBy === S.user.uid;
+  openSheet(`<div class="sh-head"><button data-close>Close</button><h2>Task</h2>${canEdit ? `<button id="tEdit">Edit</button>` : '<span></span>'}</div>
+    <div class="sh-body">
+      <div class="fgroup"><div style="font-size:19px;font-weight:700">${esc(t.title)}</div>
+        <div class="kv"><span>Day</span><span>${prettyDate(t.date)}</span></div>
+        ${t.assignedName ? `<div class="kv"><span>For</span><span>${esc(t.assignedName)}</span></div>` : ''}
+        <div class="kv"><span>Added by</span><span>${esc(t.createdByName || '—')}</span></div>
+        <div class="kv"><span>Status</span><span>${t.done ? `<span class="badge b-paid">Done</span>` : `<span class="badge b-credit">To do</span>`}</span></div>
+        ${t.done ? `<div class="kv"><span>Done by</span><span>${esc(t.doneByName || '—')} · ${shortDate(t.doneDate || t.date)} ${timeStr(t.doneAt)}</span></div>` : ''}
+        ${t.note ? `<div class="kv"><span>Note</span><span>${esc(t.note)}</span></div>` : ''}</div>
+      ${t.hasPhoto ? `<div class="fgroup" id="tPhotoSlot"><p class="hint" style="margin:0">Loading photo…</p></div>` : ''}
+      ${t.done ? `<button class="btn sec" id="tUndo">Undo (mark not done)</button>` : `<button class="btn pri" id="tMark">✓ Mark as done</button>`}
+      ${canEdit ? `<button class="btn dan" id="tDel">Delete task</button>` : ''}
+    </div>`);
+  if (t.hasPhoto) api.getPhoto('task_' + t.id).then(p => { const el = $('#tPhotoSlot'); if (el) el.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="Task photo">` : '<p class="hint" style="margin:0">Photo still uploading.</p>'; }).catch(() => {});
+  $('#tMark') && ($('#tMark').onclick = () => openTaskDone(id));
+  $('#tUndo') && ($('#tUndo').onclick = () => { api.saveTask({...strip(t), done: false, doneBy: null, doneByName: null, doneAt: null, doneDate: null}).catch(e => toast(errText(e))); closeSheet(); });
+  $('#tEdit') && ($('#tEdit').onclick = () => { const v = prompt('Edit task', t.title); if (v && v.trim()) { api.saveTask({...strip(t), title: v.trim()}).catch(e => toast(errText(e))); closeSheet(); } });
+  $('#tDel') && ($('#tDel').onclick = () => { if (!confirm('Delete this task?')) return; api.deleteTask(t.id).catch(e => toast(errText(e))); if (t.hasPhoto) api.deletePhoto('task_' + t.id).catch(() => {}); closeSheet(); toast('Deleted'); });
+}
+document.addEventListener('keydown', ev => { if (ev.target.id === 'tNew' && ev.key === 'Enter') { ev.preventDefault(); addTask(); } });
+document.addEventListener('change', async ev => {
+  if (ev.target.id !== 'taskPhotoInput') return;
+  const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
+  const url = URL.createObjectURL(f);
+  try { S.taskPhoto = await fitPhoto(await loadImg(url)); S.drawTaskPhoto && S.drawTaskPhoto(); } catch (e) { toast(e.message); }
+  URL.revokeObjectURL(url);
+});
 
 /* ================= sheet ================= */
 function openSheet(html) {
@@ -1168,6 +1306,10 @@ async function mainClick(ev) {
   if (t.closest('#signOutBtn')) return api.signOut();
   if (t.closest('#renameBtn')) { const n = prompt('Your name', S.me.name); if (n && n.trim()) api.updateUser(S.user.uid, {name: n.trim()}).then(() => toast('Name updated')).catch(e => toast(errText(e))); return; }
   if (t.closest('#migrateBtn')) return uploadOld(await readOldLocal());
+  const td = t.closest('[data-tday]'); if (td) { const n = +td.dataset.tday; S.taskDay = n === 0 ? today() : addDays(S.taskDay, n); return render(); }
+  if (t.closest('#tAdd')) return addTask();
+  const tk = t.closest('[data-tick]'); if (tk) { const x = findTask(tk.dataset.tick); return x && x.done ? openTask(x.id) : openTaskDone(tk.dataset.tick); }
+  const tr = t.closest('[data-task]'); if (tr) return openTask(tr.dataset.task);
   if (t.closest('#savePress')) {
     const rate = num($('#pRate').value), shop = $('#pShop').value.trim(), apply = $('#pApply').checked;
     try { await api.saveSettings({pressRate: rate, pressShop: shop}); } catch (e) { return toast(errText(e)); }
