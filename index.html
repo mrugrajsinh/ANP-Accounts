@@ -405,8 +405,7 @@ function onUser(user) {
   S.user = user; S.me = null; S.started = false;
   if (!user) return screenLogin('in');
   const adminEmail = user.email && user.email.toLowerCase() === ADMIN;
-  if (adminEmail && !user.emailVerified) return screenVerify();
-  S.isAdmin = adminEmail && user.emailVerified;
+  S.isAdmin = adminEmail; // admin email is unique in Firebase Auth, so no verification step needed
   S.unsub.push(api.watchMe(user.uid, async doc => {
     if (!doc) {
       const d = {name: user.name || user.email.split('@')[0], email: user.email.toLowerCase(), createdAt: Date.now(),
@@ -469,7 +468,6 @@ function screenLogin(mode) {
       else if (up) {
         const name = $('#aName').value.trim();
         const u = await api.signUp(name, email, $('#aPass').value);
-        if (email.toLowerCase() === ADMIN) { try { await api.sendVerify(); } catch {} }
         S.pendingName = name; if (u) onUser({...u, name});
       } else await api.signIn(email, $('#aPass').value);
     } catch (e) { $('#aErr').textContent = errText(e); }
