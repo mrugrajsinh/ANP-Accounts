@@ -324,6 +324,10 @@ nav{background:color-mix(in srgb,var(--card) 92%,transparent)}
 .sub-amt{font-size:11.5px;color:var(--muted);font-weight:500}
 .sub-amt.strong{color:var(--ink);font-weight:700}
 .stat b{font-weight:800}
+.langsw{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;box-shadow:var(--shadow)}
+.langsw button{padding:6px 10px;border-radius:999px;font-size:13px;font-weight:700;color:var(--muted)}
+.langsw button.on{background:var(--accent);color:var(--on-accent)}
+.fgroup .langsw{display:flex;margin:2px 0 4px}.fgroup .langsw button{flex:1;padding:9px 6px;font-size:14.5px}
 </style>
 </head>
 <body>
@@ -358,9 +362,9 @@ const today = () => ds(new Date());
 const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d || 1); };
 const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return ds(d); };
 const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
-const prettyDate = s => parse(s).toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
-const shortDate = s => parse(s).toLocaleDateString('en-IN', {day:'numeric', month:'short'});
-const monthLabel = m => parse(m + '-01').toLocaleDateString('en-IN', {month:'short', year:'numeric'});
+const prettyDate = s => parse(s).toLocaleDateString(LOC(), {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+const shortDate = s => parse(s).toLocaleDateString(LOC(), {day:'numeric', month:'short'});
+const monthLabel = m => parse(m + '-01').toLocaleDateString(LOC(), {month:'short', year:'numeric'});
 const monthStart = (s, back = 0) => { const d = parse(s); d.setDate(1); d.setMonth(d.getMonth() - back); return ds(d); };
 const monthEnd = s => { const d = parse(s); d.setMonth(d.getMonth() + 1, 0); return ds(d); };
 const total = e => r2((e.items || []).reduce((t, i) => t + num(i.amount), 0));
@@ -375,7 +379,7 @@ const CFG = window.GHAR_CONFIG || {};
 const ADMIN = String(CFG.adminEmail || '').trim().toLowerCase();
 
 function toast(msg) {
-  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  const t = $('#toast'); t.textContent = typeof tx === 'function' ? tx(msg) : msg; t.classList.add('show');
   clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2400);
 }
 const errText = e => {
@@ -490,6 +494,182 @@ function demoAPI() {
   };
 }
 
+/* ================= app language: English / Hinglish / Gujarati ================= */
+const APPLANG = (() => { try { return localStorage.getItem('appLang') || 'en'; } catch { return 'en'; } })();
+const LI = APPLANG === 'hn' ? 0 : APPLANG === 'gu' ? 1 : -1;
+const LOC = () => APPLANG === 'gu' ? 'gu-IN' : 'en-IN';
+document.documentElement.lang = APPLANG === 'gu' ? 'gu' : 'en';
+const D = {
+  // navigation & books
+  'Home': ['Ghar', 'ઘર'], 'Tasks': ['Kaam', 'કામ'], 'Dashboard': ['Hisaab', 'હિસાબ'], 'Users': ['Log', 'સભ્યો'], 'Account': ['Account', 'ખાતું'],
+  'Ganesh': ['Ganesh', 'ગણેશ'], 'Vegetables': ['Sabzi', 'શાકભાજી'], 'Iron': ['Istri', 'ઈસ્ત્રી'], 'Wash': ['Dhulai', 'ધોલાઈ'],
+  'This month': ['Is mahine', 'આ મહિને'], 'Open Tasks': ['Kaam kholo', 'કામ ખોલો'],
+  // lists
+  'Paid': ['Diya', 'ચૂકવ્યા'], 'Credit pending': ['Udhaar baaki', 'ઉધાર બાકી'], 'All': ['Sab', 'બધું'],
+  'Credit to pay (all)': ['Udhaar dena (sab)', 'ચૂકવવાનું ઉધાર (બધું)'], 'To pay (all)': ['Dena baaki (sab)', 'ચૂકવવાના બાકી (બધા)'], 'To pay': ['Dena baaki', 'ચૂકવવાના બાકી'],
+  'Credit cleared': ['Udhaar chukaya', 'ઉધાર ચૂકવ્યું'], 'Credit': ['Udhaar', 'ઉધાર'], 'Due today': ['Aaj dena hai', 'આજે ચૂકવવાનું'],
+  'Not returned yet': ['Abhi wapas nahi aaye', 'હજુ પાછા નથી આવ્યા'], 'Not returned': ['Wapas nahi aaye', 'પાછા નથી આવ્યા'],
+  '📋 Rate card': ['📋 Bhaav list', '📋 ભાવ પત્રક'], 'Iron rate card': ['Istri bhaav list', 'ઈસ્ત્રી ભાવ પત્રક'],
+  'Date': ['Tareekh', 'તારીખ'], 'Others': ['Aur', 'અન્ય'], 'Total': ['Kul', 'કુલ'], 'Return': ['Wapsi', 'પરત'],
+  'Tap a row to see details, mark returned or pay.': ['Line dabao: detail, wapsi ya payment ke liye.', 'વિગત, પરત કે ચુકવણી માટે લાઇન દબાવો.'],
+  'Nothing written this month.': ['Is mahine kuch nahi likha.', 'આ મહિને કંઈ લખ્યું નથી.'], 'Nothing given this month.': ['Is mahine kuch nahi diya.', 'આ મહિને કંઈ આપ્યું નથી.'],
+  'Tap': ['Dabao', 'દબાવો'], 'to add.': ['jodne ke liye.', 'ઉમેરવા માટે.'], 'when you give clothes.': ['jab kapde do.', 'જ્યારે કપડાં આપો.'],
+  'Nothing matches that search.': ['Kuch nahi mila.', 'કંઈ મળ્યું નહીં.'],
+  // common buttons
+  'Cancel': ['Raddh', 'રદ કરો'], 'Save': ['Save karo', 'સેવ કરો'], 'Close': ['Band', 'બંધ'], 'Back': ['Peeche', 'પાછા'], 'Edit': ['Badlo', 'સુધારો'],
+  'Delete': ['Hatao', 'કાઢી નાખો'], 'Send': ['Bhejo', 'મોકલો'], 'Add': ['Jodo', 'ઉમેરો'], 'Done': ['Ho gaya', 'થઈ ગયું'], 'Remove': ['Hatao', 'કાઢો'], 'Change': ['Badlo', 'બદલો'],
+  // entry form
+  'Items': ['Saaman', 'વસ્તુઓ'], 'Item': ['Saaman', 'વસ્તુ'], 'Qty': ['Matra', 'જથ્થો'], 'Unit': ['Unit', 'એકમ'], 'Rate': ['Bhaav', 'ભાવ'],
+  'Rate ₹': ['Bhaav ₹', 'ભાવ ₹'], 'Rate ₹/kg': ['Bhaav ₹/kg', 'ભાવ ₹/કિલો'], 'Rate ₹/L': ['Bhaav ₹/L', 'ભાવ ₹/લિટર'], 'Total ₹': ['Kul ₹', 'કુલ ₹'],
+  '+ Add another item': ['+ Aur saaman jodo', '+ બીજી વસ્તુ ઉમેરો'], 'Paid now': ['Abhi diya', 'હમણાં ચૂકવ્યા'], 'Pay later': ['Baad mein denge', 'પછી ચૂકવીશું'],
+  '💵 Cash': ['💵 Cash', '💵 રોકડા'], 'Cash': ['Cash', 'રોકડા'], 'syncing': ['sync ho raha', 'સિંક થાય છે'], 'UTR (optional)': ['UTR (zaroori nahi)', 'UTR (જરૂરી નથી)'], 'Pay by': ['Kab tak dena', 'ક્યાં સુધી ચૂકવવું'],
+  'Photo (optional)': ['Photo (zaroori nahi)', 'ફોટો (જરૂરી નથી)'], '📷 Add photo': ['📷 Photo jodo', '📷 ફોટો ઉમેરો'], 'Photo attached': ['Photo lagi hai', 'ફોટો જોડેલ છે'],
+  'Notes (optional)': ['Note (zaroori nahi)', 'નોંધ (જરૂરી નથી)'], 'Note (optional)': ['Note (zaroori nahi)', 'નોંધ (જરૂરી નથી)'],
+  'Clothes given': ['Diye gaye kapde', 'આપેલા કપડાં'], 'Cloth': ['Kapda', 'કપડું'], '+ Add another cloth type': ['+ Aur kapda jodo', '+ બીજું કપડું ઉમેરો'],
+  'Others ₹ (optional)': ['Aur ₹ (zaroori nahi)', 'અન્ય ₹ (જરૂરી નથી)'], 'Others note': ['Aur ka note', 'અન્યની નોંધ'],
+  'Rates not set yet. Counts are saved now; amounts fill in when the admin sets the rate card.': ['Bhaav abhi set nahi. Ginti save ho gayi; admin bhaav daalega tab rakam aa jayegi.', 'ભાવ હજુ નક્કી નથી. ગણતરી સેવ થઈ; એડમિન ભાવ નાખશે ત્યારે રકમ આવી જશે.'],
+  // entry detail
+  'Payment': ['Payment', 'ચુકવણી'], 'Due date': ['Aakhri tareekh', 'છેલ્લી તારીખ'], 'Added by': ['Kisne joda', 'કોણે ઉમેર્યું'], 'Notes': ['Note', 'નોંધ'],
+  'Paid on': ['Kab diya', 'ક્યારે ચૂકવ્યા'], 'Paid by': ['Kaise diya', 'કેવી રીતે ચૂકવ્યા'],
+  '↩ Mark clothes returned': ['↩ Kapde wapas aaye', '↩ કપડાં પાછા આવ્યા'], 'Mark as paid': ['Paise de diye', 'પૈસા ચૂકવી દીધા'], 'Undo payment': ['Payment wapas lo', 'ચુકવણી રદ કરો'],
+  'Pay': ['Paise do', 'ચૂકવો'], 'Clothes returned': ['Kapde wapas', 'પરત આવેલા કપડાં'], 'Wash returned': ['Dhulai wapas', 'ધોલાઈ પરત'], 'Iron returned': ['Istri wapas', 'ઈસ્ત્રી પરત'], 'Returned on': ['Wapsi ki tareekh', 'પરત તારીખ'],
+  // rate card
+  'Wash ₹': ['Dhulai ₹', 'ધોલાઈ ₹'], 'Iron ₹': ['Istri ₹', 'ઈસ્ત્રી ₹'], '+ Add cloth type': ['+ Kapda jodo', '+ કપડું ઉમેરો'],
+  'Also update unpaid iron entries to these rates': ['Baaki istri entries mein bhi yeh bhaav lagao', 'બાકી ઈસ્ત્રી એન્ટ્રીમાં પણ આ ભાવ લગાવો'],
+  "Rates are per cloth. Leave 0 if you don't know yet. You can change them any time.": ['Bhaav ek kapde ka hai. Pata nahi to 0 rakho. Kabhi bhi badal sakte ho.', 'ભાવ એક કપડાનો છે. ખબર ન હોય તો 0 રાખો. ગમે ત્યારે બદલી શકાય.'],
+  'Only the admin can change rates.': ['Sirf admin bhaav badal sakta hai.', 'ફક્ત એડમિન ભાવ બદલી શકે.'],
+  // dashboard
+  'Today': ['Aaj', 'આજે'], 'Yesterday': ['Kal', 'ગઈકાલે'], 'Tomorrow': ['Kal (aane wala)', 'આવતીકાલે'], '7 days': ['7 din', '7 દિવસ'], 'Last month': ['Pichhla mahina', 'ગયો મહિનો'],
+  'Custom': ['Apni tareekh', 'તારીખ પસંદ કરો'], 'From': ['Se', 'થી'], 'To': ['Tak', 'સુધી'], 'Nothing in this period.': ['Is samay mein kuch nahi.', 'આ સમયમાં કંઈ નથી.'], 'Loading…': ['Load ho raha hai…', 'લોડ થાય છે…'],
+  // tasks
+  'Show in': ['Is bhasha mein', 'આ ભાષામાં'], 'Original': ['Jaisa likha', 'જેવું લખ્યું'], 'To do': ['Karna hai', 'કરવાનું'], 'Check': ['Jaanch', 'તપાસ'],
+  '＋ New task': ['＋ Naya kaam', '＋ નવું કામ'], 'New task': ['Naya kaam', 'નવું કામ'], '↩ Back to today': ['↩ Aaj par wapas', '↩ આજે પાછા'],
+  'Nothing pending. 🎉': ['Kuch baaki nahi. 🎉', 'કંઈ બાકી નથી. 🎉'], 'No tasks for this day.': ['Is din koi kaam nahi.', 'આ દિવસે કોઈ કામ નથી.'],
+  'Voice note (task name fills in from what you say)': ['Voice note (jo bologe woh kaam ka naam ban jayega)', 'વૉઇસ નોટ (જે બોલશો તે કામનું નામ બનશે)'],
+  '🎤 Record voice note': ['🎤 Bolkar record karo', '🎤 બોલીને રેકોર્ડ કરો'], 'Speak now… (max 60s)': ['Ab bolo… (60 sec tak)', 'હવે બોલો… (60 સેકન્ડ સુધી)'],
+  "Voice recording isn't supported on this phone's browser.": ['Is phone mein voice record nahi hota.', 'આ ફોનમાં વૉઇસ રેકોર્ડ થતું નથી.'],
+  'Task': ['Kaam', 'કામ'], 'For': ['Kiske liye', 'કોના માટે'], 'Day': ['Din', 'દિવસ'], 'Anyone': ['Koi bhi', 'કોઈ પણ'], 'Add task': ['Kaam jodo', 'કામ ઉમેરો'],
+  'Status': ['Haalat', 'સ્થિતિ'], 'Done ✓': ['Ho gaya ✓', 'થઈ ગયું ✓'], 'Waiting for approval': ['Approval ka intezaar', 'મંજૂરીની રાહ'],
+  '📷 Done – upload photo': ['📷 Ho gaya – photo bhejo', '📷 થઈ ગયું – ફોટો મોકલો'], '✓ Approve': ['✓ Theek hai', '✓ મંજૂર'], '✗ Redo': ['✗ Phir se karo', '✗ ફરી કરો'],
+  'Reopen task': ['Kaam phir kholo', 'કામ ફરી ખોલો'], 'Delete task': ['Kaam hatao', 'કામ કાઢી નાખો'], 'Task done': ['Kaam ho gaya', 'કામ થઈ ગયું'],
+  'Photo of the finished work': ['Kaam ki photo', 'પૂરા કામનો ફોટો'], '📷 Take photo': ['📷 Photo lo', '📷 ફોટો પાડો'], 'Retake': ['Phir se lo', 'ફરી પાડો'],
+  'Send for approval': ['Approval ke liye bhejo', 'મંજૂરી માટે મોકલો'], 'Ask to redo': ['Phir se karwao', 'ફરી કરાવો'], 'Voice note: what needs fixing': ['Voice note: kya theek karna hai', 'વૉઇસ નોટ: શું સુધારવાનું છે'],
+  'Or type it': ['Ya likho', 'અથવા લખો'], 'Send back to redo': ['Phir se karne bhejo', 'ફરી કરવા મોકલો'], '↺ Please redo': ['↺ Phir se karo', '↺ ફરી કરો'],
+  'Photo still uploading.': ['Photo abhi upload ho rahi hai.', 'ફોટો હજુ અપલોડ થાય છે.'], 'Translate ↗': ['Translate ↗', 'અનુવાદ ↗'], '🎤 Voice note': ['🎤 Voice note', '🎤 વૉઇસ નોટ'],
+  '🎤 Instructions': ['🎤 Nirdesh', '🎤 સૂચના'], 'Sent. An admin will check and approve it.': ['Bhej diya. Admin dekh kar approve karega.', 'મોકલ્યું. એડમિન જોઈને મંજૂર કરશે.'],
+  // users / account
+  'Change my name': ['Mera naam badlo', 'મારું નામ બદલો'], 'Sign out': ['Log out', 'લૉગ આઉટ'], 'Main admin': ['Mukhya admin', 'મુખ્ય એડમિન'], 'Admin': ['Admin', 'એડમિન'], 'Member': ['Sadasya', 'સભ્ય'],
+  'Approve': ['Haan', 'મંજૂર'], 'Reject': ['Mana karo', 'ના પાડો'], 'Make admin': ['Admin banao', 'એડમિન બનાવો'], 'Remove admin': ['Admin hatao', 'એડમિન હટાવો'], 'Give access': ['Access do', 'પ્રવેશ આપો'],
+  'You': ['Aap', 'તમે'], '🔔 Turn on task alerts': ['🔔 Kaam ki alert chalu karo', '🔔 કામની સૂચના ચાલુ કરો'], '🔔 Task alerts are on for this phone.': ['🔔 Is phone par alert chalu hai.', '🔔 આ ફોન પર સૂચના ચાલુ છે.'],
+  'Add to home screen': ['Home screen par lagao', 'હોમ સ્ક્રીન પર મૂકો'], 'Language': ['Bhasha', 'ભાષા'],
+  'No one waiting. Share the app link; people sign up and show up here.': ['Koi intezaar mein nahi. Link bhejo; log sign up karke yahan dikhenge.', 'કોઈ રાહમાં નથી. લિંક મોકલો; લોકો જોડાઈને અહીં દેખાશે.'],
+  'iPhone: open in': ['iPhone: kholo', 'iPhone: ખોલો'], 'Android: open in': ['Android: kholo', 'Android: ખોલો'],
+  // login
+  'Sign in': ['Log in', 'લૉગ ઇન'], 'Create account': ['Account banao', 'ખાતું બનાવો'], 'New here? Create an account': ['Naye ho? Account banao', 'નવા છો? ખાતું બનાવો'],
+  'Forgot password': ['Password bhool gaye', 'પાસવર્ડ ભૂલી ગયા'], 'Already have an account? Sign in': ['Account hai? Log in karo', 'ખાતું છે? લૉગ ઇન કરો'],
+  'Home accounts & tasks, shared with family': ['Ghar ka hisaab aur kaam, parivaar ke saath', 'ઘરનો હિસાબ અને કામ, પરિવાર સાથે'],
+  'Create your account. The admin will approve you.': ['Account banao. Admin approve karega.', 'ખાતું બનાવો. એડમિન મંજૂર કરશે.'], 'Send reset link': ['Reset link bhejo', 'રીસેટ લિંક મોકલો'],
+  'Waiting for approval': ['Approval ka intezaar', 'મંજૂરીની રાહ'], 'Access removed': ['Access hata diya', 'પ્રવેશ દૂર કર્યો'],
+  // placeholders
+  'Item (e.g. AAA battery)': ['Saaman (jaise AAA battery)', 'વસ્તુ (દા.ત. AAA battery)'], 'Search item…': ['Saaman dhundho…', 'વસ્તુ શોધો…'],
+  'Anything to remember': ['Kuch yaad rakhna ho to', 'કંઈ યાદ રાખવું હોય તો'], 'Type in any language, e.g. bed theek karwana hai': ['Kisi bhi bhasha mein likho, jaise bed theek karwana hai', 'કોઈ પણ ભાષામાં લખો, દા.ત. પલંગ રિપેર કરાવવો છે'],
+  'e.g. Paid ₹1,240': ['jaise ₹1,240 diye', 'દા.ત. ₹1,240 ચૂકવ્યા'], 'e.g. corner abhi bhi ganda hai, phir se karo': ['jaise corner abhi bhi ganda hai, phir se karo', 'દા.ત. ખૂણો હજુ ગંદો છે, ફરી કરો'],
+  'e.g. starch': ['jaise kalaf', 'દા.ત. કલફ'], 'Your name (e.g. Mummy)': ['Aapka naam (jaise Mummy)', 'તમારું નામ (દા.ત. મમ્મી)'], 'Password': ['Password', 'પાસવર્ડ'], 'Password (min 6 characters)': ['Password (kam se kam 6 akshar)', 'પાસવર્ડ (ઓછામાં ઓછા 6 અક્ષર)'],
+  // messages
+  'Updated': ['Badal diya', 'સુધાર્યું'], 'Deleted': ['Hata diya', 'કાઢી નાખ્યું'], 'Marked as paid': ['Paise de diye', 'ચૂકવેલ તરીકે નોંધ્યું'], 'Return saved': ['Wapsi save hui', 'પરત સેવ થયું'],
+  'Task added': ['Kaam jud gaya', 'કામ ઉમેરાયું'], 'Sent for approval': ['Approval ke liye bheja', 'મંજૂરી માટે મોકલ્યું'], 'Sent back to redo': ['Phir se karne bheja', 'ફરી કરવા મોકલ્યું'],
+  'Approved ✓': ['Approve ho gaya ✓', 'મંજૂર થયું ✓'], 'Take a photo of the finished work first': ['Pehle kaam ki photo lo', 'પહેલા કામનો ફોટો પાડો'],
+  'Record a voice note or type the task': ['Bolkar record karo ya kaam likho', 'બોલીને રેકોર્ડ કરો અથવા કામ લખો'], 'Record or type what needs fixing': ['Bolo ya likho kya theek karna hai', 'શું સુધારવાનું છે તે બોલો અથવા લખો'],
+  'Enter how many clothes': ['Kitne kapde, woh likho', 'કેટલા કપડાં તે લખો'], 'Add at least one item': ['Kam se kam ek saaman jodo', 'ઓછામાં ઓછી એક વસ્તુ ઉમેરો'],
+  'An item is missing its name': ['Ek saaman ka naam nahi hai', 'એક વસ્તુનું નામ નથી'], 'Microphone not allowed. Allow it in phone settings.': ['Mic ki permission nahi. Phone settings mein allow karo.', 'માઇકની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'],
+  'Delete this entry for everyone?': ['Yeh entry sab ke liye hatani hai?', 'આ એન્ટ્રી બધા માટે કાઢી નાખવી છે?'], 'Delete this task?': ['Yeh kaam hatana hai?', 'આ કામ કાઢી નાખવું છે?'], 'Edit task': ['Kaam badlo', 'કામ સુધારો'], 'Your name': ['Aapka naam', 'તમારું નામ'],
+  'to pay': ['dena baaki', 'ચૂકવવાના બાકી'], '↺ Redo:': ['↺ Phir se karo:', '↺ ફરી કરો:'], 'Add to Home Screen': ['Add to Home Screen', 'Add to Home Screen (હોમ સ્ક્રીન પર ઉમેરો)'],
+  'Add to Home screen': ['Add to Home screen', 'Add to Home screen (હોમ સ્ક્રીન પર ઉમેરો)'],
+  'Too long. Keep voice notes under 1 minute.': ['Bahut lamba. 1 minute se kam rakho.', 'બહુ લાંબું. 1 મિનિટથી ઓછું રાખો.'], 'Name updated': ['Naam badal gaya', 'નામ બદલાયું'],
+};
+const PATTERNS = [
+  [/^by (.+)$/, ['$1 ne joda', '$1 એ ઉમેર્યું']],
+  [/^for (.+)$/, ['$1 ke liye', '$1 માટે']],
+  [/^Sent by (.+)$/, ['$1 ne bheja', '$1 એ મોકલ્યું']],
+  [/^Approved by (.+)$/, ['$1 ne approve kiya', '$1 એ મંજૂર કર્યું']],
+  [/^Done by (.+)$/, ['$1 ne kiya', '$1 એ કર્યું']],
+  [/^Done photo$/, ['Kaam ki photo', 'કામનો ફોટો']],
+  [/^Good (morning|afternoon|evening), (.+)$/, ['Namaste, $2', 'નમસ્તે, $2']],
+  [/^(\d+) tasks? need you$/, ['$1 kaam aapke liye', '$1 કામ તમારા માટે']],
+  [/^(\d+) entr(?:y|ies)$/, ['$1 entry', '$1 એન્ટ્રી']],
+  [/^(\d+) clothes not returned$/, ['$1 kapde wapas nahi aaye', '$1 કપડાં પાછા નથી આવ્યા']],
+  [/^(\d+) clothes$/, ['$1 kapde', '$1 કપડાં']],
+  [/^(\d+) days$/, ['$1 din', '$1 દિવસ']],
+  [/^Returned (\d+\/\d+)$/, ['$1 wapas aaye', '$1 પાછા આવ્યા']],
+  [/^Returned(.*)$/, ['Wapas aaye$1', 'પાછા આવ્યા$1']],
+  [/^Overdue (\d+)d$/, ['$1 din late', '$1 દિવસ મોડું']],
+  [/^due (\d+)d$/, ['$1 din mein dena', '$1 દિવસમાં ચૂકવવું']],
+  [/^(.+) to pay$/, ['$1 dena baaki', '$1 ચૂકવવાના બાકી']],
+  [/^Have access \((\d+)\)$/, ['Access hai ($1)', 'પ્રવેશ છે ($1)']],
+  [/^Waiting for approval \((\d+)\)$/, ['Approval ka intezaar ($1)', 'મંજૂરીની રાહ ($1)']],
+  [/^Waiting for your approval \((\d+)\)$/, ['Aapki approval chahiye ($1)', 'તમારી મંજૂરી જોઈએ ($1)']],
+  [/^Access removed \((\d+)\)$/, ['Access hata ($1)', 'પ્રવેશ દૂર ($1)']],
+  [/^To do \((\d+)\)$/, ['Karna hai ($1)', 'કરવાનું ($1)']],
+  [/^Done \((\d+)\)$/, ['Ho gaya ($1)', 'થઈ ગયું ($1)']],
+  [/^＋ New task for (.+)$/, ['＋ $1 ke liye naya kaam', '＋ $1 માટે નવું કામ']],
+  [/^■ Stop$/, ['■ Ruko', '■ બંધ']],
+  [/^(\d+)s$/, ['$1 sec', '$1 સે.']],
+  [/^↺ Redo: (.+)$/, ['↺ Phir se karo: $1', '↺ ફરી કરો: $1']],
+  [/^↺ Redo$/, ['↺ Phir se karo', '↺ ફરી કરો']],
+  [/^Wash (.+)$/, ['Dhulai $1', 'ધોલાઈ $1']],
+  [/^Iron (.+)$/, ['Istri $1', 'ઈસ્ત્રી $1']],
+  [/^(.+) per cloth$/, ['$1 ek kapda', '$1 એક કપડું']],
+  [/^(.+) per cloth = (.+)$/, ['$1 ek kapda = $2', '$1 એક કપડું = $2']],
+  [/^Given on (.+?): (.+)$/, ['$1 ko diye: $2', '$1 એ આપ્યા: $2']],
+  [/^Saved · (.+)$/, ['Save ho gaya · $1', 'સેવ થયું · $1']],
+  [/^Rates saved(.*)$/, ['Bhaav save ho gaye$1', 'ભાવ સેવ થયા$1']],
+  [/^(\d+) unpaid entr(?:y|ies) updated$/, ['$1 baaki entry badli', '$1 બાકી એન્ટ્રી બદલાઈ']],
+  [/^New task from (.+?): (.+)$/, ['$1 ka naya kaam: $2', '$1 નું નવું કામ: $2']],
+  [/^(.+) finished: (.+)\. Please approve\.$/, ['$1 ne kiya: $2. Approve karo.', '$1 એ કર્યું: $2. મંજૂર કરો.']],
+  [/^Redo: (.+)$/, ['Phir se karo: $1', 'ફરી કરો: $1']],
+  [/^Approved ✓ (.+)$/, ['Approve ✓ $1', 'મંજૂર ✓ $1']],
+  [/^(\d+) task updates since you last opened$/, ['$1 kaam mein badlav', '$1 કામમાં ફેરફાર']],
+];
+// translate one UI string; composite "A · B" strings are translated part by part
+function tx(str) {
+  if (LI < 0 || !str) return str;
+  const m = str.match(/^(\s*)([\s\S]*?)(\s*)$/), core = m[2];
+  if (!core) return str;
+  const one = s => {
+    if (D[s]) return D[s][LI];
+    for (const [re, out] of PATTERNS) { const mm = s.match(re); if (mm) return out[LI].replace(/\$(\d)/g, (_, i) => tx(mm[+i] || '')); }
+    return null;
+  };
+  let out = D[core] ? D[core][LI] : null;
+  if (out == null && core.includes(' · ')) { const parts = core.split(' · '), tr = parts.map(p => tx(p)); if (tr.some((p, i) => p !== parts[i])) out = tr.join(' · '); }
+  if (out == null) out = one(core);
+  if (out == null) { const em = core.match(/^(\p{Extended_Pictographic}\S*) (.+)$/u); if (em) { const r = tx(em[2]); if (r !== em[2]) out = em[1] + ' ' + r; } }
+  return out == null ? str : m[1] + out + m[3];
+}
+function txNode(root) {
+  if (LI < 0 || !root) return;
+  const skip = el => !el || !el.closest || !!el.closest('[data-nt],script,style,textarea,audio');
+  if (root.nodeType === 3) { if (!skip(root.parentElement)) { const v = tx(root.nodeValue); if (v !== root.nodeValue) root.nodeValue = v; } return; }
+  if (root.nodeType !== 1 || root.closest('[data-nt]')) return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = []; while (w.nextNode()) nodes.push(w.currentNode);
+  for (const n of nodes) { if (skip(n.parentElement)) continue; const v = tx(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; }
+  const els = root.querySelectorAll ? [root, ...root.querySelectorAll('[placeholder],[aria-label]')] : [];
+  for (const el of els) { if (!el.getAttribute || el.closest('[data-nt]')) continue;
+    for (const a of ['placeholder', 'aria-label']) { const v = el.getAttribute(a); if (v) { const t = tx(v); if (t !== v) el.setAttribute(a, t); } } }
+}
+if (LI >= 0) {
+  new MutationObserver(ms => { for (const m of ms) { if (m.type === 'characterData') txNode(m.target); else m.addedNodes.forEach(txNode); } })
+    .observe(document.body, {childList: true, subtree: true, characterData: true});
+  const _c = window.confirm.bind(window), _p = window.prompt.bind(window);
+  window.confirm = msg => _c(tx(msg)); window.prompt = (msg, d) => _p(tx(msg), d);
+}
+function langSwitch(short) {
+  return `<div class="langsw" data-nt>${(short ? [['en', 'EN'], ['hn', 'Hinglish'], ['gu', 'ગુજ']] : [['en', 'English'], ['hn', 'Hinglish'], ['gu', 'ગુજરાતી']]).map(([c, l]) => `<button type="button" class="${APPLANG === c ? 'on' : ''}" data-applang="${c}">${l}</button>`).join('')}</div>`;
+}
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-applang]'); if (!b || b.dataset.applang === APPLANG) return;
+  try { localStorage.setItem('appLang', b.dataset.applang); localStorage.removeItem('tLang'); } catch {} location.reload(); });
+
 /* ================= books ================= */
 const BOOKS = {
   ganesh: {key: 'ganesh', name: 'Ganesh', icon: '🛒', sub: 'Kirana & general items', unit: 'pcs'},
@@ -497,7 +677,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '6 · 6 Nov homely';
+const APP_VERSION = '7 · languages';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -609,6 +789,7 @@ function screenLogin(mode) {
       <button class="btn pri" id="aBtn" type="submit">${up ? 'Create account' : fg ? 'Send reset link' : 'Sign in'}</button>
     </form>
     ${up || fg ? `<button class="link" data-m="in">Already have an account? Sign in</button>` : `<button class="link" data-m="up">New here? Create an account</button><button class="link" data-m="forgot" style="font-weight:500;color:var(--muted)">Forgot password</button>`}
+    <div style="display:flex;justify-content:center;margin-top:22px">${langSwitch()}</div>
   </div>`;
   $('#app').querySelectorAll('[data-m]').forEach(b => b.onclick = () => screenLogin(b.dataset.m));
   $('#authForm').onsubmit = async ev => {
@@ -638,6 +819,7 @@ function startApp() {
       <h1><button class="backbtn hidden" id="backBtn" aria-label="Back">‹</button><span id="title">Home</span><span class="sync hidden" id="sync"></span></h1>
       <div class="monthnav hidden" id="monthnav"><button id="mPrev" aria-label="Previous month">‹</button><span id="mLabel"></span><button id="mNext" aria-label="Next month">›</button></div>
       <button class="xlbtn hidden" id="xlBtn">⬇ Excel</button>
+      <div id="hdrLang" class="hidden">${langSwitch(true)}</div>
     </div>
     <input id="search" class="search hidden" type="search" placeholder="Search item…" autocomplete="off">
   </div></header>
@@ -690,6 +872,7 @@ function render() {
   $('#monthnav').classList.toggle('hidden', !inBook);
   $('#search').classList.toggle('hidden', !inBook || S.book === 'iron');
   $('#xlBtn').classList.toggle('hidden', v !== 'dash');
+  $('#hdrLang').classList.toggle('hidden', v !== 'home');
   $('#fab').classList.toggle('hidden', !(inBook || v === 'tasks'));
   $('#mLabel').textContent = monthLabel(S.month);
   const act = myTaskActions().length;
@@ -708,7 +891,7 @@ function homeHTML() {
   const acts = myTaskActions().length;
   const hour = new Date().getHours(), greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   return `<div class="hello"><img src="logo.jpg" alt=""><div><div class="hi">${greet}, ${esc((S.me?.name || '').split(' ')[0])} 🙏</div>
-      <div class="dt">${new Date().toLocaleDateString('en-IN', {weekday: 'long', day: 'numeric', month: 'long'})}</div></div></div>
+      <div class="dt">${new Date().toLocaleDateString(LOC(), {weekday: 'long', day: 'numeric', month: 'long'})}</div></div></div>
     <div class="books">${BOOK_KEYS.map(k => {
     const b = BOOKS[k], all = S.entries.filter(e => bookOf(e) === k), mon = all.filter(e => e.date.startsWith(m));
     const due = sum(all.filter(isPending), total);
@@ -759,7 +942,7 @@ function bookHTML() {
   for (const [date, es] of groups) {
     html += `<div class="dhead"><span>${date === today() ? 'Today · ' : ''}${prettyDate(date)}</span><b>${money(sum(es, total))}</b></div>`;
     html += es.map(e => `<button class="card" data-open="${e.id}">
-      <div class="main">${(e.items || []).map(i => `<div class="line"><span>${esc(i.name)}</span><span class="q">${+i.qty || 0} ${esc(i.unit || '')} × ${money(i.rate)}${rateUnit(i.unit)}</span></div>`).join('')}
+      <div class="main">${(e.items || []).map(i => `<div class="line"><span data-nt>${esc(i.name)}</span><span class="q">${+i.qty || 0} ${esc(i.unit || '')} × ${money(i.rate)}${rateUnit(i.unit)}</span></div>`).join('')}
         <div class="s">by ${esc(e.createdByName || '—')}${e.hasPhoto ? ' · 📎' : ''}${e._pending ? ' · syncing' : ''}</div></div>
       <div class="r"><div class="amt">${money(total(e))}</div>${badge(e)}</div></button>`).join('');
   }
@@ -829,7 +1012,8 @@ function moreHTML() {
   const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
   const notif = 'Notification' in window ? Notification.permission : 'unsupported';
   let html = `<div class="more">
-    <div class="fgroup"><h3>${esc(me.name || '')}</h3><p>${esc(S.user.email)} · ${S.isOwner ? 'Main admin' : S.isAdmin ? 'Admin' : 'Member'}${api.demo ? ' · DEMO' : ''}</p><p class="hint">App version: ${APP_VERSION}</p>
+    <div class="fgroup"><h3 data-nt>${esc(me.name || '')}</h3><p>${esc(S.user.email)} · ${S.isOwner ? 'Main admin' : S.isAdmin ? 'Admin' : 'Member'}${api.demo ? ' · DEMO' : ''}</p><p class="hint">App version: ${APP_VERSION}</p>
+      <div class="flabel" style="margin-top:10px">Language</div>${langSwitch()}
       <button class="btn sec" id="renameBtn">Change my name</button>
       ${notif === 'default' ? `<button class="btn sec" id="notifBtn">🔔 Turn on task alerts</button>` : notif === 'granted' ? `<p class="hint">🔔 Task alerts are on for this phone.</p>` : ''}
       <button class="btn dan" id="signOutBtn">Sign out</button></div>`;
@@ -842,7 +1026,7 @@ function moreHTML() {
         const self = u.uid === S.user.uid, owner = (u.email || '').toLowerCase() === ADMIN;
         let acts = self ? `<span class="badge b-mute">You</span>` : st === 'pending' ? `<button class="sbtn" data-ustat="approved" data-uid="${u.uid}">Approve</button><button class="sbtn red" data-ustat="removed" data-uid="${u.uid}">Reject</button>`
           : st === 'approved' ? `${owner ? '' : `<button class="sbtn ghost" data-urole="${u.role === 'admin' ? 'member' : 'admin'}" data-uid="${u.uid}">${u.role === 'admin' ? 'Remove admin' : 'Make admin'}</button><button class="sbtn ghost" data-ustat="removed" data-uid="${u.uid}">Remove</button>`}` : `<button class="sbtn" data-ustat="approved" data-uid="${u.uid}">Give access</button>`;
-        return `<div class="urow"><div class="main"><div class="t">${esc(u.name)} ${u.role === 'admin' || owner ? '<span class="badge b-paid" style="margin:0 0 0 4px">Admin</span>' : ''}</div><div class="s">${esc(u.email)}</div></div><div class="acts">${acts}</div></div>`;
+        return `<div class="urow"><div class="main"><div class="t"><span data-nt>${esc(u.name)}</span> ${u.role === 'admin' || owner ? '<span class="badge b-paid" style="margin:0 0 0 4px">Admin</span>' : ''}</div><div class="s" data-nt>${esc(u.email)}</div></div><div class="acts">${acts}</div></div>`;
       }).join('')}</div>`;
     }
   }
@@ -877,8 +1061,8 @@ function openDetail(id) {
   const k = bookOf(e), iron = k === 'iron';
   const rows = (e.items || []).map(i => iron
     ? (i.other ? `<tr><td><div class="n">Others</div>${i.note ? `<div class="q">${esc(i.note)}</div>` : ''}</td><td class="a">${money(i.amount)}</td></tr>`
-      : `<tr><td><div class="n">${esc(i.name)}</div><div class="q">${num(i.wash) ? `Wash ${i.wash} × ${money(i.washRate)}` : ''}${num(i.wash) && num(i.iron) ? ' · ' : ''}${num(i.iron) ? `Iron ${i.iron} × ${money(i.ironRate)}` : ''}</div></td><td class="a">${money(i.amount)}</td></tr>`)
-    : `<tr><td><div class="n">${esc(i.name)}</div><div class="q">${+i.qty || 0} ${esc(i.unit)} × ${money(i.rate)}${rateUnit(i.unit)}</div></td><td class="a">${money(i.amount)}</td></tr>`).join('');
+      : `<tr><td><div class="n" data-nt>${esc(i.name)}</div><div class="q">${num(i.wash) ? `Wash ${i.wash} × ${money(i.washRate)}` : ''}${num(i.wash) && num(i.iron) ? ' · ' : ''}${num(i.iron) ? `Iron ${i.iron} × ${money(i.ironRate)}` : ''}</div></td><td class="a">${money(i.amount)}</td></tr>`)
+    : `<tr><td><div class="n" data-nt>${esc(i.name)}</div><div class="q">${+i.qty || 0} ${esc(i.unit)} × ${money(i.rate)}${rateUnit(i.unit)}</div></td><td class="a">${money(i.amount)}</td></tr>`).join('');
   const pay = e.status === 'paid'
     ? `<div class="kv"><span>Payment</span><span>Paid · ${esc(e.mode)}</span></div>${e.ref ? `<div class="kv"><span>UTR</span><span>${esc(e.ref)}</span></div>` : ''}`
     : `<div class="kv"><span>Payment</span><span>${badge(e)}</span></div>${e.dueDate && !e.paidOn ? `<div class="kv"><span>Due date</span><span>${prettyDate(e.dueDate)}</span></div>` : ''}
@@ -892,7 +1076,7 @@ function openDetail(id) {
       <div class="fgroup">${pay}
         ${iron && r.txt ? `<div class="kv"><span>Return</span><span><span class="badge ${r.cls}" style="margin:0">${r.txt}</span></span></div>` : ''}
         <div class="kv"><span>Added by</span><span>${esc(e.createdByName || '—')}</span></div>
-        ${e.notes ? `<div class="kv"><span>Notes</span><span>${esc(e.notes)}</span></div>` : ''}</div>
+        ${e.notes ? `<div class="kv"><span>Notes</span><span data-nt>${esc(e.notes)}</span></div>` : ''}</div>
       ${e.hasPhoto ? `<div class="fgroup" id="photoSlot"><p class="hint" style="margin:0">Loading photo…</p></div>` : ''}
       ${iron && !r.done && r.txt ? `<button class="btn pri" data-return="${e.id}">↩ Mark clothes returned</button>` : ''}
       ${isPending(e) ? `<button class="btn amber" data-markpaid="${e.id}">Mark as paid</button>` : ''}
@@ -959,7 +1143,7 @@ function ironRow(it = {}) {
   const r = rateOf(cur);
   return `<div class="irow iron">
     <div class="igrid3">
-      <label><span>Cloth</span><select class="field n-cat">${[...new Set([...cats, cur])].filter(Boolean).map(c => `<option ${c === cur ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
+      <label><span>Cloth</span><select class="field n-cat" data-nt>${[...new Set([...cats, cur])].filter(Boolean).map(c => `<option ${c === cur ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
       <label><span>Wash</span><input class="field n-w" type="number" inputmode="numeric" min="0" placeholder="0" value="${num(it.wash) || ''}"></label>
       <label><span>Iron</span><input class="field n-i" type="number" inputmode="numeric" min="0" placeholder="0" value="${num(it.iron) || ''}"></label>
       <button type="button" class="i-del" aria-label="Remove">×</button>
@@ -1212,7 +1396,7 @@ const LANGS = [['', 'Original'], ['en', 'English'], ['gu', 'ગુજરાત�
 const TR = (() => { try { return JSON.parse(localStorage.getItem('trCache') || '{}'); } catch { return {}; } })();
 const trKey = (tl, txt) => tl + '|' + txt;
 let trSaveT;
-function trLang() { try { return localStorage.getItem('tLang') ?? 'en'; } catch { return 'en'; } }
+function trLang() { const d = APPLANG === 'gu' ? 'gu' : APPLANG === 'hn' ? '' : 'en'; try { return localStorage.getItem('tLang') ?? d; } catch { return d; } }
 function trLink(tl, txt) { return `https://translate.google.com/?sl=auto&tl=${tl}&text=${encodeURIComponent(txt)}&op=translate`; }
 const trPending = new Set();
 async function translate(tl, txt) {
@@ -1235,7 +1419,7 @@ function trLine(txt) {
   if (!c) { const k = trKey(tl, txt); if (!trPending.has(k)) translate(tl, txt).then(() => { clearTimeout(trLine._t); trLine._t = setTimeout(() => S.view === 'tasks' && render(), 60); }); return `<div class="tr">…</div>`; }
   if (c.err) return `<div class="tr"><a href="${trLink(tl, txt)}" target="_blank" rel="noopener">Translate ↗</a></div>`;
   if (!c.t || c.t.toLowerCase() === txt.toLowerCase() || c.src === tl) return '';
-  return `<div class="tr">${esc(c.t)}</div>`;
+  return `<div class="tr" data-nt>${esc(c.t)}</div>`;
 }
 
 /* ================= tasks ================= */
@@ -1292,8 +1476,8 @@ function taskRow(t, carried) {
   const icon = st === 'done' ? '✓' : st === 'review' ? '⏳' : '';
   return `<div class="trow ${st}" data-task="${t.id}">
     <span class="tick">${icon}</span>
-    <div class="main"><div class="t">${esc(t.title)}</div>${trLine(t.title)}
-      ${st === 'open' && t.declinedAt ? `<div class="redo">↺ Redo${t.declineNote ? ': ' + esc(t.declineNote) : ''}</div>` : ''}
+    <div class="main"><div class="t" data-nt>${esc(t.title)}</div>${trLine(t.title)}
+      ${st === 'open' && t.declinedAt ? `<div class="redo">↺ Redo${t.declineNote ? `: <span data-nt>${esc(t.declineNote)}</span>` : ''}</div>` : ''}
       <div class="s">${t.hasVoice ? '🎤 ' : ''}${t.hasPhoto ? '📷 ' : ''}${bits.join(' · ')}</div></div>
     <span class="chev">›</span></div>`;
 }
@@ -1363,7 +1547,7 @@ function openTask(id) {
   const st = tStatus(t), canEdit = S.isAdmin || t.createdBy === S.user.uid;
   openSheet(`<div class="sh-head"><button data-close>Close</button><h2>Task</h2>${canEdit && st !== 'done' ? `<button id="tEdit">Edit</button>` : '<span></span>'}</div>
     <div class="sh-body">
-      <div class="fgroup tsheet"><div style="font-size:19px;font-weight:700">${esc(t.title)}</div>
+      <div class="fgroup tsheet"><div style="font-size:19px;font-weight:700" data-nt>${esc(t.title)}</div>
         <div id="tTrans" style="margin:6px 0 4px"></div>
         ${t.hasVoice ? playerHTML('pv1', '🎤 Voice note') : ''}
         <div class="kv"><span>Status</span><span>${st === 'done' ? '<span class="badge b-paid" style="margin:0">Done ✓</span>' : st === 'review' ? '<span class="badge b-credit" style="margin:0">Waiting for approval</span>' : '<span class="badge b-mute" style="margin:0">To do</span>'}</span></div>
@@ -1371,8 +1555,8 @@ function openTask(id) {
         ${t.assignedName ? `<div class="kv"><span>For</span><span>${esc(t.assignedName)}</span></div>` : ''}
         <div class="kv"><span>Added by</span><span>${esc(t.createdByName || '—')}</span></div></div>
       ${t.hasPhoto ? `<div class="fgroup" id="tpSlot"><p class="hint" style="margin:0">Loading photo…</p></div>` : ''}
-      ${t.declinedAt && st === 'open' ? `<div class="fgroup redo-box"><b>↺ Please redo</b> · ${esc(t.declinedByName || '')}<div>${esc(t.declineNote || '')}</div>${t.declineVoice ? playerHTML('pv2', '🎤 Instructions') : ''}</div>` : ''}
-      ${st !== 'open' && t.hasProof ? `<div class="fgroup"><div class="flabel">Done photo · ${esc(t.submittedByName || '')} ${timeStr(t.submittedAt)}</div><div id="tProofSlot"><p class="hint" style="margin:0">Loading…</p></div>${t.proofNote ? `<p style="margin:8px 0 0">${esc(t.proofNote)}</p>` : ''}</div>` : ''}
+      ${t.declinedAt && st === 'open' ? `<div class="fgroup redo-box"><b>↺ Please redo</b> · ${esc(t.declinedByName || '')}<div data-nt>${esc(t.declineNote || '')}</div>${t.declineVoice ? playerHTML('pv2', '🎤 Instructions') : ''}</div>` : ''}
+      ${st !== 'open' && t.hasProof ? `<div class="fgroup"><div class="flabel">Done photo · ${esc(t.submittedByName || '')} ${timeStr(t.submittedAt)}</div><div id="tProofSlot"><p class="hint" style="margin:0">Loading…</p></div>${t.proofNote ? `<p style="margin:8px 0 0" data-nt>${esc(t.proofNote)}</p>` : ''}</div>` : ''}
       ${st === 'done' ? `<p class="hint">Approved by ${esc(t.approvedByName || '')} · ${t.doneDate ? shortDate(t.doneDate) : ''} ${timeStr(t.approvedAt)}</p>` : ''}
       ${st === 'open' ? `<button class="btn pri" id="tSubmit">📷 Done – upload photo</button>` : ''}
       ${st === 'review' && S.isAdmin ? `<div class="row2"><button class="btn pri" id="tApprove">✓ Approve</button><button class="btn amber" id="tDecline">✗ Redo</button></div>` : ''}
@@ -1385,7 +1569,7 @@ function openTask(id) {
     const rows = await Promise.all([['en', 'English'], ['gu', 'ગુજરાતી'], ['hi', 'हिन्दी']].map(async ([c, l]) => [c, l, await translate(c, t.title)]));
     if (!$('#tTrans')) return;
     const ok = rows.filter(([, , r]) => r && !r.err && r.t && r.t.toLowerCase() !== t.title.toLowerCase());
-    box.innerHTML = ok.map(([, l, r]) => `<div class="kv"><span>${l}</span><span class="tr" style="margin:0">${esc(r.t)}</span></div>`).join('');
+    box.innerHTML = ok.map(([, l, r]) => `<div class="kv"><span>${l}</span><span class="tr" style="margin:0" data-nt>${esc(r.t)}</span></div>`).join('');
   })();
   if (t.hasVoice) loadPlayer('pv1', 'tv_' + t.id, '🎤 Voice note');
   if (t.declineVoice && st === 'open') loadPlayer('pv2', 'tdv_' + t.id, '🎤 Instructions');
@@ -1406,7 +1590,7 @@ function openSubmit(id) {
   const photo = {data: null};
   openSheet(`<div class="sh-head"><button data-back-task="${id}">Back</button><h2>Task done</h2><button class="save" id="sbSave">Send</button></div>
     <div class="sh-body">
-      <div class="fgroup"><div style="font-size:17px;font-weight:700">${esc(t.title)}</div>${trLine(t.title)}</div>
+      <div class="fgroup"><div style="font-size:17px;font-weight:700" data-nt>${esc(t.title)}</div>${trLine(t.title)}</div>
       <div class="fgroup"><label class="flabel">Photo of the finished work</label><div class="photo-box" id="sbPhoto"></div></div>
       <div class="fgroup"><label class="flabel">Note (optional)</label><textarea class="field" id="sbNote" rows="2" placeholder="e.g. Paid ₹1,240"></textarea></div>
       <button class="btn pri" id="sbSave2">Send for approval</button>
@@ -1427,7 +1611,7 @@ function openDecline(id) {
   const voice = {data: null};
   openSheet(`<div class="sh-head"><button data-back-task="${id}">Back</button><h2>Ask to redo</h2><button class="save" id="dcSave">Send</button></div>
     <div class="sh-body">
-      <div class="fgroup"><div style="font-size:17px;font-weight:700">${esc(t.title)}</div></div>
+      <div class="fgroup"><div style="font-size:17px;font-weight:700" data-nt>${esc(t.title)}</div></div>
       <div class="fgroup"><label class="flabel">Voice note: what needs fixing</label><div class="voice" id="dcVoice"></div></div>
       <div class="fgroup"><label class="flabel">Or type it</label><textarea class="field" id="dcNote" rows="2" placeholder="e.g. corner abhi bhi ganda hai, phir se karo"></textarea></div>
       <button class="btn amber" id="dcSave2">Send back to redo</button>
@@ -1498,7 +1682,7 @@ async function renderDash() {
         </tbody><tfoot><tr><td>Total</td><td class="num">${c.w}</td><td class="num">${c.i}</td><td class="num">${money(es.reduce((t, e) => t + ironOthers(e), 0))}</td><td class="num">${c.w + c.i}<div class="sub-amt strong">${money(bt)}</div></td><td></td></tr></tfoot></table>`;
     } else {
       html += `<table class="dt nb"><thead><tr><th>Date</th><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Total</th></tr></thead><tbody>
-        ${es.flatMap(e => (e.items || []).map((i, n) => `<tr data-open="${e.id}"><td>${n ? '' : shortDate(e.date)}</td><td>${esc(i.name)}${n === 0 && isPending(e) ? ' <span class="badge b-credit" style="margin:0">to pay</span>' : ''}</td><td class="num">${+i.qty || 0} ${esc(i.unit || '')}</td><td class="num">${money(i.rate)}${rateUnit(i.unit)}</td><td class="num">${money(i.amount)}</td></tr>`)).join('')}
+        ${es.flatMap(e => (e.items || []).map((i, n) => `<tr data-open="${e.id}"><td>${n ? '' : shortDate(e.date)}</td><td><span data-nt>${esc(i.name)}</span>${n === 0 && isPending(e) ? ' <span class="badge b-credit" style="margin:0">to pay</span>' : ''}</td><td class="num">${+i.qty || 0} ${esc(i.unit || '')}</td><td class="num">${money(i.rate)}${rateUnit(i.unit)}</td><td class="num">${money(i.amount)}</td></tr>`)).join('')}
         </tbody><tfoot><tr><td colspan="4">Total</td><td class="num">${money(bt)}</td></tr></tfoot></table>`;
     }
     html += `</div></div>`;
