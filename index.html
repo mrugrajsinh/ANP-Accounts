@@ -258,6 +258,9 @@ const sum = (arr, f) => r2(arr.reduce((t, x) => t + f(x), 0));
 const isPending = e => e.status === 'credit' && !e.paidOn;
 const MODES = ['Cash', 'UPI', 'Card', 'Bank transfer', 'Cheque', 'Other'];
 const UNITS = ['pcs', 'kg', 'g', 'L', 'ml', 'pack', 'dozen', 'box', 'bag', 'm'];
+const PRESS = 'Pressing';
+const isPress = i => String(i?.name || '').trim().toLowerCase() === 'pressing';
+const pressRate = () => num(S.settings?.pressRate);
 const CFG = window.GHAR_CONFIG || {};
 const ADMIN = String(CFG.adminEmail || '').trim().toLowerCase();
 
@@ -307,12 +310,14 @@ async function firebaseAPI(cfg) {
     savePhoto: (id, data) => F.setDoc(F.doc(db, 'photos', id), {data}),
     getPhoto: async id => { const s = await F.getDoc(F.doc(db, 'photos', id)); return s.exists() ? s.data().data : null; },
     deletePhoto: id => F.deleteDoc(F.doc(db, 'photos', id)),
+    watchSettings: (cb, err) => F.onSnapshot(F.doc(db, 'settings', 'app'), s => cb(s.exists() ? s.data() : {}), err),
+    saveSettings: p => F.setDoc(F.doc(db, 'settings', 'app'), p, {merge: true}),
   };
 }
 
 /* ================= data layer: demo mode (?demo) for trying it out ================= */
 function demoAPI() {
-  const listeners = new Set(), users = {}, entries = {}, photos = {};
+  const listeners = new Set(), users = {}, entries = {}, photos = {}, settings = {pressRate: 0};
   const me = {uid: 'u-admin', email: ADMIN || 'admin@example.com', emailVerified: true, name: 'Mrugraj'};
   users['u-admin'] = {name: 'Mrugraj', email: me.email, status: 'approved', role: 'admin', createdAt: Date.now()};
   users['u-2'] = {name: 'Mummy', email: 'mummy@example.com', status: 'approved', role: 'member', createdAt: Date.now()};
@@ -351,6 +356,8 @@ function demoAPI() {
     saveEntry: async e => { entries[e.id] = JSON.parse(JSON.stringify(e)); emit(); },
     deleteEntry: async id => { delete entries[id]; emit(); },
     savePhoto: async (id, d) => { photos[id] = d; }, getPhoto: async id => photos[id] || null, deletePhoto: async id => { delete photos[id]; },
+    watchSettings: cb => watch(() => cb({...settings})),
+    saveSettings: async p => { Object.assign(settings, p); emit(); },
   };
 }
 
@@ -362,7 +369,7 @@ const S = {
   view: 'diary', month: today().slice(0, 7), filter: 'all', q: '',
   editing: null, dueDays: 30, unsub: [],
   dash: {preset: 'month', from: monthStart(today()), to: today(), who: '', pay: '', mode: '', shop: '', q: ''},
-  rangeCache: null,
+  rangeCache: null, settings: {},
 };
 
 function mergeEntries() {
@@ -509,6 +516,7 @@ function startApp() {
   const err = e => toast(errText(e));
   S.unsub.push(api.watchEntries(S.since, list => { S.live = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
   S.unsub.push(api.watchCredits(list => { S.credits = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
+  S.unsub.push(api.watchSettings(d => { S.settings = d || {}; render(); }, () => {}));
   S.unsub.push(api.watchUsers(list => { S.users = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); render(); }, () => {}));
   render();
 }
@@ -563,7 +571,7 @@ function badge(e) {
 function statusText(e) { return e.status === 'paid' ? 'Paid' : e.paidOn ? 'Credit - cleared' : 'Credit - pending'; }
 
 function card(e, extra = '') {
-  const names = (e.items || []).map(i => i.name).filter(Boolean);
+  const names = (e.items || []).map(i => isPress(i) ? `👕 Pressing × ${+i.qty || 0} clothes` : i.name).filter(Boolean);
   const title = e.vendor || names[0] || 'Purchase';
   const sub = (e.vendor ? names.join(', ') : names.slice(1).join(', ')) || `${names.length} item`;
   return `<button class="card" data-open="${e.id}">
@@ -640,6 +648,21 @@ function moreHTML() {
         return `<div class="urow"><div class="main"><div class="t">${esc(u.name)}</div><div class="s">${esc(u.email)}</div></div><div class="acts">${acts}</div></div>`;
       }).join('')}</div>`;
     }
+  }
+  {
+    const m = today().slice(0, 7), pe = S.entries.filter(e => e.date.startsWith(m) && (e.items || []).some(isPress));
+    const cl = pe.reduce((t, e) => t + (e.items || []).filter(isPress).reduce((a, i) => a + num(i.qty), 0), 0);
+    const amt = pe.reduce((t, e) => t + (e.items || []).filter(isPress).reduce((a, i) => a + num(i.amount), 0), 0);
+    const unpaidZero = S.entries.filter(e => isPending(e) && (e.items || []).some(i => isPress(i) && num(i.rate) !== pressRate())).length;
+    html += `<div class="fgroup"><h3>👕 Pressing (clothes)</h3>
+      <p>This month: <b style="color:var(--ink)">${cl} clothes · ${money(amt)}</b></p>
+      ${S.isAdmin ? `<div class="row2" style="margin-top:8px">
+          <div><label class="flabel">Rate per cloth ₹</label><input class="field" id="pRate" type="number" inputmode="decimal" step="any" min="0" value="${pressRate() || ''}" placeholder="e.g. 10"></div>
+          <div><label class="flabel">Pressing person / shop</label><input class="field" id="pShop" value="${esc(S.settings.pressShop || '')}" placeholder="e.g. Ramesh istri"></div></div>
+        <label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:14px"><input type="checkbox" id="pApply" checked style="width:18px;height:18px"> Also update unpaid pressing bills to this rate${unpaidZero ? ` (${unpaidZero})` : ''}</label>
+        <button class="btn pri" id="savePress">Save pressing rate</button>`
+      : `<p>Rate: <b style="color:var(--ink)">${pressRate() ? money(pressRate()) + ' per cloth' : 'not set yet'}</b> (set by admin). Tap <b>👕 Pressing</b> when adding a bill.</p>`}
+    </div>`;
   }
   html += `<div class="fgroup"><h3>Bring in old bills</h3><p>If you used the earlier phone-only version, upload those bills to the shared diary.</p>
       <button class="btn sec" id="migrateBtn">Upload bills saved on this phone</button>
@@ -741,15 +764,16 @@ const strip = e => { const o = {...e}; delete o._pending; return o; };
 
 /* ================= add / edit form ================= */
 function itemRow(it = {}) {
-  return `<div class="irow">
+  const pr = isPress(it), ro = pr ? 'readonly tabindex="-1" style="background:var(--grid)"' : '';
+  return `<div class="irow${pr ? ' press' : ''}">
     <input class="field i-name" list="dl-items" placeholder="Item name (e.g. Atta, Milk)" value="${esc(it.name || '')}" autocomplete="off" autocapitalize="words">
     <div class="igrid">
-      <label><span>Qty</span><input class="field i-qty" type="number" inputmode="decimal" step="any" min="0" value="${esc(it.qty ?? 1)}"></label>
+      <label><span>${pr ? 'Clothes' : 'Qty'}</span><input class="field i-qty" type="number" inputmode="${pr ? 'numeric' : 'decimal'}" step="any" min="0" placeholder="0" value="${esc(it.qty ?? 1)}"></label>
       <label><span>Unit</span><select class="field i-unit">${UNITS.map(u => `<option ${u === (it.unit || 'pcs') ? 'selected' : ''}>${u}</option>`).join('')}</select></label>
-      <label><span>Rate ₹</span><input class="field i-rate" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${esc(it.rate ?? '')}"></label>
-      <label><span>Amount ₹</span><input class="field i-amt" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${esc(it.amount ?? '')}"></label>
+      <label><span>Rate ₹</span><input class="field i-rate" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${esc(it.rate ?? '')}" ${ro}></label>
+      <label><span>Amount ₹</span><input class="field i-amt" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${esc(it.amount ?? '')}" ${ro}></label>
       <button type="button" class="i-del" aria-label="Remove item">×</button>
-    </div></div>`;
+    </div>${pr ? `<p class="hint" style="margin:4px 2px 0">${pressRate() ? `Fixed rate ${money(pressRate())} per cloth. Just enter the number of clothes.` : 'Rate not set yet. Just enter the number of clothes; the amount fills in once the admin sets the rate.'}</p>` : ''}</div>`;
 }
 
 function openForm(existing) {
@@ -766,7 +790,7 @@ function openForm(existing) {
         <div><label class="flabel">Date</label><input type="date" class="field" id="fDate" value="${e.date}"></div>
         <div><label class="flabel">Shop (optional)</label><input class="field" id="fShop" list="dl-shops" placeholder="e.g. Kirana" value="${esc(e.vendor)}" autocomplete="off" autocapitalize="words"></div>
       </div></div>
-      <div class="fgroup"><h3>Items</h3>
+      <div class="fgroup"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0">Items</h3><button type="button" class="pbtn" id="pressBtn" style="padding:7px 12px;font-size:14px">👕 Pressing</button></div>
         <div id="items">${e.items.map(itemRow).join('')}</div>
         <button type="button" class="addi" id="addItem">+ Add another item</button>
         <div class="totalbar"><span>Total</span><b id="fTotal">₹0</b></div></div>
@@ -805,7 +829,9 @@ function openForm(existing) {
   });
   form.addEventListener('change', ev => {
     if (!ev.target.classList.contains('i-name')) return;
-    const row = ev.target.closest('.irow'), h = S.history.get(ev.target.value.trim().toLowerCase()), r = row.querySelector('.i-rate');
+    const row = ev.target.closest('.irow');
+    if (isPress({name: ev.target.value}) && !row.classList.contains('press')) { const q = row.querySelector('.i-qty').value; row.outerHTML = itemRow({name: PRESS, qty: q, unit: 'pcs', rate: pressRate(), amount: r2(num(q) * pressRate())}); updateTotal(); return; }
+    const h = S.history.get(ev.target.value.trim().toLowerCase()), r = row.querySelector('.i-rate');
     if (h && r.value === '') { r.value = h.rate; row.querySelector('.i-unit').value = h.unit || 'pcs'; row.querySelector('.i-amt').value = r2(num(row.querySelector('.i-qty').value) * num(h.rate)); updateTotal(); }
   });
   form.addEventListener('click', ev => {
@@ -818,6 +844,14 @@ function openForm(existing) {
     if (md) { e.mode = md.dataset.mode; $('#modeChips').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === md)); $('#refWrap').classList.toggle('hidden', e.mode === 'Cash'); }
     const du = t.closest('[data-due]');
     if (du) { S.dueDays = +du.dataset.due; $('#dueChips').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === du)); $('#fDue').value = addDays($('#fDate').value || today(), S.dueDays); }
+    if (t.closest('#pressBtn')) {
+      if (!$('#fShop').value.trim()) $('#fShop').value = S.settings.pressShop || PRESS;
+      const rows = [...form.querySelectorAll('.irow')], blank = rows.find(r => !r.querySelector('.i-name').value.trim());
+      const html = itemRow({name: PRESS, qty: '', unit: 'pcs', rate: pressRate(), amount: ''});
+      if (blank) blank.outerHTML = html; else $('#items').insertAdjacentHTML('beforeend', html);
+      if (!e.id) form.querySelector('[data-st="credit"]').click();
+      const qs = form.querySelectorAll('.irow.press .i-qty'); qs[qs.length - 1].focus(); updateTotal();
+    }
     if (t.closest('#addPhoto')) $('#photoInput').click();
     if (t.closest('#delPhoto')) { S.photo = {changed: true, data: null}; renderPhoto(); }
   });
@@ -1134,6 +1168,17 @@ async function mainClick(ev) {
   if (t.closest('#signOutBtn')) return api.signOut();
   if (t.closest('#renameBtn')) { const n = prompt('Your name', S.me.name); if (n && n.trim()) api.updateUser(S.user.uid, {name: n.trim()}).then(() => toast('Name updated')).catch(e => toast(errText(e))); return; }
   if (t.closest('#migrateBtn')) return uploadOld(await readOldLocal());
+  if (t.closest('#savePress')) {
+    const rate = num($('#pRate').value), shop = $('#pShop').value.trim(), apply = $('#pApply').checked;
+    try { await api.saveSettings({pressRate: rate, pressShop: shop}); } catch (e) { return toast(errText(e)); }
+    let n = 0;
+    if (apply) for (const e of S.entries.filter(isPending)) {
+      if (!(e.items || []).some(i => isPress(i) && num(i.rate) !== rate)) continue;
+      const items = e.items.map(i => isPress(i) ? {...i, rate, amount: r2(num(i.qty) * rate)} : i);
+      api.saveEntry({...strip(e), items, updatedAt: Date.now(), updatedByName: S.me.name}).catch(err => toast(errText(err))); n++;
+    }
+    return toast(`Pressing rate saved${n ? ` · ${n} unpaid bill${n === 1 ? '' : 's'} updated` : ''}`);
+  }
   if (t.closest('#impJson')) return $('#importInput').click();
 }
 let qTimer;

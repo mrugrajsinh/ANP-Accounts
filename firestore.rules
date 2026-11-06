@@ -42,6 +42,12 @@ service cloud.firestore {
     }
 
     // ----- bill photos (kept separate so lists load fast) -----
+    // ----- shared settings (pressing rate) -----
+    match /settings/{id} {
+      allow read: if approved();
+      allow write: if isAdmin();
+    }
+
     match /photos/{id} {
       allow read, write: if approved();
     }
