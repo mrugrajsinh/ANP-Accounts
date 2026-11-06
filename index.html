@@ -666,7 +666,7 @@ const D = {
   'Muhurat': ['Muhurat', 'મુહૂર્ત'], '📖 What to recite': ['📖 Kya padhna hai', '📖 શું બોલવું / વાંચવું'], 'Book / reference': ['Kitaab / reference', 'પુસ્તક / સંદર્ભ'], 'Book / reference (optional)': ['Kitaab / reference (optional)', 'પુસ્તક / સંદર્ભ (વૈકલ્પિક)'],
   'Mantra / path / aarti (optional)': ['Mantra / path / aarti (optional)', 'મંત્ર / પાઠ / આરતી (વૈકલ્પિક)'], 'Write or paste the verses here': ['Shlok yahan likho ya paste karo', 'શ્લોક અહીં લખો અથવા પેસ્ટ કરો'], 'e.g. Shri Suktam, page 12': ['jaise Shri Suktam, page 12', 'દા.ત. શ્રી સૂક્તમ, પાનું 12'],
   'You can add photos of the book pages after saving, on the pooja page.': ['Save karne ke baad pooja page par kitaab ke panno ki photo jod sakte ho.', 'સેવ કર્યા પછી પૂજાના પેજ પર પુસ્તકનાં પાનાંના ફોટા ઉમેરી શકો.'],
-  'Tap Edit to write the mantra, path or book name.': ['Mantra, path ya kitaab ka naam likhne ke liye Edit dabao.', 'મંત્ર, પાઠ કે પુસ્તકનું નામ લખવા Edit દબાવો.'], '📷 Add photo of verse / book page': ['📷 Shlok / kitaab ke panne ki photo jodo', '📷 શ્લોક / પુસ્તકના પાનાનો ફોટો ઉમેરો'],
+  'Photos of verse / book pages (optional)': ['Shlok / kitaab ke panno ki photo (optional)', 'શ્લોક / પુસ્તકનાં પાનાંના ફોટા (વૈકલ્પિક)'], 'Tap Edit to write the mantra, path or book name.': ['Mantra, path ya kitaab ka naam likhne ke liye Edit dabao.', 'મંત્ર, પાઠ કે પુસ્તકનું નામ લખવા Edit દબાવો.'], '📷 Add photo of verse / book page': ['📷 Shlok / kitaab ke panne ki photo jodo', '📷 શ્લોક / પુસ્તકના પાનાનો ફોટો ઉમેરો'],
   'Tap a photo to read it full screen.': ['Photo dabao, poori screen par padho.', 'ફોટો દબાવો, આખી સ્ક્રીન પર વાંચો.'], 'Tap the photo to zoom': ['Zoom ke liye photo dabao', 'ઝૂમ માટે ફોટો દબાવો'], "🖼 Last time's setup (reference)": ['🖼 Pichhli baar ki sajawat (dekhne ke liye)', '🖼 ગયા વખતની ગોઠવણ (જોવા માટે)'],
   '📸 Photo of the setup when done': ['📸 Taiyaar sajawat ki photo', '📸 તૈયાર ગોઠવણનો ફોટો'], 'Keep it for next time, so the setup can be done the same way.': ['Agli baar ke liye rakho, taaki waise hi sajaya ja sake.', 'આગલી વખત માટે રાખો, જેથી એ જ રીતે ગોઠવી શકાય.'],
   '📷 Add setup photo': ['📷 Sajawat ki photo jodo', '📷 ગોઠવણનો ફોટો ઉમેરો'], 'Setup photo saved': ['Sajawat ki photo save hui', 'ગોઠવણનો ફોટો સેવ થયો'], 'No setup photo was saved last time.': ['Pichhli baar photo save nahi hui thi.', 'ગયા વખતે ફોટો સેવ થયો ન હતો.'], '📅 Add reminder to phone calendar': ['📅 Phone calendar mein reminder lagao', '📅 ફોન કૅલેન્ડરમાં રિમાઇન્ડર મૂકો'], 'Samagri checklist': ['Samagri list', 'સામગ્રી યાદી'],
@@ -793,7 +793,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '19 · pooja recite';
+const APP_VERSION = '20 · recite photos in form';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1468,10 +1468,20 @@ function openPoojaForm(existing, copy) {
       <div class="fgroup"><h3 style="margin:0 0 8px">📖 What to recite</h3>
         <label class="flabel">Mantra / path / aarti (optional)</label><textarea class="field" id="pfRecite" rows="5" placeholder="Write or paste the verses here">${esc(p.recite || '')}</textarea>
         <label class="flabel" style="margin-top:10px">Book / reference (optional)</label><input class="field" id="pfBook" placeholder="e.g. Shri Suktam, page 12" value="${esc(p.recRef || '')}" autocomplete="off">
-        <p class="hint">You can add photos of the book pages after saving, on the pooja page.</p></div>
+        <label class="flabel" style="margin-top:10px">Photos of verse / book pages (optional)</label><div id="pfRec"></div></div>
       <div class="fgroup"><label class="flabel">Notes (optional)</label><textarea class="field" id="pfNote" rows="2" placeholder="Anything to remember">${esc(p.note || '')}</textarea></div>
       <button class="btn pri" id="pfSave2">Save</button>
     </div>`);
+  // verse / book page photos: new ones are kept here until Save
+  const recPics = [...(p.recPics || [])], recData = {}, recNew = new Set();
+  const drawRec = () => {
+    $('#pfRec').innerHTML = (recPics.length ? `<div class="rpics">${recPics.map((id, k) => `<div class="rp">${recData[id] ? `<img src="${recData[id]}" data-pv="${id}" alt="">` : '<p class="hint">Loading…</p>'}<button type="button" class="pdel" data-rrm="${k}">Remove</button></div>`).join('')}</div>` : '')
+      + (recPics.length < 8 ? `<button type="button" class="pbtn" id="pfRecAdd" style="margin-top:8px">📷 Add photo of verse / book page</button>` : '');
+    $('#pfRecAdd') && ($('#pfRecAdd').onclick = () => pickPhoto(false, d => { const id = 'pjr_' + api.newId(); recData[id] = d; recPics.push(id); recNew.add(id); drawRec(); })); };
+  $('#pfRec').onclick = ev => { const v = ev.target.closest('[data-pv]'); if (v) return viewPhoto(recData[v.dataset.pv]);
+    const r = ev.target.closest('[data-rrm]'); if (!r) return; const [id] = recPics.splice(+r.dataset.rrm, 1); recNew.delete(id); drawRec(); };
+  drawRec();
+  recPics.forEach(id => api.getPhoto(id).then(d => { if (d) { recData[id] = d; drawRec(); } }).catch(() => {}));
   const draw = () => { $('#pfList').innerHTML = list.length ? `<div class="ckhead"><span>Item</span><span>Qty</span><span></span></div>` + list.map((i, k) => `<div class="ckrow3"><input class="field ck-n" data-k="${k}" value="${esc(i.name)}"><input class="field ck-q" data-k="${k}" value="${esc(i.qty || '')}" placeholder="–"><button type="button" class="i-del" data-rm="${k}">×</button></div>`).join('') : ''; };
   draw();
   $('#pfList').onclick = ev => { const b = ev.target.closest('[data-rm]'); if (b) { list.splice(+b.dataset.rm, 1); draw(); } };
@@ -1489,6 +1499,9 @@ function openPoojaForm(existing, copy) {
     if (!name) return toast('Write the pooja name'); if (!date) return toast('Pick the date');
     const out = {...p, name, date, start: $('#pfStart').value, end: $('#pfEnd').value, note: $('#pfNote').value.trim(), recite: $('#pfRecite').value.trim(), recRef: $('#pfBook').value.trim(), checklist: list.map(i => ({...i, name: (i.name || '').trim(), qty: (i.qty || '').trim()})).filter(i => i.name)};
     if (!out.id) Object.assign(out, {id: api.newId(), createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name});
+    recNew.forEach(id => api.savePhoto(id, recData[id]).catch(e => toast('Photo: ' + errText(e))));
+    if (!copy) (p.recPics || []).forEach(id => { if (!recPics.includes(id) && !poojaList().some(x => x.id !== p.id && (x.recPics || []).includes(id))) api.deletePhoto(id).catch(() => {}); });
+    out.recPics = [...recPics];
     savePooja(out); closeSheet(); toast('Saved');
   };
   $('#pfSave').onclick = save; $('#pfSave2').onclick = save;
