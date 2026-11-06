@@ -349,6 +349,11 @@ b.working{color:var(--amber)}
 .th-img{width:64px;height:64px;border-radius:14px;background:var(--grid);flex:none;display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden}
 .th-img img{width:100%;height:100%;object-fit:cover}
 .card.thing .s{white-space:normal}
+.bookbtn .bicon.guide{background:#fff0b8}
+@media (prefers-color-scheme:dark){.bookbtn .bicon.guide{background:#4a3d12}}
+.vprev{width:100%;max-width:340px;border-radius:12px;background:#000;display:block}
+.vprev.big{max-width:100%}
+.steps{white-space:pre-wrap;font-size:16px;line-height:1.5;background:var(--bg);border-radius:12px;padding:10px 12px;border:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -438,7 +443,7 @@ async function firebaseAPI(cfg) {
     updateUser: (uid, p) => F.updateDoc(F.doc(db, 'users', uid), p),
     watchEntries: (since, cb, err) => F.onSnapshot(F.query(col('entries'), F.where('date', '>=', since)), {includeMetadataChanges: true}, s => cb(list(s)), err),
     watchCredits: (cb, err) => F.onSnapshot(F.query(col('entries'), F.where('status', '==', 'credit')), {includeMetadataChanges: true}, s => cb(list(s)), err),
-    watchThings: (cb, err) => F.onSnapshot(F.query(col('entries'), F.where('book', '==', 'things')), {includeMetadataChanges: true}, s => cb(list(s)), err),
+    watchBook: (book, cb, err) => F.onSnapshot(F.query(col('entries'), F.where('book', '==', book)), {includeMetadataChanges: true}, s => cb(list(s)), err),
     fetchRange: async (from, to) => list(await F.getDocs(F.query(col('entries'), F.where('date', '>=', from), F.where('date', '<=', to)))),
     newId: () => F.doc(col('entries')).id,
     saveEntry: e => F.setDoc(F.doc(db, 'entries', e.id), clean(e)),
@@ -487,6 +492,8 @@ function demoAPI() {
   const T = (title, who, status, extra = {}) => { const id = 't' + (n++); tasks[id] = {id, date: today(), title, assignedTo: who, assignedName: who ? users[who].name : '', createdBy: 'u-papa', createdByName: 'Papa', createdAt: Date.now() - n * 6e5,
     status, done: status === 'done', hasVoice: false, hasPhoto: false, ...extra}; };
   T('bed ki repair karwani hai', 'u-ram', 'open');
+  [['Hall lights', 'Hall', 'Board near main door:\n1st switch = ceiling fan\n2nd = chandelier\n3rd = cove lights\n4th = night lamp'], ['Steam room', 'Steam & sauna', 'Main switch outside door (red). Set 45°C on panel, wait 15 min. Switch off after use.'], ['Geyser – hot water', 'Bathroom', 'Switch above mirror. Hot water ready in 10 min. Blue knob = cold, red = hot.']]
+    .forEach(([name, room, place], k) => { const id = 'gd' + k; entries[id] = {id, book: 'guide', date: today(), name, room, place, note: '', hasPhoto: false, items: [], createdBy: 'u-admin', createdByName: 'Mrugraj', createdAt: Date.now() - k * 9e6, updatedAt: Date.now() - k * 9e6, updatedByName: 'Mrugraj'}; });
   [['Pooja thali', 'Pooja room', 'Mandir ke neeche wali drawer, left side'], ['Extra gas cylinder key', 'Kitchen', 'Fridge ke upar steel dabba'], ['Diwali diya box', 'Store room', 'Upar wali shelf, laal box'], ['Inverter warranty card', 'Hall', 'TV unit ki pehli drawer']]
     .forEach(([name, room, place], k) => { const id = 'th' + k; entries[id] = {id, book: 'things', date: today(), name, room, place, note: '', hasPhoto: false, items: [], createdBy: 'u-2', createdByName: 'Mummy', createdAt: Date.now() - k * 9e6, updatedAt: Date.now() - k * 9e6, updatedByName: 'Mummy'}; });
   T('lawn ki ghaas kaatni hai', 'u-ram', 'working', {startedAt: Date.now() - 20 * 6e4, startedByName: 'Ramesh (worker)'});
@@ -511,7 +518,7 @@ function demoAPI() {
     updateUser: async (uid, p) => { Object.assign(users[uid], p); emit(); },
     watchEntries: (since, cb) => watch(() => cb(Object.values(entries).filter(e => e.date >= since).map(e => ({...e})))),
     watchCredits: cb => watch(() => cb(Object.values(entries).filter(e => e.status === 'credit').map(e => ({...e})))),
-    watchThings: cb => watch(() => cb(Object.values(entries).filter(e => e.book === 'things').map(e => ({...e})))),
+    watchBook: (book, cb) => watch(() => cb(Object.values(entries).filter(e => e.book === book).map(e => ({...e})))),
     fetchRange: async (f, t) => Object.values(entries).filter(e => e.date >= f && e.date <= t).map(e => ({...e})),
     newId: () => 'e' + (n++),
     saveEntry: async e => { entries[e.id] = JSON.parse(JSON.stringify(e)); emit(); },
@@ -633,7 +640,19 @@ const D = {
   'Set your home location in the Users tab to see who is at home.': ['Kaun ghar par hai dekhne ke liye Users mein ghar ki location set karo.', 'કોણ ઘરે છે તે જોવા સભ્યો ટેબમાં ઘરનું લોકેશન સેટ કરો.'],
   'Home location saved': ['Ghar ki location save hui', 'ઘરનું લોકેશન સેવ થયું'], 'Finding location…': ['Location dhundh rahe…', 'લોકેશન શોધે છે…'], 'just now': ['abhi', 'હમણાં'],
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
-  'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Search: thali, keys, warranty…': ['Dhundho: thali, chaabi, warranty…', 'શોધો: થાળી, ચાવી, વોરંટી…'],
+  'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'How it works': ['Kaise chalta hai', 'કેવી રીતે ચાલે છે'],
+  'Lights, geyser, steam, sauna, shower…': ['Light, geyser, steam, sauna, shower…', 'લાઇટ, ગીઝર, સ્ટીમ, સૉના, શાવર…'], 'Search: lights, geyser, steam…': ['Dhundho: light, geyser, steam…', 'શોધો: લાઇટ, ગીઝર, સ્ટીમ…'],
+  'Explain lights, geyser, steam, sauna, shower… with photo, voice or video.': ['Light, geyser, steam, sauna, shower… photo, voice ya video se samjhao.', 'લાઇટ, ગીઝર, સ્ટીમ, સૉના, શાવર… ફોટો, અવાજ કે વીડિયોથી સમજાવો.'],
+  'Add how it works': ['Kaise chalta hai, jodo', 'કેવી રીતે ચાલે, ઉમેરો'], 'How to use it': ['Kaise chalana hai', 'કેવી રીતે વાપરવું'], 'How to use': ['Kaise chalayein', 'કેવી રીતે વાપરવું'],
+  'Or explain by voice': ['Ya bolkar samjhao', 'અથવા બોલીને સમજાવો'], 'Photo (e.g. the switch board)': ['Photo (jaise switch board)', 'ફોટો (દા.ત. સ્વિચ બોર્ડ)'], '🎥 Video (optional)': ['🎥 Video (zaroori nahi)', '🎥 વીડિયો (જરૂરી નથી)'],
+  'Or paste a video link (YouTube / Google Drive)': ['Ya video link daalo (YouTube / Google Drive)', 'અથવા વીડિયો લિંક મૂકો (YouTube / Google Drive)'], '🎥 Record video': ['🎥 Video record karo', '🎥 વીડિયો રેકોર્ડ કરો'],
+  '📁 Choose small video': ['📁 Chhota video chuno', '📁 નાનો વીડિયો પસંદ કરો'], 'Record in the app (up to 60s) or pick a video under 8 MB.': ['App mein record karo (60 sec tak) ya 8 MB se chhota video chuno.', 'એપમાં રેકોર્ડ કરો (60 સેકન્ડ સુધી) અથવા 8 MBથી નાનો વીડિયો પસંદ કરો.'],
+  'Remove video': ['Video hatao', 'વીડિયો કાઢો'], '🎥 Video': ['🎥 Video', '🎥 વીડિયો'], '🎥 Open video link ↗': ['🎥 Video link kholo ↗', '🎥 વીડિયો લિંક ખોલો ↗'], 'Loading video…': ['Video load ho raha…', 'વીડિયો લોડ થાય છે…'],
+  'Video still uploading.': ['Video abhi upload ho raha hai.', 'વીડિયો હજુ અપલોડ થાય છે.'], 'Uploading video…': ['Video upload ho raha…', 'વીડિયો અપલોડ થાય છે…'], 'Max 60s': ['60 sec tak', '60 સેકન્ડ સુધી'],
+  'Video too big': ['Video bahut bada hai', 'વીડિયો બહુ મોટો છે'], 'Record in the app instead (max 60s).': ['App mein record karo (60 sec tak).', 'એપમાં રેકોર્ડ કરો (60 સેકન્ડ સુધી).'], 'Video too big. Keep it shorter.': ['Video bahut bada. Chhota rakho.', 'વીડિયો બહુ મોટો. ટૂંકો રાખો.'],
+  'Camera not allowed. Allow it in phone settings.': ['Camera ki permission nahi. Phone settings mein allow karo.', 'કેમેરાની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Steam & sauna': ['Steam & sauna', 'સ્ટીમ અને સૉના'], 'Garden': ['Bageecha', 'બગીચો'],
+  'e.g. Hall lights, Steam room, Geyser': ['jaise Hall ki light, Steam room, Geyser', 'દા.ત. હૉલની લાઇટ, સ્ટીમ રૂમ, ગીઝર'],
+  'e.g. Board near door: 1st switch = fan, 2nd = chandelier, 3rd = night lamp': ['jaise Darwaze ke paas board: 1st switch = pankha, 2nd = jhoomar, 3rd = night lamp', 'દા.ત. દરવાજા પાસેનું બોર્ડ: 1લી સ્વિચ = પંખો, 2જી = ઝુમ્મર, 3જી = નાઇટ લેમ્પ'], 'Search: thali, keys, warranty…': ['Dhundho: thali, chaabi, warranty…', 'શોધો: થાળી, ચાવી, વોરંટી…'],
   'Save where things are kept, with a photo.': ['Cheez kahan rakhi hai, photo ke saath save karo.', 'વસ્તુ ક્યાં મૂકી છે, ફોટા સાથે સેવ કરો.'], 'to add the first one.': ['pehli cheez jodne ke liye.', 'પહેલી વસ્તુ ઉમેરવા.'],
   'Room': ['Kamra', 'રૂમ'], 'Or say it (voice note)': ['Ya bolkar batao (voice note)', 'અથવા બોલીને કહો (વૉઇસ નોટ)'], 'Kept at': ['Kahan rakha', 'ક્યાં મૂક્યું'], 'Updated by': ['Kisne badla', 'કોણે બદલ્યું'], '📍 I moved it – update place': ['📍 Jagah badli – nayi jagah likho', '📍 જગ્યા બદલી – નવી જગ્યા લખો'],
   'Save a thing': ['Cheez save karo', 'વસ્તુ સેવ કરો'], 'New place': ['Nayi jagah', 'નવી જગ્યા'], 'What is it?': ['Kya cheez hai?', 'શું વસ્તુ છે?'], 'Exactly where?': ['Theek kahan?', 'ચોક્કસ ક્યાં?'],
@@ -644,7 +663,7 @@ const D = {
   'Too long. Keep voice notes under 1 minute.': ['Bahut lamba. 1 minute se kam rakho.', 'બહુ લાંબું. 1 મિનિટથી ઓછું રાખો.'], 'Name updated': ['Naam badal gaya', 'નામ બદલાયું'],
 };
 const PATTERNS = [
-  [/^by (.+)$/, ['$1 ne joda', '$1 એ ઉમેર્યું']], [/^(\d+) things saved$/, ['$1 cheezein save', '$1 વસ્તુ સેવ']],
+  [/^by (.+)$/, ['$1 ne joda', '$1 એ ઉમેર્યું']], [/^■ Stop · (\d+)s$/, ['■ Ruko · $1s', '■ બંધ · $1s']], [/^(\d+) things saved$/, ['$1 cheezein save', '$1 વસ્તુ સેવ']],
   [/^(\d+) min ago$/, ['$1 min pehle', '$1 મિનિટ પહેલાં']], [/^(\d+) h ago$/, ['$1 ghante pehle', '$1 કલાક પહેલાં']],
   [/^🏠 At home$/, ['🏠 Ghar par', '🏠 ઘરે']], [/^🚶 Outside$/, ['🚶 Bahar', '🚶 બહાર']], [/^Last seen (.+)$/, ['Aakhri baar $1', 'છેલ્લે $1']], [/^(🏠|🚶) Last seen (.+)$/, ['$1 Aakhri baar $2', '$1 છેલ્લે $2']],
   [/^📍 Location off$/, ['📍 Location band', '📍 લોકેશન બંધ']], [/^▶ Working since (.+)$/, ['▶ $1 se kaam chal raha', '▶ $1 થી કામ ચાલુ']],
@@ -738,7 +757,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '14 · where is it + voice';
+const APP_VERSION = '15 · how it works';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -770,7 +789,7 @@ const S = {
 
 function mergeEntries() {
   const m = new Map([...S.live, ...S.credits]);
-  for (const [k, e] of m) if (e.book === 'things') m.delete(k);
+  for (const [k, e] of m) if (e.book === 'things' || e.book === 'guide') m.delete(k);
   S.entries = [...m.values()].sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || 0) - (a.createdAt || 0));
   S.rangeCache = null;
 }
@@ -893,7 +912,7 @@ function startApp() {
   </div></nav>`;
   document.querySelector('nav').onclick = ev => { const b = ev.target.closest('[data-view]'); if (b) { S.view = b.dataset.view; render(); scrollTo(0, 0); } };
   $('#backBtn').onclick = () => { S.view = 'home'; S.q = ''; $('#search').value = ''; render(); scrollTo(0, 0); };
-  $('#fab').onclick = () => S.view === 'tasks' ? openTaskForm() : S.view === 'things' ? openThingForm() : openForm(null, S.book);
+  $('#fab').onclick = () => S.view === 'tasks' ? openTaskForm() : KINDS[S.view] ? openThingForm(null, false, S.view) : openForm(null, S.book);
   $('#xlBtn').onclick = exportExcel;
   $('#mPrev').onclick = () => { S.month = monthStart(S.month + '-01', 1).slice(0, 7); ensureMonth(); render(); };
   $('#mNext').onclick = () => { S.month = monthStart(S.month + '-01', -1).slice(0, 7); ensureMonth(); render(); };
@@ -904,8 +923,8 @@ function startApp() {
   const err = e => toast(errText(e));
   S.unsub.push(api.watchEntries(S.since, list => { S.live = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
   S.unsub.push(api.watchCredits(list => { S.credits = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
-  S.things = [];
-  S.unsub.push(api.watchThings(list => { S.things = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); if (S.view === 'things' || S.view === 'home') render(); }, err));
+  S.lists = {things: [], guide: []}; S.thingRoom = {};
+  for (const k of ['things', 'guide']) S.unsub.push(api.watchBook(k, list => { S.lists[k] = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); if (S.view === k || S.view === 'home') render(); }, err));
   S.unsub.push(api.watchUsers(list => { S.users = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); render(); }, () => {}));
   S.unsub.push(api.watchSettings(d => { S.settings = d || {}; render(); }, () => {}));
   S.presence = new Map();
@@ -932,13 +951,13 @@ function updateSync() {
 
 function render() {
   if (!S.started || !$('#main')) return;
-  const v = S.view, inBook = v === 'book', sub = inBook || v === 'things';
+  const v = S.view, inBook = v === 'book', isK = !!KINDS[v], sub = inBook || isK;
   document.querySelectorAll('nav [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v || (sub && b.dataset.view === 'home')));
-  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'ANP Accounts', tasks: 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account', things: 'Where is it?'}[v];
+  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'ANP Accounts', tasks: 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account', things: 'Where is it?', guide: 'How it works'}[v];
   $('#backBtn').classList.toggle('hidden', !sub);
   $('#monthnav').classList.toggle('hidden', !inBook);
-  $('#search').classList.toggle('hidden', !(inBook && S.book !== 'iron') && v !== 'things');
-  $('#search').placeholder = v === 'things' ? tx('Search: thali, keys, warranty…') : tx('Search item…');
+  $('#search').classList.toggle('hidden', !(inBook && S.book !== 'iron') && !isK);
+  $('#search').placeholder = isK ? tx(KINDS[v].search) : tx('Search item…');
   $('#xlBtn').classList.toggle('hidden', v !== 'dash');
   $('#hdrLang').classList.toggle('hidden', v !== 'home');
   $('#fab').classList.toggle('hidden', !(sub || v === 'tasks'));
@@ -950,8 +969,8 @@ function render() {
   updateSync();
   if (v === 'dash') return renderDash();
   if (v === 'tasks') return renderTasks();
-  $('#main').innerHTML = v === 'home' ? homeHTML() : v === 'things' ? thingsHTML() : inBook ? (S.book === 'iron' ? ironHTML() : bookHTML()) : moreHTML();
-  if (v === 'things') loadThumbs();
+  $('#main').innerHTML = v === 'home' ? homeHTML() : isK ? thingsHTML(v) : inBook ? (S.book === 'iron' ? ironHTML() : bookHTML()) : moreHTML();
+  if (isK) loadThumbs();
 }
 
 /* ================= home ================= */
@@ -973,7 +992,9 @@ function homeHTML() {
       <span class="chev">›</span></button>`;
   }).join('')}</div>
   <button class="bookbtn" data-goto="things"><span class="bicon thing">🔎</span><span class="bmain"><span class="bname">Where is it?</span>
-      <span class="bsub">${(S.things || []).length} things saved</span></span><span class="chev">›</span></button>
+      <span class="bsub">${(S.lists?.things || []).length} things saved</span></span><span class="chev">›</span></button>
+  <button class="bookbtn" data-goto="guide"><span class="bicon guide">💡</span><span class="bmain"><span class="bname">How it works</span>
+      <span class="bsub">Lights, geyser, steam, sauna, shower…</span></span><span class="chev">›</span></button>
   ${acts ? `<button class="bookbtn small" data-goto="tasks"><span class="bicon">✅</span><span class="bmain"><span class="bname">${acts} task${acts === 1 ? '' : 's'} need you</span><span class="bsub">Open Tasks</span></span><span class="chev">›</span></button>` : ''}`;
 }
 
@@ -1116,22 +1137,29 @@ async function setUserRole(uid, role) {
   try { await api.updateUser(uid, {role}); toast(role === 'admin' ? `${u?.name} is now an admin` : 'Admin removed'); } catch (e) { toast(errText(e)); }
 }
 
-/* ================= where is it? (household things) ================= */
-const ROOMS = ['Pooja room', 'Kitchen', 'Hall', 'Bedroom', 'Store room', 'Bathroom', 'Terrace', 'Garage', 'Office', 'Other'];
+/* ================= home guides: "Where is it?" + "How it works" ================= */
+const ROOMS = ['Pooja room', 'Kitchen', 'Hall', 'Bedroom', 'Store room', 'Bathroom', 'Steam & sauna', 'Terrace', 'Garden', 'Garage', 'Office', 'Other'];
+const KINDS = {
+  things: {book: 'things', title: 'Where is it?', icon: '🔎', empty: '📦', nameLabel: 'What is it?', namePh: 'e.g. Pooja thali', placeLabel: 'Exactly where?', placePh: 'e.g. Mandir ke neeche wali drawer, left side',
+    voiceLabel: 'Or say it (voice note)', photoLabel: 'Photo of where it is kept', kept: 'Kept at', newTitle: 'Save a thing', emptyText: 'Save where things are kept, with a photo.', search: 'Search: thali, keys, warranty…', video: false},
+  guide: {book: 'guide', title: 'How it works', icon: '💡', empty: '💡', nameLabel: 'What is it?', namePh: 'e.g. Hall lights, Steam room, Geyser', placeLabel: 'How to use it', placePh: 'e.g. Board near door: 1st switch = fan, 2nd = chandelier, 3rd = night lamp',
+    voiceLabel: 'Or explain by voice', photoLabel: 'Photo (e.g. the switch board)', kept: 'How to use', newTitle: 'Add how it works', emptyText: 'Explain lights, geyser, steam, sauna, shower… with photo, voice or video.', search: 'Search: lights, geyser, steam…', video: true},
+};
+const kindOf = e => e.book === 'guide' ? 'guide' : 'things';
 const thumbCache = new Map();
-function thingsHTML() {
-  const q = S.q.trim().toLowerCase(), room = S.thingRoom || '';
-  let list = S.things || [];
+function thingsHTML(kind) {
+  const K = KINDS[kind], all = S.lists?.[kind] || [], q = S.q.trim().toLowerCase(), room = S.thingRoom?.[kind] || '';
+  let list = all;
   if (room) list = list.filter(t => t.room === room);
   if (q) list = list.filter(t => [t.name, t.place, t.room, t.note].some(v => v && String(v).toLowerCase().includes(q)));
-  const rooms = [...new Set((S.things || []).map(t => t.room).filter(Boolean))];
+  const rooms = [...new Set(all.map(t => t.room).filter(Boolean))];
   let html = rooms.length > 1 ? `<div class="chips"><button class="chip ${!room ? 'on' : ''}" data-troom="">All</button>${rooms.map(r => `<button class="chip ${room === r ? 'on' : ''}" data-troom="${esc(r)}">${esc(r)}</button>`).join('')}</div>` : '';
-  if (!list.length) return html + `<div class="empty"><div class="big">🔎</div>${(S.things || []).length ? 'Nothing matches that search.' : 'Save where things are kept, with a photo.<br>Tap <b>+</b> to add the first one.'}</div>`;
+  if (!list.length) return html + `<div class="empty"><div class="big">${K.icon}</div>${all.length ? 'Nothing matches that search.' : `${K.emptyText}<br>Tap <b>+</b> to add the first one.`}</div>`;
   return html + list.map(t => `<button class="card thing" data-thing="${t.id}">
-      <div class="th-img" data-thumb="${t.hasPhoto ? t.id : ''}">${t.hasPhoto ? (thumbCache.get(t.id) ? `<img src="${thumbCache.get(t.id)}" alt="">` : '📷') : '📦'}</div>
+      <div class="th-img" data-thumb="${t.hasPhoto ? t.id : ''}">${t.hasPhoto ? (thumbCache.get(t.id) ? `<img src="${thumbCache.get(t.id)}" alt="">` : '📷') : K.empty}</div>
       <div class="main"><div class="t" data-nt>${esc(t.name)}</div>
-        <div class="s">📍 ${t.room ? `<b>${esc(t.room)}</b> · ` : ''}<span data-nt>${esc(t.place || '')}</span>${t.hasVoice ? ' 🎤' : ''}</div>
-        <div class="s">by ${esc(t.updatedByName || t.createdByName || '—')}</div></div></button>`).join('');
+        <div class="s">${kind === 'things' ? '📍 ' : ''}${t.room ? `<b>${esc(t.room)}</b> · ` : ''}<span data-nt>${esc((t.place || '').slice(0, 90))}${(t.place || '').length > 90 ? '…' : ''}</span></div>
+        <div class="s">${t.hasVoice ? '🎤 ' : ''}${t.videoChunks || t.videoLink ? '🎥 ' : ''}by ${esc(t.updatedByName || t.createdByName || '—')}</div></div></button>`).join('');
 }
 function loadThumbs() {
   document.querySelectorAll('[data-thumb]').forEach(el => {
@@ -1140,47 +1168,123 @@ function loadThumbs() {
     api.getPhoto('th_' + id).then(d => { if (!d) return; thumbCache.set(id, d); document.querySelectorAll(`[data-thumb="${id}"]`).forEach(x => x.innerHTML = `<img src="${d}" alt="">`); }).catch(() => {});
   });
 }
-const findThing = id => (S.things || []).find(t => t.id === id);
+const findThing = id => [...(S.lists?.things || []), ...(S.lists?.guide || [])].find(t => t.id === id);
+
+/* ---- small videos: recorded in-app at low quality, stored in ~900 KB pieces ---- */
+const VCHUNK = 900000, VMAX = 8 * 1024 * 1024;
+async function saveVideo(id, blob, oldChunks) {
+  const clean = new Blob([blob], {type: (blob.type || 'video/mp4').split(';')[0]});   // "codecs=vp8,opus" has a comma that breaks data URLs
+  const data = await blobToDataURL(clean), n = Math.ceil(data.length / VCHUNK);
+  for (let i = 0; i < n; i++) await api.savePhoto(`gv_${id}_${i}`, data.slice(i * VCHUNK, (i + 1) * VCHUNK));
+  for (let i = n; i < (oldChunks || 0); i++) api.deletePhoto(`gv_${id}_${i}`).catch(() => {});
+  return n;
+}
+async function loadVideo(id, n) {
+  const parts = await Promise.all([...Array(n)].map((_, i) => api.getPhoto(`gv_${id}_${i}`)));
+  if (parts.some(p => !p)) return null;
+  return URL.createObjectURL(await (await fetch(parts.join(''))).blob());
+}
+function deleteVideo(id, n) { for (let i = 0; i < (n || 0); i++) api.deletePhoto(`gv_${id}_${i}`).catch(() => {}); }
+const VRec = {
+  stream: null, mr: null, chunks: [], timer: null,
+  supported: () => !!(navigator.mediaDevices?.getUserMedia && window.MediaRecorder),
+  async start(previewEl, onTick, onLimit) {
+    this.stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment', width: {ideal: 640}, height: {ideal: 480}}, audio: true});
+    previewEl.srcObject = this.stream; previewEl.muted = true; previewEl.play().catch(() => {});
+    const type = ['video/mp4', 'video/webm;codecs=vp8,opus', 'video/webm'].find(t => MediaRecorder.isTypeSupported?.(t)) || '';
+    this.mr = new MediaRecorder(this.stream, {...(type ? {mimeType: type} : {}), videoBitsPerSecond: 450000, audioBitsPerSecond: 32000});
+    this.chunks = []; this.mr.ondataavailable = e => e.data && e.data.size && this.chunks.push(e.data);
+    this.mr.start(500); const t0 = Date.now();
+    this.timer = setInterval(() => { const s = Math.round((Date.now() - t0) / 1000); onTick(s); if (s >= 60) onLimit(); }, 250);
+  },
+  stop() { return new Promise(res => { const mr = this.mr; if (!mr) return res(null); clearInterval(this.timer);
+    mr.onstop = () => { this.stream?.getTracks().forEach(t => t.stop()); const b = new Blob(this.chunks, {type: mr.mimeType || 'video/mp4'}); this.mr = null; this.stream = null; res(b.size ? b : null); };
+    mr.stop(); }); },
+  cancel() { clearInterval(this.timer); try { if (this.mr) { this.mr.onstop = null; this.mr.stop(); } } catch {} this.stream?.getTracks().forEach(t => t.stop()); this.mr = null; this.stream = null; },
+};
+function mountVideo(el, state) {
+  const draw = (mode, secs) => {
+    if (mode === 'rec') el.innerHTML = `<video class="vprev" playsinline muted autoplay></video><button type="button" class="vbtn rec" data-gstop>■ Stop · ${secs || 0}s</button><span class="hint">Max 60s</span>`;
+    else if (state.url) el.innerHTML = `<video class="vprev" src="${state.url}" controls playsinline></video><button type="button" class="pdel" data-gdel>Remove video</button>`;
+    else el.innerHTML = `${VRec.supported() ? `<button type="button" class="vbtn" data-grec>🎥 Record video</button>` : ''}<button type="button" class="pbtn" data-gpick>📁 Choose small video</button>
+      <span class="hint" style="width:100%">Record in the app (up to 60s) or pick a video under 8 MB.</span>`;
+  };
+  draw();
+  el.onclick = async ev => {
+    if (ev.target.closest('[data-grec]')) {
+      draw('rec', 0);
+      try { await VRec.start(el.querySelector('video'), s => { const b = el.querySelector('[data-gstop]'); if (b) b.textContent = `■ Stop · ${s}s`; }, () => el.querySelector('[data-gstop]')?.click()); }
+      catch { VRec.cancel(); draw(); toast('Camera not allowed. Allow it in phone settings.'); }
+    }
+    if (ev.target.closest('[data-gstop]')) {
+      const b = await VRec.stop();
+      if (b && b.size > VMAX) toast('Video too big. Keep it shorter.');
+      else if (b) { state.blob = b; state.url = URL.createObjectURL(b); state.changed = true; }
+      draw();
+    }
+    if (ev.target.closest('[data-gpick]')) {
+      const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'video/*';
+      inp.onchange = () => { const f = inp.files[0]; if (!f) return;
+        if (f.size > VMAX) return toast(tx('Video too big') + ` (${Math.round(f.size / 1048576)} MB). ` + tx('Record in the app instead (max 60s).'));
+        state.blob = f; state.url = URL.createObjectURL(f); state.changed = true; draw(); };
+      inp.click();
+    }
+    if (ev.target.closest('[data-gdel]')) { state.blob = null; state.url = null; state.changed = true; draw(); }
+  };
+}
+
 function openThing(id) {
   const t = findThing(id); if (!t) return;
-  const canDel = S.isAdmin || t.createdBy === S.user.uid;
-  openSheet(`<div class="sh-head"><button data-close>Close</button><h2>Where is it?</h2><button id="thEdit">Edit</button></div>
+  const kind = kindOf(t), K = KINDS[kind], canDel = S.isAdmin || t.createdBy === S.user.uid;
+  openSheet(`<div class="sh-head"><button data-close>Close</button><h2>${K.title}</h2><button id="thEdit">Edit</button></div>
     <div class="sh-body">
       ${t.hasPhoto ? `<div class="fgroup" id="thPhoto"><p class="hint" style="margin:0">Loading photo…</p></div>` : ''}
       <div class="fgroup"><div style="font-size:21px;font-weight:800" data-nt>${esc(t.name)}</div>
         ${t.room ? `<div class="kv"><span>Room</span><span>${esc(t.room)}</span></div>` : ''}
-        <div class="kv"><span>Kept at</span><span data-nt>${esc(t.place || '—')}</span></div>
+        ${kind === 'guide' ? `<div class="flabel" style="margin-top:10px">${K.kept}</div><div class="steps" data-nt>${esc(t.place || '—')}</div>` : `<div class="kv"><span>${K.kept}</span><span data-nt>${esc(t.place || '—')}</span></div>`}
         ${t.hasVoice ? playerHTML('thv', '🎤 Voice note') : ''}
         ${t.note ? `<div class="kv"><span>Notes</span><span data-nt>${esc(t.note)}</span></div>` : ''}
         <div class="kv"><span>Updated by</span><span>${esc(t.updatedByName || t.createdByName || '—')} · ${shortDate(ds(new Date(t.updatedAt || t.createdAt)))}</span></div></div>
-      <button class="btn pri" id="thMoved">📍 I moved it – update place</button>
+      ${t.videoChunks ? `<div class="fgroup"><div class="flabel">🎥 Video</div><div id="thVid"><p class="hint" style="margin:0">Loading video…</p></div></div>` : ''}
+      ${t.videoLink ? `<a class="btn sec" href="${esc(t.videoLink)}" target="_blank" rel="noopener">🎥 Open video link ↗</a>` : ''}
+      ${kind === 'things' ? `<button class="btn pri" id="thMoved">📍 I moved it – update place</button>` : ''}
       ${canDel ? `<button class="btn dan" id="thDel">Delete</button>` : ''}
     </div>`);
   if (t.hasPhoto) api.getPhoto('th_' + t.id).then(p => { const el = $('#thPhoto'); if (el) el.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="">` : '<p class="hint" style="margin:0">Photo still uploading.</p>'; }).catch(() => {});
   if (t.hasVoice) loadPlayer('thv', 'thv_' + t.id, '🎤 Voice note');
-  $('#thEdit').onclick = () => openThingForm(t); $('#thMoved').onclick = () => openThingForm(t, true);
-  $('#thDel') && ($('#thDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(t.id).catch(e => toast(errText(e))); if (t.hasPhoto) api.deletePhoto('th_' + t.id).catch(() => {}); if (t.hasVoice) api.deletePhoto('thv_' + t.id).catch(() => {}); thumbCache.delete(t.id); closeSheet(); toast('Deleted'); });
+  if (t.videoChunks) loadVideo(t.id, t.videoChunks).then(u => { const el = $('#thVid'); if (el) el.innerHTML = u ? `<video class="vprev big" src="${u}" controls playsinline preload="metadata"></video>` : '<p class="hint" style="margin:0">Video still uploading.</p>'; }).catch(() => {});
+  $('#thEdit').onclick = () => openThingForm(t, false, kind); $('#thMoved') && ($('#thMoved').onclick = () => openThingForm(t, true, kind));
+  $('#thDel') && ($('#thDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(t.id).catch(e => toast(errText(e)));
+    if (t.hasPhoto) api.deletePhoto('th_' + t.id).catch(() => {}); if (t.hasVoice) api.deletePhoto('thv_' + t.id).catch(() => {}); deleteVideo(t.id, t.videoChunks); thumbCache.delete(t.id); closeSheet(); toast('Deleted'); });
 }
-function openThingForm(existing, moved) {
+function openThingForm(existing, moved, kind) {
+  kind = kind || (existing ? kindOf(existing) : S.view); const K = KINDS[kind];
   const t = existing ? {...strip(existing)} : {name: '', room: '', place: '', note: '', hasPhoto: false};
-  const photo = {changed: false, data: existing && thumbCache.get(existing.id) || null};
-  openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>${existing ? (moved ? 'New place' : 'Edit') : 'Save a thing'}</h2><button class="save" id="thSave">Save</button></div>
+  const photo = {changed: false, data: existing && thumbCache.get(existing.id) || null}, video = {changed: false, url: null, blob: null};
+  openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>${existing ? (moved ? 'New place' : 'Edit') : K.newTitle}</h2><button class="save" id="thSave">Save</button></div>
     <div class="sh-body">
-      <div class="fgroup"><label class="flabel">What is it?</label><input class="field" id="thName" placeholder="e.g. Pooja thali" value="${esc(t.name)}" autocomplete="off" autocapitalize="sentences"></div>
+      <div class="fgroup"><label class="flabel">${K.nameLabel}</label><input class="field" id="thName" placeholder="${K.namePh}" value="${esc(t.name)}" autocomplete="off" autocapitalize="sentences"></div>
       <div class="fgroup"><label class="flabel">Room</label>
         <div class="modes" id="thRooms">${ROOMS.map(r => `<button type="button" class="chip ${t.room === r ? 'on' : ''}" data-room="${r}">${r}</button>`).join('')}</div>
-        <label class="flabel" style="margin-top:6px">Exactly where?</label>
-        <textarea class="field" id="thPlace" rows="2" placeholder="e.g. Mandir ke neeche wali drawer, left side">${esc(t.place)}</textarea>
-        <label class="flabel" style="margin-top:10px">Or say it (voice note)</label><div class="voice" id="thVoice"></div></div>
-      <div class="fgroup"><label class="flabel">Photo of where it is kept</label><div class="photo-box" id="thPh"></div></div>
+        <label class="flabel" style="margin-top:6px">${K.placeLabel}</label>
+        <textarea class="field" id="thPlace" rows="${kind === 'guide' ? 4 : 2}" placeholder="${K.placePh}">${esc(t.place)}</textarea>
+        <label class="flabel" style="margin-top:10px">${K.voiceLabel}</label><div class="voice" id="thVoice"></div></div>
+      <div class="fgroup"><label class="flabel">${K.photoLabel}</label><div class="photo-box" id="thPh"></div></div>
+      ${K.video ? `<div class="fgroup"><label class="flabel">🎥 Video (optional)</label><div class="voice" id="thVid"></div>
+        <label class="flabel" style="margin-top:10px">Or paste a video link (YouTube / Google Drive)</label><input class="field" id="thLink" type="url" inputmode="url" autocapitalize="none" placeholder="https://…" value="${esc(t.videoLink || '')}"></div>` : ''}
       <div class="fgroup"><label class="flabel">Notes (optional)</label><textarea class="field" id="thNote" rows="2" placeholder="Anything to remember">${esc(t.note || '')}</textarea></div>
       <button class="btn pri" id="thSave2">Save</button>
     </div>`);
   let room = t.room;
   const voice = {data: null}; let placeTouched = !!t.place;
   $('#thPlace').oninput = () => { placeTouched = true; };
-  mountVoice($('#thVoice'), voice, txt => { if (!placeTouched) $('#thPlace').value = txt; });
-  if (existing && t.hasVoice) api.getPhoto('thv_' + t.id).then(d => { if (d && !voice.data) { voice.data = d; voice.orig = d; mountVoice($('#thVoice'), voice, txt => { if (!placeTouched) $('#thPlace').value = txt; }); } }).catch(() => {});
+  const onText = txt => { if (!placeTouched) $('#thPlace').value = txt; };
+  mountVoice($('#thVoice'), voice, onText);
+  if (existing && t.hasVoice) api.getPhoto('thv_' + t.id).then(d => { if (d && !voice.data) { voice.data = d; voice.orig = d; mountVoice($('#thVoice'), voice, onText); } }).catch(() => {});
+  if (K.video) {
+    mountVideo($('#thVid'), video);
+    if (existing && t.videoChunks) loadVideo(t.id, t.videoChunks).then(u => { if (u && !video.changed) { video.url = u; mountVideo($('#thVid'), video); } }).catch(() => {});
+  }
   $('#thRooms').onclick = ev => { const b = ev.target.closest('[data-room]'); if (!b) return; room = room === b.dataset.room ? '' : b.dataset.room;
     $('#thRooms').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.room === room)); };
   const draw = () => { const has = photo.data || (t.hasPhoto && !photo.changed);
@@ -1191,12 +1295,16 @@ function openThingForm(existing, moved) {
   draw();
   if (existing && t.hasPhoto && !photo.data) api.getPhoto('th_' + t.id).then(d => { if (d && !photo.changed) { photo.data = d; draw(); } }).catch(() => {});
   setTimeout(() => (moved ? $('#thPlace') : existing ? null : $('#thName'))?.focus(), 350);
+  let saving = false;
   const save = async () => {
+    if (saving) return;
     if (Rec.mr) { const r = await Rec.stop(); if (r) voice.data = r.data; }
+    if (VRec.mr) { const b = await VRec.stop(); if (b) { video.blob = b; video.changed = true; } }
     const name = $('#thName').value.trim(); if (!name) return toast('Write what it is');
     const isNew = !t.id;
-    const out = {...t, book: 'things', name, room, place: $('#thPlace').value.trim(), note: $('#thNote').value.trim(), items: [], date: t.date || today(),
+    const out = {...t, book: K.book, name, room, place: $('#thPlace').value.trim(), note: $('#thNote').value.trim(), items: [], date: t.date || today(),
       updatedAt: Date.now(), updatedByName: S.me.name};
+    if (K.video) out.videoLink = ($('#thLink').value || '').trim();
     if (isNew) Object.assign(out, {id: api.newId(), createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name});
     if (voice.data !== (voice.orig || null)) {
       out.hasVoice = !!voice.data;
@@ -1206,6 +1314,13 @@ function openThingForm(existing, moved) {
       out.hasPhoto = !!photo.data;
       (photo.data ? api.savePhoto('th_' + out.id, photo.data) : api.deletePhoto('th_' + out.id)).catch(e => toast('Photo: ' + errText(e)));
       if (photo.data) thumbCache.set(out.id, photo.data); else thumbCache.delete(out.id);
+    }
+    if (K.video && video.changed) {
+      if (video.blob) {
+        saving = true; const btn = $('#thSave2'); if (btn) { btn.disabled = true; btn.textContent = tx('Uploading video…'); }
+        try { out.videoChunks = await saveVideo(out.id, video.blob, t.videoChunks); }
+        catch (e) { saving = false; if (btn) { btn.disabled = false; btn.textContent = tx('Save'); } return toast('Video: ' + errText(e)); }
+      } else { deleteVideo(out.id, t.videoChunks); out.videoChunks = 0; }
     }
     api.saveEntry(out).catch(e => toast(errText(e)));
     closeSheet(); toast(isNew ? 'Saved' : 'Updated');
@@ -1219,7 +1334,7 @@ function openSheet(html) {
   $('#overlay').classList.add('open'); $('#sheet').classList.add('open');
   $('#sheet .sh-body')?.scrollTo(0, 0);
 }
-function closeSheet() { $('#overlay').classList.remove('open'); $('#sheet').classList.remove('open'); S.editing = null; Rec.cancel(); document.querySelectorAll('#sheet audio').forEach(a => a.pause()); }
+function closeSheet() { $('#overlay').classList.remove('open'); $('#sheet').classList.remove('open'); S.editing = null; Rec.cancel(); try { VRec.cancel(); } catch {} document.querySelectorAll('#sheet video').forEach(v => v.pause()); document.querySelectorAll('#sheet audio').forEach(a => a.pause()); }
 $('#overlay').onclick = closeSheet;
 const findEntry = id => S.entries.find(x => x.id === id) || S.rangeCache?.list.find(x => x.id === id);
 
@@ -1900,7 +2015,7 @@ async function rangeEntries() {
   if (from >= S.since) return S.entries.filter(e => e.date >= from && e.date <= to);
   const key = from + '|' + to;
   if (S.rangeCache?.key === key) return S.rangeCache.list;
-  const list = (await api.fetchRange(from, to)).filter(e => e.book !== 'things');
+  const list = (await api.fetchRange(from, to)).filter(e => e.book !== 'things' && e.book !== 'guide');
   const m = new Map(list.map(e => [e.id, e]));
   S.entries.forEach(e => { if (e.date >= from && e.date <= to) m.set(e.id, e); });
   S.rangeCache = {key, list: [...m.values()]};
@@ -2005,7 +2120,7 @@ async function mainClick(ev) {
   const f = t.closest('[data-filter]'); if (f) { S.filter = f.dataset.filter; return render(); }
   const g = t.closest('[data-goto]'); if (g) { S.view = g.dataset.goto; S.q = ''; $('#search').value = ''; render(); return scrollTo(0, 0); }
   const th = t.closest('[data-thing]'); if (th) return openThing(th.dataset.thing);
-  const tr2 = t.closest('[data-troom]'); if (tr2) { S.thingRoom = tr2.dataset.troom; return render(); }
+  const tr2 = t.closest('[data-troom]'); if (tr2) { S.thingRoom[S.view] = tr2.dataset.troom; return render(); }
   if (t.closest('[data-rates]')) return openRateCard();
   const db = t.closest('[data-dbook]'); if (db) { S.dash.book = db.dataset.dbook; return renderDash(); }
   const p = t.closest('[data-preset]');
