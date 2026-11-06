@@ -7,12 +7,14 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="ANP Accounts">
-<meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#141614" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbf3e6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1e1812" media="(prefers-color-scheme: dark)">
 <meta name="format-detection" content="telephone=no">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap">
 <title>ANP Accounts</title>
 <style>
 :root{
@@ -277,6 +279,51 @@ table.nb td,table.nb th{padding:8px 6px}
 .redo{font-size:13.5px;color:var(--red);font-weight:600;margin-top:2px}
 .redo-box{border-color:var(--red);background:var(--red-soft);color:var(--red)}
 .redo-box div{color:var(--ink);margin-top:4px}
+
+/* ===== homely theme ===== */
+:root{
+  --bg:#fbf3e6; --card:#fffaf1; --ink:#3d2b1f; --muted:#8b7765; --line:#eedfc8; --grid:#f4e9d7;
+  --accent:#b9521f; --accent-soft:#fbe5d3; --amber:#b5761c; --amber-soft:#fdefd2;
+  --red:#b6392c; --red-soft:#fbe1da; --green:#3f7a4a; --green-soft:#e3f0de; --on-accent:#fff;
+  --shadow:0 2px 0 rgba(120,80,40,.05),0 6px 18px rgba(120,80,40,.07); --r:20px;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#1e1812; --card:#29211a; --ink:#f6ebdd; --muted:#b7a490; --line:#3c3026; --grid:#33291f;
+    --accent:#f0905a; --accent-soft:#3e2a1c; --amber:#f0b45a; --amber-soft:#3b2d18; --red:#ff8f80; --red-soft:#3e211c;
+    --green:#8fd19a; --green-soft:#21321f; --on-accent:#1e1812; --shadow:none; }
+}
+html,body{font-family:ui-rounded,"Baloo 2","Nunito","Segoe UI Rounded",-apple-system,system-ui,sans-serif}
+input,select,textarea,button{font-family:inherit}
+h1{font-weight:800;letter-spacing:-.01em}
+.stat,.card,.fgroup,.panel,.trow,.bookbtn,.dfilters,.monthnav,.daynav,.search,.field{border-color:var(--line)}
+.stat small,.flabel{font-weight:600}
+.section-t{text-transform:none;letter-spacing:0;font-size:16px;color:var(--ink);font-weight:750;margin:22px 4px 10px}
+table.dt th{text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted)}
+.badge{border-radius:999px;font-weight:700}
+.b-paid{background:var(--green-soft);color:var(--green)}
+.chip{border-radius:999px}
+.chip.on{background:var(--accent);border-color:var(--accent)}
+.btn,.sbtn,.pbtn,.vbtn,.xlbtn{border-radius:999px}
+.fab{box-shadow:0 8px 20px rgba(185,82,31,.35)}
+nav{background:color-mix(in srgb,var(--card) 92%,transparent)}
+.hello{display:flex;align-items:center;gap:14px;margin:6px 0 16px}
+.hello img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid var(--card);box-shadow:var(--shadow);flex:none}
+.hello .hi{font-size:20px;font-weight:800}
+.hello .dt{color:var(--muted);font-size:14.5px}
+.bookbtn{border-radius:24px;padding:16px;gap:16px}
+.bicon{width:64px;height:64px;border-radius:20px;font-size:40px}
+.bookbtn[data-book="ganesh"] .bicon{background:#fde3b5}
+.bookbtn[data-book="veg"] .bicon{background:#dcefcf}
+.bookbtn[data-book="iron"] .bicon{background:#dde6f6}
+@media (prefers-color-scheme:dark){
+  .bookbtn[data-book="ganesh"] .bicon{background:#4a3517} .bookbtn[data-book="veg"] .bicon{background:#263c22} .bookbtn[data-book="iron"] .bicon{background:#232f44}
+}
+.bname{font-size:22px;font-weight:800}
+.bsub{font-size:15px}
+.auth .logo{width:96px;height:96px;border-radius:50%;object-fit:cover;border:4px solid var(--card);box-shadow:var(--shadow)}
+.sub-amt{font-size:11.5px;color:var(--muted);font-weight:500}
+.sub-amt.strong{color:var(--ink);font-weight:700}
+.stat b{font-weight:800}
 </style>
 </head>
 <body>
@@ -451,6 +498,9 @@ const BOOKS = {
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
 const PAY = ['Cash', 'UPI'];
+const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
+const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
+const lineAmt = (qty, rate, unit) => r2(num(qty) * num(rate) * unitFactor(unit));
 const bookOf = e => BOOKS[e.book] ? e.book : 'ganesh';
 const DEFAULT_RATES = ['Shirt', 'T-shirt', 'Pant', 'Saree', 'Kurta', 'Dress', 'Bedsheet', 'Blanket'].map(c => ({cat: c, wash: 0, iron: 0}));
 const ironRates = () => (Array.isArray(S.settings?.ironRates) && S.settings.ironRates.length ? S.settings.ironRates : DEFAULT_RATES);
@@ -529,21 +579,21 @@ function onUser(user) {
 
 function screenSetup() {
   $('#app').innerHTML = `<div class="auth">
-    <img class="logo" src="icon-192.png" alt=""><h1>ANP Accounts</h1>
+    <img class="logo" src="logo.jpg" alt=""><h1>ANP Accounts</h1>
     <p class="tag">One-time setup needed</p>
     <div class="msg" style="text-align:left">Open <b>firebase-config.js</b> in your GitHub repo and paste your Firebase config.<br><br>
     Want to look around first? <a href="?demo" style="color:var(--accent);font-weight:600">Open demo with sample data</a></div>
   </div>`;
 }
 function screenMsg(title, html, withSignOut) {
-  $('#app').innerHTML = `<div class="auth"><img class="logo" src="icon-192.png" alt=""><h1>${esc(title)}</h1><div class="msg" style="margin-top:18px">${html}</div>
+  $('#app').innerHTML = `<div class="auth"><img class="logo" src="logo.jpg" alt=""><h1>${esc(title)}</h1><div class="msg" style="margin-top:18px">${html}</div>
     ${withSignOut && S.user ? `<button class="link" id="soBtn">Sign out</button>` : ''}</div>`;
   $('#soBtn') && ($('#soBtn').onclick = () => api.signOut());
 }
 function screenLogin(mode) {
   const up = mode === 'up', fg = mode === 'forgot';
   $('#app').innerHTML = `<div class="auth">
-    <img class="logo" src="icon-192.png" alt=""><h1>ANP Accounts</h1>
+    <img class="logo" src="logo.jpg" alt=""><h1>ANP Accounts</h1>
     <p class="tag">${up ? 'Create your account. The admin will approve you.' : fg ? 'We\'ll email you a reset link' : 'Home accounts & tasks, shared with family'}</p>
     <form id="authForm">
       ${up ? `<input class="field" id="aName" placeholder="Your name (e.g. Mummy)" autocomplete="name" required>` : ''}
@@ -629,7 +679,7 @@ function render() {
   if (!S.started || !$('#main')) return;
   const v = S.view, inBook = v === 'book';
   document.querySelectorAll('nav [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v || (inBook && b.dataset.view === 'home')));
-  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'Home', tasks: 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account'}[v];
+  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'ANP Accounts', tasks: 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account'}[v];
   $('#backBtn').classList.toggle('hidden', !inBook);
   $('#monthnav').classList.toggle('hidden', !inBook);
   $('#search').classList.toggle('hidden', !inBook || S.book === 'iron');
@@ -650,14 +700,17 @@ function render() {
 function homeHTML() {
   const m = today().slice(0, 7);
   const acts = myTaskActions().length;
-  return `<div class="books">${BOOK_KEYS.map(k => {
+  const hour = new Date().getHours(), greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  return `<div class="hello"><img src="logo.jpg" alt=""><div><div class="hi">${greet}, ${esc((S.me?.name || '').split(' ')[0])} 🙏</div>
+      <div class="dt">${new Date().toLocaleDateString('en-IN', {weekday: 'long', day: 'numeric', month: 'long'})}</div></div></div>
+    <div class="books">${BOOK_KEYS.map(k => {
     const b = BOOKS[k], all = S.entries.filter(e => bookOf(e) === k), mon = all.filter(e => e.date.startsWith(m));
     const due = sum(all.filter(isPending), total);
     let extra = '';
     if (k === 'iron') { const nr = all.filter(e => !returnState(e).done && returnState(e).txt).reduce((t, e) => { const g = ironCounts(e); return t + g.wash + g.iron - num(e.retWash) - num(e.retIron); }, 0); if (nr > 0) extra = `<span class="badge b-mute">${nr} clothes not returned</span>`; }
     return `<button class="bookbtn" data-book="${k}">
       <span class="bicon">${b.icon}</span>
-      <span class="bmain"><span class="bname">${b.name}</span><span class="bsub">${monthLabel(m)}: <b>${money(sum(mon, total))}</b> · ${mon.length} entr${mon.length === 1 ? 'y' : 'ies'}</span>
+      <span class="bmain"><span class="bname">${b.name}</span><span class="bsub">This month <b>${money(sum(mon, total))}</b></span>
         <span class="bbadges">${due ? `<span class="badge b-credit">${money(due)} to pay</span>` : ''}${extra}</span></span>
       <span class="chev">›</span></button>`;
   }).join('')}</div>
@@ -700,7 +753,7 @@ function bookHTML() {
   for (const [date, es] of groups) {
     html += `<div class="dhead"><span>${date === today() ? 'Today · ' : ''}${prettyDate(date)}</span><b>${money(sum(es, total))}</b></div>`;
     html += es.map(e => `<button class="card" data-open="${e.id}">
-      <div class="main">${(e.items || []).map(i => `<div class="line"><span>${esc(i.name)}</span><span class="q">${+i.qty || 0} ${esc(i.unit || '')} × ${money(i.rate)}</span></div>`).join('')}
+      <div class="main">${(e.items || []).map(i => `<div class="line"><span>${esc(i.name)}</span><span class="q">${+i.qty || 0} ${esc(i.unit || '')} × ${money(i.rate)}${rateUnit(i.unit)}</span></div>`).join('')}
         <div class="s">by ${esc(e.createdByName || '—')}${e.hasPhoto ? ' · 📎' : ''}${e._pending ? ' · syncing' : ''}</div></div>
       <div class="r"><div class="amt">${money(total(e))}</div>${badge(e)}</div></button>`).join('');
   }
@@ -721,8 +774,8 @@ function ironHTML() {
   <button class="btn sec" data-rates style="margin:0 0 6px">📋 Rate card${unset ? ' · not set yet' : ''}</button>`;
   if (!mon.length) return html + `<div class="empty"><div class="big">👕</div>Nothing given this month.<br>Tap <b>+</b> when you give clothes.</div>`;
   html += `<div class="tscroll" style="margin:10px 0 0;padding:0;max-height:none"><table class="dt nb" style="min-width:0"><thead><tr><th>Date</th><th class="num">Wash</th><th class="num">Iron</th><th class="num">Others</th><th class="num">Total</th><th>Return</th></tr></thead><tbody>
-    ${mon.map(e => { const c = ironCounts(e), r = returnState(e); return `<tr data-open="${e.id}"><td>${shortDate(e.date)}</td><td class="num">${c.wash || '–'}</td><td class="num">${c.iron || '–'}</td><td class="num">${ironOthers(e) ? money(ironOthers(e)) : '–'}</td><td class="num"><b>${money(total(e))}</b></td><td>${r.txt ? `<span class="badge ${r.cls}">${r.txt}</span>` : ''}</td></tr>`; }).join('')}
-    </tbody><tfoot><tr><td>Total</td><td class="num">${cnt.wash}</td><td class="num">${cnt.iron}</td><td class="num">${money(mon.reduce((t, e) => t + ironOthers(e), 0))}</td><td class="num">${money(st.t)}</td><td></td></tr></tfoot></table></div>
+    ${mon.map(e => { const c = ironCounts(e), r = returnState(e); return `<tr data-open="${e.id}"><td>${shortDate(e.date)}</td><td class="num">${c.wash || '–'}</td><td class="num">${c.iron || '–'}</td><td class="num">${ironOthers(e) ? money(ironOthers(e)) : '–'}</td><td class="num"><b>${c.wash + c.iron}</b><div class="sub-amt">${money(total(e))}</div></td><td>${r.txt ? `<span class="badge ${r.cls}">${r.txt}</span>` : ''}</td></tr>`; }).join('')}
+    </tbody><tfoot><tr><td>Total</td><td class="num">${cnt.wash}</td><td class="num">${cnt.iron}</td><td class="num">${money(mon.reduce((t, e) => t + ironOthers(e), 0))}</td><td class="num">${cnt.wash + cnt.iron}<div class="sub-amt strong">${money(st.t)}</div></td><td></td></tr></tfoot></table></div>
     <p class="hint" style="text-align:center">Tap a row to see details, mark returned or pay.</p>`;
   return html;
 }
@@ -819,7 +872,7 @@ function openDetail(id) {
   const rows = (e.items || []).map(i => iron
     ? (i.other ? `<tr><td><div class="n">Others</div>${i.note ? `<div class="q">${esc(i.note)}</div>` : ''}</td><td class="a">${money(i.amount)}</td></tr>`
       : `<tr><td><div class="n">${esc(i.name)}</div><div class="q">${num(i.wash) ? `Wash ${i.wash} × ${money(i.washRate)}` : ''}${num(i.wash) && num(i.iron) ? ' · ' : ''}${num(i.iron) ? `Iron ${i.iron} × ${money(i.ironRate)}` : ''}</div></td><td class="a">${money(i.amount)}</td></tr>`)
-    : `<tr><td><div class="n">${esc(i.name)}</div><div class="q">${+i.qty || 0} ${esc(i.unit)} × ${money(i.rate)}</div></td><td class="a">${money(i.amount)}</td></tr>`).join('');
+    : `<tr><td><div class="n">${esc(i.name)}</div><div class="q">${+i.qty || 0} ${esc(i.unit)} × ${money(i.rate)}${rateUnit(i.unit)}</div></td><td class="a">${money(i.amount)}</td></tr>`).join('');
   const pay = e.status === 'paid'
     ? `<div class="kv"><span>Payment</span><span>Paid · ${esc(e.mode)}</span></div>${e.ref ? `<div class="kv"><span>UTR</span><span>${esc(e.ref)}</span></div>` : ''}`
     : `<div class="kv"><span>Payment</span><span>${badge(e)}</span></div>${e.dueDate && !e.paidOn ? `<div class="kv"><span>Due date</span><span>${prettyDate(e.dueDate)}</span></div>` : ''}
@@ -890,7 +943,7 @@ function itemRow(it = {}, unit = 'pcs') {
     <div class="igrid">
       <label><span>Qty</span><input class="field i-qty" type="number" inputmode="decimal" step="any" min="0" value="${esc(it.qty ?? 1)}"></label>
       <label><span>Unit</span><select class="field i-unit">${UNITS.map(u => `<option ${u === (it.unit || unit) ? 'selected' : ''}>${u}</option>`).join('')}</select></label>
-      <label><span>Rate ₹</span><input class="field i-rate" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${esc(it.rate ?? '')}"></label>
+      <label><span class="i-rlab">Rate ₹${rateUnit(it.unit || unit)}</span><input class="field i-rate" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${esc(it.rate ?? '')}"></label>
       <label><span>Total ₹</span><input class="field i-amt" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${esc(it.amount ?? '')}"></label>
       <button type="button" class="i-del" aria-label="Remove item">×</button>
     </div></div>`;
@@ -960,8 +1013,9 @@ function openForm(existing, book) {
     const row = ev.target.closest('.irow');
     if (row && !iron) {
       const q = row.querySelector('.i-qty'), r = row.querySelector('.i-rate'), a = row.querySelector('.i-amt');
-      if (ev.target === q || ev.target === r) { if (r.value !== '') a.value = r2(num(q.value) * num(r.value)); }
-      else if (ev.target === a) { if (num(q.value) > 0) r.value = r2(num(a.value) / num(q.value)); }
+      const u = row.querySelector('.i-unit').value;
+      if (ev.target === q || ev.target === r) { if (r.value !== '') a.value = lineAmt(q.value, r.value, u); }
+      else if (ev.target === a) { if (num(q.value) > 0) r.value = r2(num(a.value) / (num(q.value) * unitFactor(u))); }
     }
     if (row && iron) calcIronRow(row);
     updateTotal();
@@ -970,9 +1024,15 @@ function openForm(existing, book) {
   });
   form.addEventListener('change', ev => {
     if (ev.target.classList.contains('n-cat')) { calcIronRow(ev.target.closest('.irow')); updateTotal(); return; }
+    if (ev.target.classList.contains('i-unit')) {
+      const row = ev.target.closest('.irow'), u = ev.target.value, r = row.querySelector('.i-rate');
+      row.querySelector('.i-rlab').textContent = 'Rate ₹' + rateUnit(u);
+      if (r.value !== '') row.querySelector('.i-amt').value = lineAmt(row.querySelector('.i-qty').value, r.value, u);
+      updateTotal(); return;
+    }
     if (!ev.target.classList.contains('i-name')) return;
     const row = ev.target.closest('.irow'), h = S.history.get(ev.target.value.trim().toLowerCase()), r = row.querySelector('.i-rate');
-    if (h && r.value === '') { r.value = h.rate; row.querySelector('.i-unit').value = h.unit || B.unit; row.querySelector('.i-amt').value = r2(num(row.querySelector('.i-qty').value) * num(h.rate)); updateTotal(); }
+    if (h && r.value === '') { const u = h.unit || B.unit; r.value = h.rate; row.querySelector('.i-unit').value = u; row.querySelector('.i-rlab').textContent = 'Rate ₹' + rateUnit(u); row.querySelector('.i-amt').value = lineAmt(row.querySelector('.i-qty').value, h.rate, u); updateTotal(); }
   });
   form.addEventListener('click', ev => {
     const t = ev.target;
@@ -1024,9 +1084,10 @@ function saveForm() {
     items = [...document.querySelectorAll('#items .irow')].map(r => {
       const qty = num(r.querySelector('.i-qty').value);
       let rate = num(r.querySelector('.i-rate').value), amount = num(r.querySelector('.i-amt').value);
-      if (!amount && rate) amount = r2(qty * rate);
-      if (!rate && amount && qty) rate = r2(amount / qty);
-      return {name: r.querySelector('.i-name').value.trim(), qty, unit: r.querySelector('.i-unit').value, rate, amount};
+      const unit = r.querySelector('.i-unit').value;
+      if (!amount && rate) amount = lineAmt(qty, rate, unit);
+      if (!rate && amount && qty) rate = r2(amount / (qty * unitFactor(unit)));
+      return {name: r.querySelector('.i-name').value.trim(), qty, unit, rate, amount};
     }).filter(i => i.name || i.amount);
     if (!items.length) return toast('Add at least one item');
     if (items.some(i => !i.name)) return toast('An item is missing its name');
@@ -1427,11 +1488,11 @@ async function renderDash() {
     if (k === 'iron') {
       const c = es.reduce((a, e) => { const g = ironCounts(e); return {w: a.w + g.wash, i: a.i + g.iron}; }, {w: 0, i: 0});
       html += `<table class="dt nb"><thead><tr><th>Date</th><th class="num">Wash</th><th class="num">Iron</th><th class="num">Others</th><th class="num">Total</th><th>Return</th></tr></thead><tbody>
-        ${es.map(e => { const g = ironCounts(e), r = returnState(e); return `<tr data-open="${e.id}"><td>${shortDate(e.date)}</td><td class="num">${g.wash || '–'}</td><td class="num">${g.iron || '–'}</td><td class="num">${ironOthers(e) ? money(ironOthers(e)) : '–'}</td><td class="num">${money(total(e))}</td><td>${r.txt ? `<span class="badge ${r.cls}" style="margin:0">${r.txt}</span>` : ''}</td></tr>`; }).join('')}
-        </tbody><tfoot><tr><td>Total</td><td class="num">${c.w}</td><td class="num">${c.i}</td><td class="num">${money(es.reduce((t, e) => t + ironOthers(e), 0))}</td><td class="num">${money(bt)}</td><td></td></tr></tfoot></table>`;
+        ${es.map(e => { const g = ironCounts(e), r = returnState(e); return `<tr data-open="${e.id}"><td>${shortDate(e.date)}</td><td class="num">${g.wash || '–'}</td><td class="num">${g.iron || '–'}</td><td class="num">${ironOthers(e) ? money(ironOthers(e)) : '–'}</td><td class="num"><b>${g.wash + g.iron}</b><div class="sub-amt">${money(total(e))}</div></td><td>${r.txt ? `<span class="badge ${r.cls}" style="margin:0">${r.txt}</span>` : ''}</td></tr>`; }).join('')}
+        </tbody><tfoot><tr><td>Total</td><td class="num">${c.w}</td><td class="num">${c.i}</td><td class="num">${money(es.reduce((t, e) => t + ironOthers(e), 0))}</td><td class="num">${c.w + c.i}<div class="sub-amt strong">${money(bt)}</div></td><td></td></tr></tfoot></table>`;
     } else {
       html += `<table class="dt nb"><thead><tr><th>Date</th><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Total</th></tr></thead><tbody>
-        ${es.flatMap(e => (e.items || []).map((i, n) => `<tr data-open="${e.id}"><td>${n ? '' : shortDate(e.date)}</td><td>${esc(i.name)}${n === 0 && isPending(e) ? ' <span class="badge b-credit" style="margin:0">to pay</span>' : ''}</td><td class="num">${+i.qty || 0} ${esc(i.unit || '')}</td><td class="num">${money(i.rate)}</td><td class="num">${money(i.amount)}</td></tr>`)).join('')}
+        ${es.flatMap(e => (e.items || []).map((i, n) => `<tr data-open="${e.id}"><td>${n ? '' : shortDate(e.date)}</td><td>${esc(i.name)}${n === 0 && isPending(e) ? ' <span class="badge b-credit" style="margin:0">to pay</span>' : ''}</td><td class="num">${+i.qty || 0} ${esc(i.unit || '')}</td><td class="num">${money(i.rate)}${rateUnit(i.unit)}</td><td class="num">${money(i.amount)}</td></tr>`)).join('')}
         </tbody><tfoot><tr><td colspan="4">Total</td><td class="num">${money(bt)}</td></tr></tfoot></table>`;
     }
     html += `</div></div>`;
