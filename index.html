@@ -635,7 +635,7 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Search: thali, keys, warranty…': ['Dhundho: thali, chaabi, warranty…', 'શોધો: થાળી, ચાવી, વોરંટી…'],
   'Save where things are kept, with a photo.': ['Cheez kahan rakhi hai, photo ke saath save karo.', 'વસ્તુ ક્યાં મૂકી છે, ફોટા સાથે સેવ કરો.'], 'to add the first one.': ['pehli cheez jodne ke liye.', 'પહેલી વસ્તુ ઉમેરવા.'],
-  'Room': ['Kamra', 'રૂમ'], 'Kept at': ['Kahan rakha', 'ક્યાં મૂક્યું'], 'Updated by': ['Kisne badla', 'કોણે બદલ્યું'], '📍 I moved it – update place': ['📍 Jagah badli – nayi jagah likho', '📍 જગ્યા બદલી – નવી જગ્યા લખો'],
+  'Room': ['Kamra', 'રૂમ'], 'Or say it (voice note)': ['Ya bolkar batao (voice note)', 'અથવા બોલીને કહો (વૉઇસ નોટ)'], 'Kept at': ['Kahan rakha', 'ક્યાં મૂક્યું'], 'Updated by': ['Kisne badla', 'કોણે બદલ્યું'], '📍 I moved it – update place': ['📍 Jagah badli – nayi jagah likho', '📍 જગ્યા બદલી – નવી જગ્યા લખો'],
   'Save a thing': ['Cheez save karo', 'વસ્તુ સેવ કરો'], 'New place': ['Nayi jagah', 'નવી જગ્યા'], 'What is it?': ['Kya cheez hai?', 'શું વસ્તુ છે?'], 'Exactly where?': ['Theek kahan?', 'ચોક્કસ ક્યાં?'],
   'Photo of where it is kept': ['Jahan rakha hai uski photo', 'જ્યાં મૂક્યું છે તેનો ફોટો'], 'Write what it is': ['Kya cheez hai, likho', 'શું વસ્તુ છે તે લખો'], 'Delete this?': ['Ise hatana hai?', 'આ કાઢી નાખવું છે?'], '📷 Change': ['📷 Badlo', '📷 બદલો'],
   'e.g. Pooja thali': ['jaise Pooja thali', 'દા.ત. પૂજાની થાળી'], 'e.g. Mandir ke neeche wali drawer, left side': ['jaise Mandir ke neeche wali drawer, left side', 'દા.ત. મંદિર નીચેનું ખાનું, ડાબી બાજુ'], 'Saved': ['Save ho gaya', 'સેવ થયું'],
@@ -738,7 +738,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '13 · where is it';
+const APP_VERSION = '14 · where is it + voice';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1130,7 +1130,7 @@ function thingsHTML() {
   return html + list.map(t => `<button class="card thing" data-thing="${t.id}">
       <div class="th-img" data-thumb="${t.hasPhoto ? t.id : ''}">${t.hasPhoto ? (thumbCache.get(t.id) ? `<img src="${thumbCache.get(t.id)}" alt="">` : '📷') : '📦'}</div>
       <div class="main"><div class="t" data-nt>${esc(t.name)}</div>
-        <div class="s">📍 ${t.room ? `<b>${esc(t.room)}</b> · ` : ''}<span data-nt>${esc(t.place || '')}</span></div>
+        <div class="s">📍 ${t.room ? `<b>${esc(t.room)}</b> · ` : ''}<span data-nt>${esc(t.place || '')}</span>${t.hasVoice ? ' 🎤' : ''}</div>
         <div class="s">by ${esc(t.updatedByName || t.createdByName || '—')}</div></div></button>`).join('');
 }
 function loadThumbs() {
@@ -1150,14 +1150,16 @@ function openThing(id) {
       <div class="fgroup"><div style="font-size:21px;font-weight:800" data-nt>${esc(t.name)}</div>
         ${t.room ? `<div class="kv"><span>Room</span><span>${esc(t.room)}</span></div>` : ''}
         <div class="kv"><span>Kept at</span><span data-nt>${esc(t.place || '—')}</span></div>
+        ${t.hasVoice ? playerHTML('thv', '🎤 Voice note') : ''}
         ${t.note ? `<div class="kv"><span>Notes</span><span data-nt>${esc(t.note)}</span></div>` : ''}
         <div class="kv"><span>Updated by</span><span>${esc(t.updatedByName || t.createdByName || '—')} · ${shortDate(ds(new Date(t.updatedAt || t.createdAt)))}</span></div></div>
       <button class="btn pri" id="thMoved">📍 I moved it – update place</button>
       ${canDel ? `<button class="btn dan" id="thDel">Delete</button>` : ''}
     </div>`);
   if (t.hasPhoto) api.getPhoto('th_' + t.id).then(p => { const el = $('#thPhoto'); if (el) el.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="">` : '<p class="hint" style="margin:0">Photo still uploading.</p>'; }).catch(() => {});
+  if (t.hasVoice) loadPlayer('thv', 'thv_' + t.id, '🎤 Voice note');
   $('#thEdit').onclick = () => openThingForm(t); $('#thMoved').onclick = () => openThingForm(t, true);
-  $('#thDel') && ($('#thDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(t.id).catch(e => toast(errText(e))); if (t.hasPhoto) api.deletePhoto('th_' + t.id).catch(() => {}); thumbCache.delete(t.id); closeSheet(); toast('Deleted'); });
+  $('#thDel') && ($('#thDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(t.id).catch(e => toast(errText(e))); if (t.hasPhoto) api.deletePhoto('th_' + t.id).catch(() => {}); if (t.hasVoice) api.deletePhoto('thv_' + t.id).catch(() => {}); thumbCache.delete(t.id); closeSheet(); toast('Deleted'); });
 }
 function openThingForm(existing, moved) {
   const t = existing ? {...strip(existing)} : {name: '', room: '', place: '', note: '', hasPhoto: false};
@@ -1168,12 +1170,17 @@ function openThingForm(existing, moved) {
       <div class="fgroup"><label class="flabel">Room</label>
         <div class="modes" id="thRooms">${ROOMS.map(r => `<button type="button" class="chip ${t.room === r ? 'on' : ''}" data-room="${r}">${r}</button>`).join('')}</div>
         <label class="flabel" style="margin-top:6px">Exactly where?</label>
-        <textarea class="field" id="thPlace" rows="2" placeholder="e.g. Mandir ke neeche wali drawer, left side">${esc(t.place)}</textarea></div>
+        <textarea class="field" id="thPlace" rows="2" placeholder="e.g. Mandir ke neeche wali drawer, left side">${esc(t.place)}</textarea>
+        <label class="flabel" style="margin-top:10px">Or say it (voice note)</label><div class="voice" id="thVoice"></div></div>
       <div class="fgroup"><label class="flabel">Photo of where it is kept</label><div class="photo-box" id="thPh"></div></div>
       <div class="fgroup"><label class="flabel">Notes (optional)</label><textarea class="field" id="thNote" rows="2" placeholder="Anything to remember">${esc(t.note || '')}</textarea></div>
       <button class="btn pri" id="thSave2">Save</button>
     </div>`);
   let room = t.room;
+  const voice = {data: null}; let placeTouched = !!t.place;
+  $('#thPlace').oninput = () => { placeTouched = true; };
+  mountVoice($('#thVoice'), voice, txt => { if (!placeTouched) $('#thPlace').value = txt; });
+  if (existing && t.hasVoice) api.getPhoto('thv_' + t.id).then(d => { if (d && !voice.data) { voice.data = d; voice.orig = d; mountVoice($('#thVoice'), voice, txt => { if (!placeTouched) $('#thPlace').value = txt; }); } }).catch(() => {});
   $('#thRooms').onclick = ev => { const b = ev.target.closest('[data-room]'); if (!b) return; room = room === b.dataset.room ? '' : b.dataset.room;
     $('#thRooms').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.room === room)); };
   const draw = () => { const has = photo.data || (t.hasPhoto && !photo.changed);
@@ -1184,12 +1191,17 @@ function openThingForm(existing, moved) {
   draw();
   if (existing && t.hasPhoto && !photo.data) api.getPhoto('th_' + t.id).then(d => { if (d && !photo.changed) { photo.data = d; draw(); } }).catch(() => {});
   setTimeout(() => (moved ? $('#thPlace') : existing ? null : $('#thName'))?.focus(), 350);
-  const save = () => {
+  const save = async () => {
+    if (Rec.mr) { const r = await Rec.stop(); if (r) voice.data = r.data; }
     const name = $('#thName').value.trim(); if (!name) return toast('Write what it is');
     const isNew = !t.id;
     const out = {...t, book: 'things', name, room, place: $('#thPlace').value.trim(), note: $('#thNote').value.trim(), items: [], date: t.date || today(),
       updatedAt: Date.now(), updatedByName: S.me.name};
     if (isNew) Object.assign(out, {id: api.newId(), createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name});
+    if (voice.data !== (voice.orig || null)) {
+      out.hasVoice = !!voice.data;
+      (voice.data ? api.savePhoto('thv_' + out.id, voice.data) : api.deletePhoto('thv_' + out.id)).catch(e => toast('Voice: ' + errText(e)));
+    }
     if (photo.changed) {
       out.hasPhoto = !!photo.data;
       (photo.data ? api.savePhoto('th_' + out.id, photo.data) : api.deletePhoto('th_' + out.id)).catch(e => toast('Photo: ' + errText(e)));
