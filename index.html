@@ -657,7 +657,9 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], '📅 Add reminder to phone calendar': ['📅 Phone calendar mein reminder lagao', '📅 ફોન કૅલેન્ડરમાં રિમાઇન્ડર મૂકો'], 'Samagri checklist': ['Samagri list', 'સામગ્રી યાદી'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], "🖼 Last time's setup (reference)": ['🖼 Pichhli baar ki sajawat (dekhne ke liye)', '🖼 ગયા વખતની ગોઠવણ (જોવા માટે)'],
+  '📸 Photo of the setup when done': ['📸 Taiyaar sajawat ki photo', '📸 તૈયાર ગોઠવણનો ફોટો'], 'Keep it for next time, so the setup can be done the same way.': ['Agli baar ke liye rakho, taaki waise hi sajaya ja sake.', 'આગલી વખત માટે રાખો, જેથી એ જ રીતે ગોઠવી શકાય.'],
+  '📷 Add setup photo': ['📷 Sajawat ki photo jodo', '📷 ગોઠવણનો ફોટો ઉમેરો'], 'Setup photo saved': ['Sajawat ki photo save hui', 'ગોઠવણનો ફોટો સેવ થયો'], 'No setup photo was saved last time.': ['Pichhli baar photo save nahi hui thi.', 'ગયા વખતે ફોટો સેવ થયો ન હતો.'], '📅 Add reminder to phone calendar': ['📅 Phone calendar mein reminder lagao', '📅 ફોન કૅલેન્ડરમાં રિમાઇન્ડર મૂકો'], 'Samagri checklist': ['Samagri list', 'સામગ્રી યાદી'],
   'No items yet. Add them below.': ['Abhi koi saaman nahi. Neeche jodo.', 'હજુ કોઈ વસ્તુ નથી. નીચે ઉમેરો.'], 'Add item, e.g. Diya': ['Saaman jodo, jaise Diya', 'વસ્તુ ઉમેરો, દા.ત. દીવો'], 'Item, e.g. Diya': ['Saaman, jaise Diya', 'વસ્તુ, દા.ત. દીવો'],
   'Write the item and its quantity (e.g. 11, 1 bowl, 250 g), then tap + Add.': ['Saaman aur matra likho (jaise 11, 1 katori, 250 g), phir + Jodo dabao.', 'વસ્તુ અને જથ્થો લખો (દા.ત. 11, 1 વાટકી, 250 g), પછી + ઉમેરો દબાવો.'], '+ Add': ['+ Jodo', '+ ઉમેરો'],
   '📋 Copy for another date': ['📋 Doosri tareekh ke liye copy', '📋 બીજી તારીખ માટે કૉપી'], 'Copy pooja': ['Pooja copy', 'પૂજા કૉપી'], 'New pooja': ['Nayi pooja', 'નવી પૂજા'], 'Edit pooja': ['Pooja badlo', 'પૂજા સુધારો'],
@@ -781,7 +783,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '17 · pooja qty';
+const APP_VERSION = '18 · pooja setup photo';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1370,7 +1372,7 @@ function poojaHTML() {
   const card = p => { const [r, n] = poojaReady(p), soon = inDays(p.date);
     return `<button class="card pooja" data-pooja="${p.id}"><div class="th-img">🪔</div>
       <div class="main"><div class="t" data-nt>${esc(p.name)}</div><div class="s">${poojaWhen(p)}</div>
-        <div class="tmline">${soon ? `<span class="badge ${soon === 'Today' ? 'b-over' : 'b-credit'}">${soon}</span>` : ''}${n ? `<span class="badge ${r === n ? 'b-paid' : 'b-mute'}">${r}/${n} ready</span>` : ''}</div></div></button>`; };
+        <div class="tmline">${soon ? `<span class="badge ${soon === 'Today' ? 'b-over' : 'b-credit'}">${soon}</span>` : ''}${n ? `<span class="badge ${r === n ? 'b-paid' : 'b-mute'}">${r}/${n} ready</span>` : ''}${p.hasSetup ? '<span class="badge b-mute">📸</span>' : ''}</div></div></button>`; };
   return (up.length ? `<div class="section-t">Coming up</div>` + up.map(card).join('') : '') + (past.length ? `<div class="section-t">Done before</div>` + past.map(card).join('') : '');
 }
 const findPooja = id => poojaList().find(p => p.id === id);
@@ -1391,10 +1393,26 @@ function openPooja(id) {
       <button class="btn sec" id="pjCal">📅 Add reminder to phone calendar</button>
       <div class="fgroup"><div class="ptitle"><h3 style="margin:0">Samagri checklist</h3><b id="pjCount" class="hint" style="margin:0"></b></div><div id="pjList" style="margin-top:8px"></div>
         <div class="addck3"><input class="field" id="pjNew" placeholder="Item, e.g. Diya" autocomplete="off" enterkeyhint="next"><input class="field" id="pjQty" placeholder="Qty" autocomplete="off" enterkeyhint="done"><button type="button" class="sbtn" id="pjAdd">+ Add</button></div></div>
+      ${p.refFrom ? `<div class="fgroup"><div class="flabel">🖼 Last time's setup (reference)</div><div id="pjRef"><p class="hint" style="margin:0">Loading…</p></div></div>` : ''}
+      <div class="fgroup"><div class="flabel">📸 Photo of the setup when done</div><div id="pjSetup"></div>
+        <p class="hint">Keep it for next time, so the setup can be done the same way.</p></div>
       <button class="btn sec" id="pjCopy">📋 Copy for another date</button>
       ${canDel ? `<button class="btn dan" id="pjDel">Delete</button>` : ''}
     </div>`);
   draw();
+  const setup = {data: null};
+  const drawSetup = () => { const has = setup.data || p.hasSetup;
+    $('#pjSetup').innerHTML = has ? `${setup.data ? `<img class="bigphoto" src="${setup.data}" alt="">` : '<p class="hint" style="margin:0">Loading photo…</p>'}<div style="display:flex;gap:8px;margin-top:8px"><button type="button" class="pbtn" id="pjSetPick">📷 Change</button><button type="button" class="pdel" id="pjSetDel">Remove</button></div>`
+      : `<button type="button" class="pbtn" id="pjSetPick">📷 Add setup photo</button>`;
+    $('#pjSetPick').onclick = () => pickPhoto(false, d => { setup.data = d; p.hasSetup = true; api.savePhoto('pjs_' + p.id, d).catch(e => toast('Photo: ' + errText(e))); savePooja(p); drawSetup(); toast('Setup photo saved'); });
+    $('#pjSetDel') && ($('#pjSetDel').onclick = () => { if (!confirm('Delete this?')) return; setup.data = null; p.hasSetup = false; api.deletePhoto('pjs_' + p.id).catch(() => {}); savePooja(p); drawSetup(); }); };
+  drawSetup();
+  if (p.hasSetup) api.getPhoto('pjs_' + p.id).then(d => { if (d) { setup.data = d; drawSetup(); } }).catch(() => {});
+  if (p.refFrom) {
+    // the reference is the setup photo of the pooja this one was copied from (or its own reference, further back)
+    const src = findPooja(p.refFrom);
+    api.getPhoto('pjs_' + p.refFrom).then(d => { const el = $('#pjRef'); if (el) el.innerHTML = d ? `<img class="bigphoto" src="${d}" alt=""><p class="hint">${src ? esc(src.name) + ' · ' + prettyDate(src.date) : ''}</p>` : '<p class="hint" style="margin:0">No setup photo was saved last time.</p>'; }).catch(() => {});
+  }
   const persist = () => { p.checklist = list; savePooja(p); };
   $('#pjList').onchange = ev => { const k = ev.target.dataset.ck; if (k == null) return; list[+k].done = ev.target.checked; list[+k].doneBy = S.me.name; draw(); persist(); };
   const addItem = () => { const v = $('#pjNew').value.trim(); if (!v) return; list.push({name: v, qty: $('#pjQty').value.trim(), done: false}); $('#pjNew').value = ''; $('#pjQty').value = ''; draw(); persist(); $('#pjNew').focus(); };
@@ -1403,8 +1421,8 @@ function openPooja(id) {
   $('#pjQty').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); addItem(); } };
   $('#pjEdit').onclick = () => openPoojaForm(p);
   $('#pjCal').onclick = () => poojaICS(p);
-  $('#pjCopy').onclick = () => openPoojaForm({...p, id: null, date: '', checklist: list.map(i => ({name: i.name, qty: i.qty || '', done: false}))}, true);
-  $('#pjDel') && ($('#pjDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(p.id).catch(e => toast(errText(e))); closeSheet(); toast('Deleted'); });
+  $('#pjCopy').onclick = () => openPoojaForm({...p, id: null, date: '', hasSetup: false, refFrom: p.hasSetup ? p.id : (p.refFrom || ''), checklist: list.map(i => ({name: i.name, qty: i.qty || '', done: false}))}, true);
+  $('#pjDel') && ($('#pjDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(p.id).catch(e => toast(errText(e))); if (p.hasSetup && !poojaList().some(x => x.refFrom === p.id)) api.deletePhoto('pjs_' + p.id).catch(() => {}); closeSheet(); toast('Deleted'); });
 }
 function openPoojaForm(existing, copy) {
   const p = existing ? {...existing} : {name: '', date: '', start: '', end: '', note: '', checklist: []};
