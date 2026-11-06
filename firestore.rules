@@ -1,0 +1,50 @@
+rules_version = '2';
+// Paste this whole file into Firebase console → Firestore Database → Rules → Publish.
+// Replace the email below if your admin email is different (keep it lowercase).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email.lower() == 'mrugraj321@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    function myDoc() { return /databases/$(database)/documents/users/$(request.auth.uid); }
+
+    function approved() {
+      return isAdmin() || (signedIn() && exists(myDoc()) && get(myDoc()).data.status == 'approved');
+    }
+
+    // ----- people who use the app -----
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || approved());
+      // New sign-ups can only create themselves as "pending member"
+      allow create: if isAdmin()
+        || (signedIn() && request.auth.uid == uid
+            && request.resource.data.status == 'pending'
+            && request.resource.data.role == 'member');
+      // Admin can approve/remove; users can only edit their own name
+      allow update: if isAdmin()
+        || (signedIn() && request.auth.uid == uid
+            && request.resource.data.status == resource.data.status
+            && request.resource.data.role == resource.data.role);
+      allow delete: if isAdmin();
+    }
+
+    // ----- bills -----
+    match /entries/{id} {
+      allow read: if approved();
+      allow create: if approved() && request.resource.data.createdBy == request.auth.uid;
+      allow update: if approved() && request.resource.data.createdBy == resource.data.createdBy;
+      allow delete: if approved() && (isAdmin() || resource.data.createdBy == request.auth.uid);
+    }
+
+    // ----- bill photos (kept separate so lists load fast) -----
+    match /photos/{id} {
+      allow read, write: if approved();
+    }
+  }
+}
