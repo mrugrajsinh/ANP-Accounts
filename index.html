@@ -556,7 +556,7 @@ const D = {
   'Send for approval': ['Approval ke liye bhejo', 'મંજૂરી માટે મોકલો'], 'Ask to redo': ['Phir se karwao', 'ફરી કરાવો'], 'Voice note: what needs fixing': ['Voice note: kya theek karna hai', 'વૉઇસ નોટ: શું સુધારવાનું છે'],
   'Or type it': ['Ya likho', 'અથવા લખો'], 'Send back to redo': ['Phir se karne bhejo', 'ફરી કરવા મોકલો'], '↺ Please redo': ['↺ Phir se karo', '↺ ફરી કરો'],
   'Photo still uploading.': ['Photo abhi upload ho rahi hai.', 'ફોટો હજુ અપલોડ થાય છે.'], 'Translate ↗': ['Translate ↗', 'અનુવાદ ↗'], '🎤 Voice note': ['🎤 Voice note', '🎤 વૉઇસ નોટ'],
-  '🎤 Instructions': ['🎤 Nirdesh', '🎤 સૂચના'], 'Sent. An admin will check and approve it.': ['Bhej diya. Admin dekh kar approve karega.', 'મોકલ્યું. એડમિન જોઈને મંજૂર કરશે.'],
+  '🎤 Instructions': ['🎤 Nirdesh', '🎤 સૂચના'], 'Voice reply (optional)': ['Voice jawab (zaroori nahi)', 'વૉઇસ જવાબ (જરૂરી નથી)'], '🎤 Voice reply': ['🎤 Voice jawab', '🎤 વૉઇસ જવાબ'], 'Sent. An admin will check and approve it.': ['Bhej diya. Admin dekh kar approve karega.', 'મોકલ્યું. એડમિન જોઈને મંજૂર કરશે.'],
   // users / account
   'Change my name': ['Mera naam badlo', 'મારું નામ બદલો'], 'Sign out': ['Log out', 'લૉગ આઉટ'], 'Main admin': ['Mukhya admin', 'મુખ્ય એડમિન'], 'Admin': ['Admin', 'એડમિન'], 'Member': ['Sadasya', 'સભ્ય'],
   'Approve': ['Haan', 'મંજૂર'], 'Reject': ['Mana karo', 'ના પાડો'], 'Make admin': ['Admin banao', 'એડમિન બનાવો'], 'Remove admin': ['Admin hatao', 'એડમિન હટાવો'], 'Give access': ['Access do', 'પ્રવેશ આપો'],
@@ -677,7 +677,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '8 · languages';
+const APP_VERSION = '9 · voice reply';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1478,7 +1478,7 @@ function taskRow(t, carried) {
     <span class="tick">${icon}</span>
     <div class="main"><div class="t" data-nt>${esc(t.title)}</div>${trLine(t.title)}
       ${st === 'open' && t.declinedAt ? `<div class="redo">↺ Redo${t.declineNote ? `: <span data-nt>${esc(t.declineNote)}</span>` : ''}</div>` : ''}
-      <div class="s">${t.hasVoice ? '🎤 ' : ''}${t.hasPhoto ? '📷 ' : ''}${bits.join(' · ')}</div></div>
+      <div class="s">${t.hasVoice && !t.title.startsWith('🎤') ? '🎤 ' : ''}${t.hasPhoto ? '📷 ' : ''}${t.proofVoice && st !== 'open' ? '🗣 ' : ''}${bits.join(' · ')}</div></div>
     <span class="chev">›</span></div>`;
 }
 function renderTasks() {
@@ -1555,7 +1555,7 @@ function openTask(id) {
         <div class="kv"><span>Added by</span><span>${esc(t.createdByName || '—')}</span></div></div>
       ${t.hasPhoto ? `<div class="fgroup" id="tpSlot"><p class="hint" style="margin:0">Loading photo…</p></div>` : ''}
       ${t.declinedAt && st === 'open' ? `<div class="fgroup redo-box"><b>↺ Please redo</b> · ${esc(t.declinedByName || '')}<div data-nt>${esc(t.declineNote || '')}</div>${t.declineVoice ? playerHTML('pv2', '🎤 Instructions') : ''}</div>` : ''}
-      ${st !== 'open' && t.hasProof ? `<div class="fgroup"><div class="flabel">Done photo · ${esc(t.submittedByName || '')} ${timeStr(t.submittedAt)}</div><div id="tProofSlot"><p class="hint" style="margin:0">Loading…</p></div>${t.proofNote ? `<p style="margin:8px 0 0" data-nt>${esc(t.proofNote)}</p>` : ''}</div>` : ''}
+      ${st !== 'open' && t.hasProof ? `<div class="fgroup"><div class="flabel">Done photo · ${esc(t.submittedByName || '')} ${timeStr(t.submittedAt)}</div><div id="tProofSlot"><p class="hint" style="margin:0">Loading…</p></div>${t.proofVoice ? playerHTML('pv3', '🎤 Voice reply') : ''}${t.proofNote ? `<p style="margin:8px 0 0" data-nt>${esc(t.proofNote)}</p>` : ''}</div>` : ''}
       ${st === 'done' ? `<p class="hint">Approved by ${esc(t.approvedByName || '')} · ${t.doneDate ? shortDate(t.doneDate) : ''} ${timeStr(t.approvedAt)}</p>` : ''}
       ${st === 'open' ? `<button class="btn pri" id="tSubmit">📷 Done – upload photo</button>` : ''}
       ${st === 'review' && S.isAdmin ? `<div class="row2"><button class="btn pri" id="tApprove">✓ Approve</button><button class="btn amber" id="tDecline">✗ Redo</button></div>` : ''}
@@ -1566,6 +1566,7 @@ function openTask(id) {
   { const box = $('#tTrans'); if (box) box.innerHTML = trLine(t.title); }
   if (t.hasVoice) loadPlayer('pv1', 'tv_' + t.id, '🎤 Voice note');
   if (t.declineVoice && st === 'open') loadPlayer('pv2', 'tdv_' + t.id, '🎤 Instructions');
+  if (t.proofVoice && st !== 'open') loadPlayer('pv3', 'tpv_' + t.id, '🎤 Voice reply');
   if (t.hasPhoto) api.getPhoto('tp_' + t.id).then(p => { const el = $('#tpSlot'); if (el) el.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="">` : '<p class="hint" style="margin:0">Photo still uploading.</p>'; }).catch(() => {});
   if (st !== 'open' && t.hasProof) api.getPhoto('tproof_' + t.id).then(p => { const el = $('#tProofSlot'); if (el) el.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="">` : '<p class="hint" style="margin:0">Photo still uploading.</p>'; }).catch(() => {});
   const upd = patch => api.saveTask({...strip(t), ...patch, updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
@@ -1575,25 +1576,30 @@ function openTask(id) {
   $('#tReopen') && ($('#tReopen').onclick = () => { upd({status: 'open', done: false, approvedAt: null, approvedBy: null, approvedByName: null, doneDate: null}); closeSheet(); });
   $('#tEdit') && ($('#tEdit').onclick = () => { const v = prompt('Edit task', t.title); if (v && v.trim()) { upd({title: v.trim()}); closeSheet(); } });
   $('#tDel') && ($('#tDel').onclick = () => { if (!confirm('Delete this task?')) return; api.deleteTask(t.id).catch(e => toast(errText(e)));
-    ['tv_', 'tp_', 'tproof_', 'tdv_'].forEach(p => api.deletePhoto(p + t.id).catch(() => {})); closeSheet(); toast('Deleted'); });
+    ['tv_', 'tp_', 'tproof_', 'tdv_', 'tpv_'].forEach(p => api.deletePhoto(p + t.id).catch(() => {})); closeSheet(); toast('Deleted'); });
 }
 
 function openSubmit(id) {
   const t = findTask(id); if (!t) return;
-  const photo = {data: null};
+  const photo = {data: null}, voice = {data: null};
   openSheet(`<div class="sh-head"><button data-back-task="${id}">Back</button><h2>Task done</h2><button class="save" id="sbSave">Send</button></div>
     <div class="sh-body">
       <div class="fgroup"><div style="font-size:17px;font-weight:700" data-nt>${esc(t.title)}</div>${trLine(t.title)}</div>
       <div class="fgroup"><label class="flabel">Photo of the finished work</label><div class="photo-box" id="sbPhoto"></div></div>
+      <div class="fgroup"><label class="flabel">Voice reply (optional)</label><div class="voice" id="sbVoice"></div></div>
       <div class="fgroup"><label class="flabel">Note (optional)</label><textarea class="field" id="sbNote" rows="2" placeholder="e.g. Paid ₹1,240"></textarea></div>
       <button class="btn pri" id="sbSave2">Send for approval</button>
     </div>`);
   const draw = () => { $('#sbPhoto').innerHTML = photo.data ? `<img src="${photo.data}" alt=""><button type="button" class="pbtn" id="sbPh">Retake</button>` : `<button type="button" class="pbtn" id="sbPh">📷 Take photo</button>`; $('#sbPh').onclick = () => pickPhoto(true, d => { photo.data = d; draw(); }); };
   draw();
-  const send = () => {
+  let touched = false; $('#sbNote').oninput = () => { touched = true; };
+  mountVoice($('#sbVoice'), voice, txt => { if (!touched) $('#sbNote').value = txt; });
+  const send = async () => {
     if (!photo.data) return toast('Take a photo of the finished work first');
+    if (Rec.mr) { const r = await Rec.stop(); if (r) voice.data = r.data; }
     api.savePhoto('tproof_' + t.id, photo.data).catch(e => toast('Photo: ' + errText(e)));
-    api.saveTask({...strip(t), status: 'review', done: false, hasProof: true, proofNote: $('#sbNote').value.trim(), submittedBy: S.user.uid, submittedByName: S.me.name, submittedAt: Date.now(), updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
+    if (voice.data) api.savePhoto('tpv_' + t.id, voice.data).catch(e => toast('Voice: ' + errText(e)));
+    api.saveTask({...strip(t), status: 'review', done: false, hasProof: true, proofVoice: !!voice.data, proofNote: $('#sbNote').value.trim(), submittedBy: S.user.uid, submittedByName: S.me.name, submittedAt: Date.now(), updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
     closeSheet(); toast('Sent for approval');
   };
   $('#sbSave').onclick = send; $('#sbSave2').onclick = send;
@@ -1617,7 +1623,7 @@ function openDecline(id) {
     if (!note && !voice.data) return toast('Record or type what needs fixing');
     if (voice.data) api.savePhoto('tdv_' + t.id, voice.data).catch(e => toast('Voice: ' + errText(e)));
     api.saveTask({...strip(t), status: 'open', done: false, declinedAt: Date.now(), declinedBy: S.user.uid, declinedByName: S.me.name, declineNote: note, declineVoice: !!voice.data,
-      hasProof: false, updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
+      hasProof: false, proofVoice: false, updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
     closeSheet(); toast('Sent back to redo');
   };
   $('#dcSave').onclick = send; $('#dcSave2').onclick = send;
