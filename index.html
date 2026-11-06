@@ -343,6 +343,12 @@ nav{background:color-mix(in srgb,var(--card) 92%,transparent)}
 b.working{color:var(--amber)}
 .urg{display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:700;color:var(--red)}
 .urg input{width:20px;height:20px;accent-color:var(--red)}
+.bookbtn .bicon.thing{background:#f3dfd2}
+@media (prefers-color-scheme:dark){.bookbtn .bicon.thing{background:#45291c}}
+.card.thing{align-items:flex-start}
+.th-img{width:64px;height:64px;border-radius:14px;background:var(--grid);flex:none;display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden}
+.th-img img{width:100%;height:100%;object-fit:cover}
+.card.thing .s{white-space:normal}
 </style>
 </head>
 <body>
@@ -432,6 +438,7 @@ async function firebaseAPI(cfg) {
     updateUser: (uid, p) => F.updateDoc(F.doc(db, 'users', uid), p),
     watchEntries: (since, cb, err) => F.onSnapshot(F.query(col('entries'), F.where('date', '>=', since)), {includeMetadataChanges: true}, s => cb(list(s)), err),
     watchCredits: (cb, err) => F.onSnapshot(F.query(col('entries'), F.where('status', '==', 'credit')), {includeMetadataChanges: true}, s => cb(list(s)), err),
+    watchThings: (cb, err) => F.onSnapshot(F.query(col('entries'), F.where('book', '==', 'things')), {includeMetadataChanges: true}, s => cb(list(s)), err),
     fetchRange: async (from, to) => list(await F.getDocs(F.query(col('entries'), F.where('date', '>=', from), F.where('date', '<=', to)))),
     newId: () => F.doc(col('entries')).id,
     saveEntry: e => F.setDoc(F.doc(db, 'entries', e.id), clean(e)),
@@ -480,6 +487,8 @@ function demoAPI() {
   const T = (title, who, status, extra = {}) => { const id = 't' + (n++); tasks[id] = {id, date: today(), title, assignedTo: who, assignedName: who ? users[who].name : '', createdBy: 'u-papa', createdByName: 'Papa', createdAt: Date.now() - n * 6e5,
     status, done: status === 'done', hasVoice: false, hasPhoto: false, ...extra}; };
   T('bed ki repair karwani hai', 'u-ram', 'open');
+  [['Pooja thali', 'Pooja room', 'Mandir ke neeche wali drawer, left side'], ['Extra gas cylinder key', 'Kitchen', 'Fridge ke upar steel dabba'], ['Diwali diya box', 'Store room', 'Upar wali shelf, laal box'], ['Inverter warranty card', 'Hall', 'TV unit ki pehli drawer']]
+    .forEach(([name, room, place], k) => { const id = 'th' + k; entries[id] = {id, book: 'things', date: today(), name, room, place, note: '', hasPhoto: false, items: [], createdBy: 'u-2', createdByName: 'Mummy', createdAt: Date.now() - k * 9e6, updatedAt: Date.now() - k * 9e6, updatedByName: 'Mummy'}; });
   T('lawn ki ghaas kaatni hai', 'u-ram', 'working', {startedAt: Date.now() - 20 * 6e4, startedByName: 'Ramesh (worker)'});
   users['u-sunil'] = {name: 'Sunil (helper)', email: 'sunil@example.com', status: 'approved', role: 'member', createdAt: Date.now()};
   presence['u-ram'] = {name: 'Ramesh (worker)', at: Date.now() - 2 * 6e4, atHome: true, loc: 'on'};
@@ -502,6 +511,7 @@ function demoAPI() {
     updateUser: async (uid, p) => { Object.assign(users[uid], p); emit(); },
     watchEntries: (since, cb) => watch(() => cb(Object.values(entries).filter(e => e.date >= since).map(e => ({...e})))),
     watchCredits: cb => watch(() => cb(Object.values(entries).filter(e => e.status === 'credit').map(e => ({...e})))),
+    watchThings: cb => watch(() => cb(Object.values(entries).filter(e => e.book === 'things').map(e => ({...e})))),
     fetchRange: async (f, t) => Object.values(entries).filter(e => e.date >= f && e.date <= t).map(e => ({...e})),
     newId: () => 'e' + (n++),
     saveEntry: async e => { entries[e.id] = JSON.parse(JSON.stringify(e)); emit(); },
@@ -623,10 +633,18 @@ const D = {
   'Set your home location in the Users tab to see who is at home.': ['Kaun ghar par hai dekhne ke liye Users mein ghar ki location set karo.', 'કોણ ઘરે છે તે જોવા સભ્યો ટેબમાં ઘરનું લોકેશન સેટ કરો.'],
   'Home location saved': ['Ghar ki location save hui', 'ઘરનું લોકેશન સેવ થયું'], 'Finding location…': ['Location dhundh rahe…', 'લોકેશન શોધે છે…'], 'just now': ['abhi', 'હમણાં'],
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
+  'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Search: thali, keys, warranty…': ['Dhundho: thali, chaabi, warranty…', 'શોધો: થાળી, ચાવી, વોરંટી…'],
+  'Save where things are kept, with a photo.': ['Cheez kahan rakhi hai, photo ke saath save karo.', 'વસ્તુ ક્યાં મૂકી છે, ફોટા સાથે સેવ કરો.'], 'to add the first one.': ['pehli cheez jodne ke liye.', 'પહેલી વસ્તુ ઉમેરવા.'],
+  'Room': ['Kamra', 'રૂમ'], 'Kept at': ['Kahan rakha', 'ક્યાં મૂક્યું'], 'Updated by': ['Kisne badla', 'કોણે બદલ્યું'], '📍 I moved it – update place': ['📍 Jagah badli – nayi jagah likho', '📍 જગ્યા બદલી – નવી જગ્યા લખો'],
+  'Save a thing': ['Cheez save karo', 'વસ્તુ સેવ કરો'], 'New place': ['Nayi jagah', 'નવી જગ્યા'], 'What is it?': ['Kya cheez hai?', 'શું વસ્તુ છે?'], 'Exactly where?': ['Theek kahan?', 'ચોક્કસ ક્યાં?'],
+  'Photo of where it is kept': ['Jahan rakha hai uski photo', 'જ્યાં મૂક્યું છે તેનો ફોટો'], 'Write what it is': ['Kya cheez hai, likho', 'શું વસ્તુ છે તે લખો'], 'Delete this?': ['Ise hatana hai?', 'આ કાઢી નાખવું છે?'], '📷 Change': ['📷 Badlo', '📷 બદલો'],
+  'e.g. Pooja thali': ['jaise Pooja thali', 'દા.ત. પૂજાની થાળી'], 'e.g. Mandir ke neeche wali drawer, left side': ['jaise Mandir ke neeche wali drawer, left side', 'દા.ત. મંદિર નીચેનું ખાનું, ડાબી બાજુ'], 'Saved': ['Save ho gaya', 'સેવ થયું'],
+  'Pooja room': ['Pooja ghar', 'પૂજા રૂમ'], 'Kitchen': ['Rasoi', 'રસોડું'], 'Hall': ['Hall', 'હૉલ'], 'Bedroom': ['Bedroom', 'બેડરૂમ'], 'Store room': ['Store room', 'સ્ટોર રૂમ'], 'Bathroom': ['Bathroom', 'બાથરૂમ'],
+  'Terrace': ['Chhat', 'અગાસી'], 'Garage': ['Garage', 'ગેરેજ'], 'Office': ['Office', 'ઓફિસ'], 'Other': ['Aur', 'અન્ય'],
   'Too long. Keep voice notes under 1 minute.': ['Bahut lamba. 1 minute se kam rakho.', 'બહુ લાંબું. 1 મિનિટથી ઓછું રાખો.'], 'Name updated': ['Naam badal gaya', 'નામ બદલાયું'],
 };
 const PATTERNS = [
-  [/^by (.+)$/, ['$1 ne joda', '$1 એ ઉમેર્યું']],
+  [/^by (.+)$/, ['$1 ne joda', '$1 એ ઉમેર્યું']], [/^(\d+) things saved$/, ['$1 cheezein save', '$1 વસ્તુ સેવ']],
   [/^(\d+) min ago$/, ['$1 min pehle', '$1 મિનિટ પહેલાં']], [/^(\d+) h ago$/, ['$1 ghante pehle', '$1 કલાક પહેલાં']],
   [/^🏠 At home$/, ['🏠 Ghar par', '🏠 ઘરે']], [/^🚶 Outside$/, ['🚶 Bahar', '🚶 બહાર']], [/^Last seen (.+)$/, ['Aakhri baar $1', 'છેલ્લે $1']], [/^(🏠|🚶) Last seen (.+)$/, ['$1 Aakhri baar $2', '$1 છેલ્લે $2']],
   [/^📍 Location off$/, ['📍 Location band', '📍 લોકેશન બંધ']], [/^▶ Working since (.+)$/, ['▶ $1 se kaam chal raha', '▶ $1 થી કામ ચાલુ']],
@@ -720,7 +738,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '12 · no location';
+const APP_VERSION = '13 · where is it';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -752,6 +770,7 @@ const S = {
 
 function mergeEntries() {
   const m = new Map([...S.live, ...S.credits]);
+  for (const [k, e] of m) if (e.book === 'things') m.delete(k);
   S.entries = [...m.values()].sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || 0) - (a.createdAt || 0));
   S.rangeCache = null;
 }
@@ -873,8 +892,8 @@ function startApp() {
       `<button data-view="${v}"><span id="dot-${v}" class="dot hidden"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[v]}</svg>${l}</button>`).join('')}
   </div></nav>`;
   document.querySelector('nav').onclick = ev => { const b = ev.target.closest('[data-view]'); if (b) { S.view = b.dataset.view; render(); scrollTo(0, 0); } };
-  $('#backBtn').onclick = () => { S.view = 'home'; render(); scrollTo(0, 0); };
-  $('#fab').onclick = () => S.view === 'tasks' ? openTaskForm() : openForm(null, S.book);
+  $('#backBtn').onclick = () => { S.view = 'home'; S.q = ''; $('#search').value = ''; render(); scrollTo(0, 0); };
+  $('#fab').onclick = () => S.view === 'tasks' ? openTaskForm() : S.view === 'things' ? openThingForm() : openForm(null, S.book);
   $('#xlBtn').onclick = exportExcel;
   $('#mPrev').onclick = () => { S.month = monthStart(S.month + '-01', 1).slice(0, 7); ensureMonth(); render(); };
   $('#mNext').onclick = () => { S.month = monthStart(S.month + '-01', -1).slice(0, 7); ensureMonth(); render(); };
@@ -885,6 +904,8 @@ function startApp() {
   const err = e => toast(errText(e));
   S.unsub.push(api.watchEntries(S.since, list => { S.live = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
   S.unsub.push(api.watchCredits(list => { S.credits = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
+  S.things = [];
+  S.unsub.push(api.watchThings(list => { S.things = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); if (S.view === 'things' || S.view === 'home') render(); }, err));
   S.unsub.push(api.watchUsers(list => { S.users = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); render(); }, () => {}));
   S.unsub.push(api.watchSettings(d => { S.settings = d || {}; render(); }, () => {}));
   S.presence = new Map();
@@ -911,15 +932,16 @@ function updateSync() {
 
 function render() {
   if (!S.started || !$('#main')) return;
-  const v = S.view, inBook = v === 'book';
-  document.querySelectorAll('nav [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v || (inBook && b.dataset.view === 'home')));
-  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'ANP Accounts', tasks: 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account'}[v];
-  $('#backBtn').classList.toggle('hidden', !inBook);
+  const v = S.view, inBook = v === 'book', sub = inBook || v === 'things';
+  document.querySelectorAll('nav [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v || (sub && b.dataset.view === 'home')));
+  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'ANP Accounts', tasks: 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account', things: 'Where is it?'}[v];
+  $('#backBtn').classList.toggle('hidden', !sub);
   $('#monthnav').classList.toggle('hidden', !inBook);
-  $('#search').classList.toggle('hidden', !inBook || S.book === 'iron');
+  $('#search').classList.toggle('hidden', !(inBook && S.book !== 'iron') && v !== 'things');
+  $('#search').placeholder = v === 'things' ? tx('Search: thali, keys, warranty…') : tx('Search item…');
   $('#xlBtn').classList.toggle('hidden', v !== 'dash');
   $('#hdrLang').classList.toggle('hidden', v !== 'home');
-  $('#fab').classList.toggle('hidden', !(inBook || v === 'tasks'));
+  $('#fab').classList.toggle('hidden', !(sub || v === 'tasks'));
   $('#mLabel').textContent = monthLabel(S.month);
   const act = myTaskActions().length;
   $('#dot-tasks').textContent = act; $('#dot-tasks').classList.toggle('hidden', !act);
@@ -928,7 +950,8 @@ function render() {
   updateSync();
   if (v === 'dash') return renderDash();
   if (v === 'tasks') return renderTasks();
-  $('#main').innerHTML = v === 'home' ? homeHTML() : inBook ? (S.book === 'iron' ? ironHTML() : bookHTML()) : moreHTML();
+  $('#main').innerHTML = v === 'home' ? homeHTML() : v === 'things' ? thingsHTML() : inBook ? (S.book === 'iron' ? ironHTML() : bookHTML()) : moreHTML();
+  if (v === 'things') loadThumbs();
 }
 
 /* ================= home ================= */
@@ -949,6 +972,8 @@ function homeHTML() {
         <span class="bbadges">${due ? `<span class="badge b-credit">${money(due)} to pay</span>` : ''}${extra}</span></span>
       <span class="chev">›</span></button>`;
   }).join('')}</div>
+  <button class="bookbtn" data-goto="things"><span class="bicon thing">🔎</span><span class="bmain"><span class="bname">Where is it?</span>
+      <span class="bsub">${(S.things || []).length} things saved</span></span><span class="chev">›</span></button>
   ${acts ? `<button class="bookbtn small" data-goto="tasks"><span class="bicon">✅</span><span class="bmain"><span class="bname">${acts} task${acts === 1 ? '' : 's'} need you</span><span class="bsub">Open Tasks</span></span><span class="chev">›</span></button>` : ''}`;
 }
 
@@ -1089,6 +1114,91 @@ async function setUserRole(uid, role) {
   const u = S.users.find(x => x.uid === uid);
   if (!confirm(role === 'admin' ? `Make ${u?.name} an admin? Admins approve tasks, people and rates.` : `Remove admin rights from ${u?.name}?`)) return;
   try { await api.updateUser(uid, {role}); toast(role === 'admin' ? `${u?.name} is now an admin` : 'Admin removed'); } catch (e) { toast(errText(e)); }
+}
+
+/* ================= where is it? (household things) ================= */
+const ROOMS = ['Pooja room', 'Kitchen', 'Hall', 'Bedroom', 'Store room', 'Bathroom', 'Terrace', 'Garage', 'Office', 'Other'];
+const thumbCache = new Map();
+function thingsHTML() {
+  const q = S.q.trim().toLowerCase(), room = S.thingRoom || '';
+  let list = S.things || [];
+  if (room) list = list.filter(t => t.room === room);
+  if (q) list = list.filter(t => [t.name, t.place, t.room, t.note].some(v => v && String(v).toLowerCase().includes(q)));
+  const rooms = [...new Set((S.things || []).map(t => t.room).filter(Boolean))];
+  let html = rooms.length > 1 ? `<div class="chips"><button class="chip ${!room ? 'on' : ''}" data-troom="">All</button>${rooms.map(r => `<button class="chip ${room === r ? 'on' : ''}" data-troom="${esc(r)}">${esc(r)}</button>`).join('')}</div>` : '';
+  if (!list.length) return html + `<div class="empty"><div class="big">🔎</div>${(S.things || []).length ? 'Nothing matches that search.' : 'Save where things are kept, with a photo.<br>Tap <b>+</b> to add the first one.'}</div>`;
+  return html + list.map(t => `<button class="card thing" data-thing="${t.id}">
+      <div class="th-img" data-thumb="${t.hasPhoto ? t.id : ''}">${t.hasPhoto ? (thumbCache.get(t.id) ? `<img src="${thumbCache.get(t.id)}" alt="">` : '📷') : '📦'}</div>
+      <div class="main"><div class="t" data-nt>${esc(t.name)}</div>
+        <div class="s">📍 ${t.room ? `<b>${esc(t.room)}</b> · ` : ''}<span data-nt>${esc(t.place || '')}</span></div>
+        <div class="s">by ${esc(t.updatedByName || t.createdByName || '—')}</div></div></button>`).join('');
+}
+function loadThumbs() {
+  document.querySelectorAll('[data-thumb]').forEach(el => {
+    const id = el.dataset.thumb; if (!id || thumbCache.has(id)) return;
+    thumbCache.set(id, null);
+    api.getPhoto('th_' + id).then(d => { if (!d) return; thumbCache.set(id, d); document.querySelectorAll(`[data-thumb="${id}"]`).forEach(x => x.innerHTML = `<img src="${d}" alt="">`); }).catch(() => {});
+  });
+}
+const findThing = id => (S.things || []).find(t => t.id === id);
+function openThing(id) {
+  const t = findThing(id); if (!t) return;
+  const canDel = S.isAdmin || t.createdBy === S.user.uid;
+  openSheet(`<div class="sh-head"><button data-close>Close</button><h2>Where is it?</h2><button id="thEdit">Edit</button></div>
+    <div class="sh-body">
+      ${t.hasPhoto ? `<div class="fgroup" id="thPhoto"><p class="hint" style="margin:0">Loading photo…</p></div>` : ''}
+      <div class="fgroup"><div style="font-size:21px;font-weight:800" data-nt>${esc(t.name)}</div>
+        ${t.room ? `<div class="kv"><span>Room</span><span>${esc(t.room)}</span></div>` : ''}
+        <div class="kv"><span>Kept at</span><span data-nt>${esc(t.place || '—')}</span></div>
+        ${t.note ? `<div class="kv"><span>Notes</span><span data-nt>${esc(t.note)}</span></div>` : ''}
+        <div class="kv"><span>Updated by</span><span>${esc(t.updatedByName || t.createdByName || '—')} · ${shortDate(ds(new Date(t.updatedAt || t.createdAt)))}</span></div></div>
+      <button class="btn pri" id="thMoved">📍 I moved it – update place</button>
+      ${canDel ? `<button class="btn dan" id="thDel">Delete</button>` : ''}
+    </div>`);
+  if (t.hasPhoto) api.getPhoto('th_' + t.id).then(p => { const el = $('#thPhoto'); if (el) el.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="">` : '<p class="hint" style="margin:0">Photo still uploading.</p>'; }).catch(() => {});
+  $('#thEdit').onclick = () => openThingForm(t); $('#thMoved').onclick = () => openThingForm(t, true);
+  $('#thDel') && ($('#thDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(t.id).catch(e => toast(errText(e))); if (t.hasPhoto) api.deletePhoto('th_' + t.id).catch(() => {}); thumbCache.delete(t.id); closeSheet(); toast('Deleted'); });
+}
+function openThingForm(existing, moved) {
+  const t = existing ? {...strip(existing)} : {name: '', room: '', place: '', note: '', hasPhoto: false};
+  const photo = {changed: false, data: existing && thumbCache.get(existing.id) || null};
+  openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>${existing ? (moved ? 'New place' : 'Edit') : 'Save a thing'}</h2><button class="save" id="thSave">Save</button></div>
+    <div class="sh-body">
+      <div class="fgroup"><label class="flabel">What is it?</label><input class="field" id="thName" placeholder="e.g. Pooja thali" value="${esc(t.name)}" autocomplete="off" autocapitalize="sentences"></div>
+      <div class="fgroup"><label class="flabel">Room</label>
+        <div class="modes" id="thRooms">${ROOMS.map(r => `<button type="button" class="chip ${t.room === r ? 'on' : ''}" data-room="${r}">${r}</button>`).join('')}</div>
+        <label class="flabel" style="margin-top:6px">Exactly where?</label>
+        <textarea class="field" id="thPlace" rows="2" placeholder="e.g. Mandir ke neeche wali drawer, left side">${esc(t.place)}</textarea></div>
+      <div class="fgroup"><label class="flabel">Photo of where it is kept</label><div class="photo-box" id="thPh"></div></div>
+      <div class="fgroup"><label class="flabel">Notes (optional)</label><textarea class="field" id="thNote" rows="2" placeholder="Anything to remember">${esc(t.note || '')}</textarea></div>
+      <button class="btn pri" id="thSave2">Save</button>
+    </div>`);
+  let room = t.room;
+  $('#thRooms').onclick = ev => { const b = ev.target.closest('[data-room]'); if (!b) return; room = room === b.dataset.room ? '' : b.dataset.room;
+    $('#thRooms').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.room === room)); };
+  const draw = () => { const has = photo.data || (t.hasPhoto && !photo.changed);
+    $('#thPh').innerHTML = has ? `${photo.data ? `<img src="${photo.data}" alt="">` : '<span class="hint">Photo attached</span>'}<button type="button" class="pbtn" id="thPick">📷 Change</button><button type="button" class="pdel" id="thPhDel">Remove</button>`
+      : `<button type="button" class="pbtn" id="thPick">📷 Add photo</button>`;
+    $('#thPick').onclick = () => pickPhoto(false, d => { photo.data = d; photo.changed = true; draw(); });
+    $('#thPhDel') && ($('#thPhDel').onclick = () => { photo.data = null; photo.changed = true; draw(); }); };
+  draw();
+  if (existing && t.hasPhoto && !photo.data) api.getPhoto('th_' + t.id).then(d => { if (d && !photo.changed) { photo.data = d; draw(); } }).catch(() => {});
+  setTimeout(() => (moved ? $('#thPlace') : existing ? null : $('#thName'))?.focus(), 350);
+  const save = () => {
+    const name = $('#thName').value.trim(); if (!name) return toast('Write what it is');
+    const isNew = !t.id;
+    const out = {...t, book: 'things', name, room, place: $('#thPlace').value.trim(), note: $('#thNote').value.trim(), items: [], date: t.date || today(),
+      updatedAt: Date.now(), updatedByName: S.me.name};
+    if (isNew) Object.assign(out, {id: api.newId(), createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name});
+    if (photo.changed) {
+      out.hasPhoto = !!photo.data;
+      (photo.data ? api.savePhoto('th_' + out.id, photo.data) : api.deletePhoto('th_' + out.id)).catch(e => toast('Photo: ' + errText(e)));
+      if (photo.data) thumbCache.set(out.id, photo.data); else thumbCache.delete(out.id);
+    }
+    api.saveEntry(out).catch(e => toast(errText(e)));
+    closeSheet(); toast(isNew ? 'Saved' : 'Updated');
+  };
+  $('#thSave').onclick = save; $('#thSave2').onclick = save;
 }
 
 /* ================= sheet ================= */
@@ -1778,7 +1888,7 @@ async function rangeEntries() {
   if (from >= S.since) return S.entries.filter(e => e.date >= from && e.date <= to);
   const key = from + '|' + to;
   if (S.rangeCache?.key === key) return S.rangeCache.list;
-  const list = await api.fetchRange(from, to);
+  const list = (await api.fetchRange(from, to)).filter(e => e.book !== 'things');
   const m = new Map(list.map(e => [e.id, e]));
   S.entries.forEach(e => { if (e.date >= from && e.date <= to) m.set(e.id, e); });
   S.rangeCache = {key, list: [...m.values()]};
@@ -1881,7 +1991,9 @@ async function mainClick(ev) {
   const bk = t.closest('[data-book]'); if (bk) { S.book = bk.dataset.book; S.view = 'book'; S.filter = 'all'; S.q = ''; $('#search').value = ''; render(); return scrollTo(0, 0); }
   const o = t.closest('[data-open]'); if (o) return openDetail(o.dataset.open);
   const f = t.closest('[data-filter]'); if (f) { S.filter = f.dataset.filter; return render(); }
-  const g = t.closest('[data-goto]'); if (g) { S.view = g.dataset.goto; return render(); }
+  const g = t.closest('[data-goto]'); if (g) { S.view = g.dataset.goto; S.q = ''; $('#search').value = ''; render(); return scrollTo(0, 0); }
+  const th = t.closest('[data-thing]'); if (th) return openThing(th.dataset.thing);
+  const tr2 = t.closest('[data-troom]'); if (tr2) { S.thingRoom = tr2.dataset.troom; return render(); }
   if (t.closest('[data-rates]')) return openRateCard();
   const db = t.closest('[data-dbook]'); if (db) { S.dash.book = db.dataset.dbook; return renderDash(); }
   const p = t.closest('[data-preset]');
