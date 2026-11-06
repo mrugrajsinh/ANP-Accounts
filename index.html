@@ -163,6 +163,13 @@ table.items .a{text-align:right;font-weight:600;font-variant-numeric:tabular-num
 .tick{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;color:transparent;font-size:17px;font-weight:800}
 .trow.done .tick{background:var(--accent);color:var(--on-accent)}
 .trow .old{color:var(--red);font-weight:600}
+.trow .tr,.tsheet .tr{font-size:15px;color:var(--accent);margin-top:2px;font-weight:550}
+.trow.done .tr{color:var(--muted);text-decoration:line-through}
+.tr a{color:var(--accent)}
+.langs{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;align-items:center;scrollbar-width:none}
+.langs::-webkit-scrollbar{display:none}
+.langs small{color:var(--muted);font-weight:600;flex:none}
+.langs .chip{padding:5px 11px;font-size:13.5px}
 .daynav{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;margin:6px 0 12px;box-shadow:var(--shadow)}
 .daynav button{width:38px;height:38px;border-radius:50%;font-size:22px;color:var(--accent)}
 .daynav span{font-weight:650}
@@ -741,6 +748,39 @@ async function uploadOld(list) {
   toast(`Uploaded ${todo.length} bill(s)`);
 }
 
+/* ================= translation (Google Translate, no key) ================= */
+const LANGS = [['', 'Original'], ['en', 'English'], ['gu', 'ગુજરાતી'], ['hi', 'हिन्दी']];
+const TR = (() => { try { return JSON.parse(localStorage.getItem('trCache') || '{}'); } catch { return {}; } })();
+const trKey = (tl, txt) => tl + '|' + txt;
+let trSaveT;
+function trLang() { try { return localStorage.getItem('tLang') ?? 'en'; } catch { return 'en'; } }
+function trLink(tl, txt) { return `https://translate.google.com/?sl=auto&tl=${tl}&text=${encodeURIComponent(txt)}&op=translate`; }
+const trPending = new Set();
+async function translate(tl, txt) {
+  const k = trKey(tl, txt);
+  if (k in TR || trPending.has(k)) return TR[k];
+  trPending.add(k);
+  try {
+    const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${tl}&dt=t&q=${encodeURIComponent(txt)}`);
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    const out = (d[0] || []).map(x => x[0]).join('').trim();
+    TR[k] = {t: out, src: d[2] || ''};
+  } catch { TR[k] = {err: true}; }
+  trPending.delete(k);
+  clearTimeout(trSaveT); trSaveT = setTimeout(() => { try { const ks = Object.keys(TR); if (ks.length > 600) ks.slice(0, ks.length - 600).forEach(x => delete TR[x]); localStorage.setItem('trCache', JSON.stringify(TR)); } catch {} }, 500);
+  return TR[k];
+}
+// returns html for the translated line under a task title (or '' if not needed)
+function trLine(txt) {
+  const tl = trLang(); if (!tl || !txt) return '';
+  const c = TR[trKey(tl, txt)];
+  if (!c) { const k = trKey(tl, txt); if (!trPending.has(k)) translate(tl, txt).then(() => { clearTimeout(trLine._t); trLine._t = setTimeout(() => S.view === 'tasks' && render(), 60); }); return `<div class="tr">…</div>`; }
+  if (c.err) return `<div class="tr"><a href="${trLink(tl, txt)}" target="_blank" rel="noopener">Translate ↗</a></div>`;
+  if (!c.t || c.t.toLowerCase() === txt.toLowerCase() || c.src === tl) return '';
+  return `<div class="tr">${esc(c.t)}</div>`;
+}
+
 /* ================= tasks ================= */
 const timeStr = ms => ms ? new Date(ms).toLocaleTimeString('en-IN', {hour: 'numeric', minute: '2-digit'}) : '';
 function taskRow(t, carried) {
@@ -752,7 +792,7 @@ function taskRow(t, carried) {
   if (t._pending) bits.push('syncing');
   return `<div class="trow ${t.done ? 'done' : ''}" data-task="${t.id}">
     <button class="tick" data-tick="${t.id}" aria-label="${t.done ? 'Done' : 'Mark done'}">✓</button>
-    <div class="main"><div class="t">${esc(t.title)}</div><div class="s">${bits.join(' · ')}</div></div></div>`;
+    <div class="main"><div class="t">${esc(t.title)}</div>${trLine(t.title)}${t.done && t.note ? `<div class="s">📝 ${esc(t.note)}</div>` : ''}<div class="s">${bits.join(' · ')}</div></div></div>`;
 }
 function tasksHTML() {
   const d = S.taskDay, t = today(), isToday = d === t;
@@ -764,13 +804,14 @@ function tasksHTML() {
   const label = isToday ? 'Today' : d === addDays(t, 1) ? 'Tomorrow' : d === addDays(t, -1) ? 'Yesterday' : '';
   return `
     <div class="daynav"><button data-tday="-1" aria-label="Previous day">‹</button><span>${label ? label + ' · ' : ''}${prettyDate(d)}</span><button data-tday="1" aria-label="Next day">›</button></div>
+    <div class="langs"><small>Show in</small>${LANGS.map(([c, l]) => `<button class="chip ${trLang() === c ? 'on' : ''}" data-tlang="${c}">${l}</button>`).join('')}</div>
     <div class="stats">
       <div class="stat ${open.length ? 'warn' : ''}"><small>To do</small><b>${open.length}</b></div>
       <div class="stat"><small>Done</small><b style="color:var(--accent)">${done.length}</b></div>
     </div>
     <div class="fgroup">
       <label class="flabel">Add a task for ${label ? label.toLowerCase() : shortDate(d)}</label>
-      <input class="field" id="tNew" placeholder="e.g. Pay electricity bill" autocomplete="off" autocapitalize="sentences" enterkeyhint="done">
+      <input class="field" id="tNew" placeholder="Any language: e.g. bijli ka bill bharna" autocomplete="off" autocapitalize="sentences" enterkeyhint="done">
       <div class="row2" style="margin-top:8px;align-items:center">
         <select class="field" id="tWho"><option value="">For anyone</option>${people.map(u => `<option value="${u.uid}">For ${esc(u.name)}</option>`).join('')}</select>
         <button class="btn pri" id="tAdd" style="margin:0">Add task</button>
@@ -815,7 +856,8 @@ function openTask(id) {
   const canEdit = S.isAdmin || t.createdBy === S.user.uid;
   openSheet(`<div class="sh-head"><button data-close>Close</button><h2>Task</h2>${canEdit ? `<button id="tEdit">Edit</button>` : '<span></span>'}</div>
     <div class="sh-body">
-      <div class="fgroup"><div style="font-size:19px;font-weight:700">${esc(t.title)}</div>
+      <div class="fgroup tsheet"><div style="font-size:19px;font-weight:700">${esc(t.title)}</div>
+        <div id="tTrans" style="margin:6px 0 4px"></div>
         <div class="kv"><span>Day</span><span>${prettyDate(t.date)}</span></div>
         ${t.assignedName ? `<div class="kv"><span>For</span><span>${esc(t.assignedName)}</span></div>` : ''}
         <div class="kv"><span>Added by</span><span>${esc(t.createdByName || '—')}</span></div>
@@ -826,6 +868,14 @@ function openTask(id) {
       ${t.done ? `<button class="btn sec" id="tUndo">Undo (mark not done)</button>` : `<button class="btn pri" id="tMark">✓ Mark as done</button>`}
       ${canEdit ? `<button class="btn dan" id="tDel">Delete task</button>` : ''}
     </div>`);
+  (async () => {
+    const box = $('#tTrans'); if (!box) return;
+    const rows = await Promise.all([['en', 'English'], ['gu', 'ગુજરાતી'], ['hi', 'हिन्दी']].map(async ([c, l]) => { const r = await translate(c, t.title); return [c, l, r]; }));
+    if (!$('#tTrans')) return;
+    const ok = rows.filter(([c, , r]) => r && !r.err && r.t && r.t.toLowerCase() !== t.title.toLowerCase());
+    box.innerHTML = ok.length ? ok.map(([c, l, r]) => `<div class="kv"><span>${l}</span><span class="tr" style="margin:0">${esc(r.t)}</span></div>`).join('')
+      : `<a class="hint" href="${trLink('en', t.title)}" target="_blank" rel="noopener" style="color:var(--accent)">Open in Google Translate ↗</a>`;
+  })();
   if (t.hasPhoto) api.getPhoto('task_' + t.id).then(p => { const el = $('#tPhotoSlot'); if (el) el.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="Task photo">` : '<p class="hint" style="margin:0">Photo still uploading.</p>'; }).catch(() => {});
   $('#tMark') && ($('#tMark').onclick = () => openTaskDone(id));
   $('#tUndo') && ($('#tUndo').onclick = () => { api.saveTask({...strip(t), done: false, doneBy: null, doneByName: null, doneAt: null, doneDate: null}).catch(e => toast(errText(e))); closeSheet(); });
@@ -1308,6 +1358,7 @@ async function mainClick(ev) {
   if (t.closest('#migrateBtn')) return uploadOld(await readOldLocal());
   const td = t.closest('[data-tday]'); if (td) { const n = +td.dataset.tday; S.taskDay = n === 0 ? today() : addDays(S.taskDay, n); return render(); }
   if (t.closest('#tAdd')) return addTask();
+  const tl = t.closest('[data-tlang]'); if (tl) { try { localStorage.setItem('tLang', tl.dataset.tlang); } catch {} return render(); }
   const tk = t.closest('[data-tick]'); if (tk) { const x = findTask(tk.dataset.tick); return x && x.done ? openTask(x.id) : openTaskDone(tk.dataset.tick); }
   const tr = t.closest('[data-task]'); if (tr) return openTask(tr.dataset.task);
   if (t.closest('#savePress')) {
