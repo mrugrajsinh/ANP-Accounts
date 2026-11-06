@@ -62,6 +62,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // ----- who is at home (only at-home yes/no + time, written by each person for themselves) -----
+    match /presence/{uid} {
+      allow read: if approved();
+      allow write: if approved() && request.auth.uid == uid;
+    }
+
     match /photos/{id} {
       allow read, write: if approved();
     }

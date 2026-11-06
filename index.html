@@ -328,6 +328,21 @@ nav{background:color-mix(in srgb,var(--card) 92%,transparent)}
 .langsw button{padding:6px 10px;border-radius:999px;font-size:13px;font-weight:700;color:var(--muted)}
 .langsw button.on{background:var(--accent);color:var(--on-accent)}
 .fgroup .langsw{display:flex;margin:2px 0 4px}.fgroup .langsw button{flex:1;padding:9px 6px;font-size:14.5px}
+.team{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;margin:0 0 12px;box-shadow:var(--shadow)}
+.team summary{font-weight:800;font-size:16px;cursor:pointer;list-style:none;padding:2px 0}
+.team summary::-webkit-details-marker{display:none}
+.tmrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);width:100%;text-align:left}
+.tmrow .main{flex:1;min-width:0}.tmrow .t{font-weight:700}
+.tmline{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px}.tmline .badge{margin:0}
+.tmrow .badge{white-space:nowrap}
+.tmrow.pick{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.tmrow.pick.cur{border-color:var(--accent)}
+.trow.urgent{border:2px solid var(--red)}
+.trow.working{border-color:var(--amber)}
+.trow.working .tick{border-color:var(--amber);color:var(--amber);font-size:13px}
+b.working{color:var(--amber)}
+.urg{display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:700;color:var(--red)}
+.urg input{width:20px;height:20px;accent-color:var(--red)}
 </style>
 </head>
 <body>
@@ -430,13 +445,15 @@ async function firebaseAPI(cfg) {
     saveTask: t => F.setDoc(F.doc(db, 'tasks', t.id), clean(t)),
     deleteTask: id => F.deleteDoc(F.doc(db, 'tasks', id)),
     watchSettings: (cb, err) => F.onSnapshot(F.doc(db, 'settings', 'app'), s => cb(s.exists() ? s.data() : {}), err),
+    watchPresence: (cb, err) => F.onSnapshot(col('presence'), s => cb(s.docs.map(d => ({uid: d.id, ...d.data()}))), err),
+    setPresence: (uid, d) => F.setDoc(F.doc(db, 'presence', uid), d, {merge: true}),
     saveSettings: p => F.setDoc(F.doc(db, 'settings', 'app'), p, {merge: true}),
   };
 }
 
 /* ================= data layer: demo mode (?demo) for trying it out ================= */
 function demoAPI() {
-  const listeners = new Set(), users = {}, entries = {}, photos = {}, tasks = {};
+  const listeners = new Set(), users = {}, entries = {}, photos = {}, tasks = {}, presence = {};
   const settings = {ironRates: [{cat: 'Shirt', wash: 15, iron: 8}, {cat: 'Pant', wash: 15, iron: 8}, {cat: 'Saree', wash: 40, iron: 20}, {cat: 'Kurta', wash: 20, iron: 10}, {cat: 'Bedsheet', wash: 30, iron: 15}]};
   const me = {uid: 'u-admin', email: ADMIN || 'admin@example.com', emailVerified: true, name: 'Mrugraj'};
   users['u-admin'] = {name: 'Mrugraj', email: me.email, status: 'approved', role: 'admin', createdAt: Date.now()};
@@ -463,6 +480,12 @@ function demoAPI() {
   const T = (title, who, status, extra = {}) => { const id = 't' + (n++); tasks[id] = {id, date: today(), title, assignedTo: who, assignedName: who ? users[who].name : '', createdBy: 'u-papa', createdByName: 'Papa', createdAt: Date.now() - n * 6e5,
     status, done: status === 'done', hasVoice: false, hasPhoto: false, ...extra}; };
   T('bed ki repair karwani hai', 'u-ram', 'open');
+  T('lawn ki ghaas kaatni hai', 'u-ram', 'working', {startedAt: Date.now() - 20 * 6e4, startedByName: 'Ramesh (worker)'});
+  users['u-sunil'] = {name: 'Sunil (helper)', email: 'sunil@example.com', status: 'approved', role: 'member', createdAt: Date.now()};
+  presence['u-ram'] = {name: 'Ramesh (worker)', at: Date.now() - 2 * 6e4, atHome: true, loc: 'on'};
+  presence['u-sunil'] = {name: 'Sunil (helper)', at: Date.now() - 4 * 6e4, atHome: true, loc: 'on'};
+  presence['u-2'] = {name: 'Mummy', at: Date.now() - 50 * 6e4, atHome: false, loc: 'on'};
+  settings.home = {lat: 22.7, lng: 71.6, r: 150};
   T('Pay electricity bill', 'u-2', 'review', {hasProof: true, submittedBy: 'u-2', submittedByName: 'Mummy', submittedAt: Date.now() - 3e6, proofNote: 'Paid ₹1,240 by UPI'});
   T('aangan ki safai', 'u-ram', 'open', {declinedAt: Date.now() - 2e6, declinedBy: 'u-papa', declinedByName: 'Papa', declineNote: 'corner abhi bhi ganda hai'});
   T('Water the plants', 'u-ram', 'done', {approvedBy: 'u-papa', approvedByName: 'Papa', approvedAt: Date.now() - 5e6, doneDate: today()});
@@ -485,6 +508,8 @@ function demoAPI() {
     deleteEntry: async id => { delete entries[id]; emit(); },
     savePhoto: async (id, d) => { photos[id] = d; }, getPhoto: async id => photos[id] || null, deletePhoto: async id => { delete photos[id]; },
     watchSettings: cb => watch(() => cb({...settings})),
+    watchPresence: cb => watch(() => cb(Object.entries(presence).map(([uid, p]) => ({uid, ...p})))),
+    setPresence: async (uid, d) => { presence[uid] = {...(presence[uid] || {}), ...d}; emit(); },
     watchTasks: (since, cb) => watch(() => cb(Object.values(tasks).filter(t => t.date >= since).map(t => ({...t})))),
     watchOpenTasks: cb => watch(() => cb(Object.values(tasks).filter(t => !t.done).map(t => ({...t})))),
     newTaskId: () => 't' + (n++),
@@ -585,10 +610,27 @@ const D = {
   'Delete this entry for everyone?': ['Yeh entry sab ke liye hatani hai?', 'આ એન્ટ્રી બધા માટે કાઢી નાખવી છે?'], 'Delete this task?': ['Yeh kaam hatana hai?', 'આ કામ કાઢી નાખવું છે?'], 'Edit task': ['Kaam badlo', 'કામ સુધારો'], 'Your name': ['Aapka naam', 'તમારું નામ'],
   'to pay': ['dena baaki', 'ચૂકવવાના બાકી'], '↺ Redo:': ['↺ Phir se karo:', '↺ ફરી કરો:'], 'Add to Home Screen': ['Add to Home Screen', 'Add to Home Screen (હોમ સ્ક્રીન પર ઉમેરો)'],
   'Add to Home screen': ['Add to Home screen', 'Add to Home screen (હોમ સ્ક્રીન પર ઉમેરો)'],
+  '👷 Team right now': ['👷 Team abhi', '👷 ટીમ અત્યારે'], 'busy': ['kaam par', 'કામમાં'], 'free': ['khaali', 'ફ્રી'], '🟢 Free': ['🟢 Khaali', '🟢 ફ્રી'], '🔴 Busy': ['🔴 Kaam par', '🔴 કામમાં'],
+  'Not opened app yet': ['App abhi nahi khola', 'એપ હજુ ખોલી નથી'], '▶ Start now': ['▶ Abhi shuru karo', '▶ હમણાં શરૂ કરો'], '⏸ Not started yet': ['⏸ Abhi shuru nahi kiya', '⏸ હજુ શરૂ નથી કર્યું'],
+  '🔁 Give to someone else': ['🔁 Kisi aur ko do', '🔁 બીજાને આપો'], 'Give to someone else': ['Kisi aur ko do', 'બીજાને આપો'], '🚨 Urgent': ['🚨 Jaldi', '🚨 તાત્કાલિક'],
+  '🚨 Urgent – do it now': ['🚨 Jaldi – abhi karo', '🚨 તાત્કાલિક – હમણાં કરો'], 'Everyone is busy right now': ['Abhi sab kaam par hain', 'અત્યારે બધા કામમાં છે'], 'Started': ['Shuru ho gaya', 'શરૂ થયું'],
+  'Given to': ['Diya gaya:', 'આપ્યું:'], 'No team members yet.': ['Abhi koi team member nahi.', 'હજુ કોઈ ટીમ સભ્ય નથી.'], '🏠 Home location': ['🏠 Ghar ki location', '🏠 ઘરનું લોકેશન'],
+  "📍 Set home location (I'm at home now)": ['📍 Ghar ki location set karo (main ghar par hoon)', '📍 ઘરનું લોકેશન સેટ કરો (હું ઘરે છું)'],
+  'Saved. Team members show as “At home” within about 150 m of it.': ['Save hai. 150 m ke andar team "Ghar par" dikhegi.', 'સેવ છે. 150 મીટરની અંદર ટીમ "ઘરે" દેખાશે.'],
+  'Not set yet. Stand inside the house and tap the button.': ['Abhi set nahi. Ghar ke andar khade hokar button dabao.', 'હજુ સેટ નથી. ઘરની અંદર ઊભા રહી બટન દબાવો.'],
+  '📍 Location': ['📍 Location', '📍 લોકેશન'], 'While this app is open, it tells the admins only whether you are at home or outside. Your exact location is never shown.': ['App khula ho tab admin ko sirf itna dikhta hai ki aap ghar par ho ya bahar. Aapki exact location kabhi nahi dikhti.', 'એપ ખુલ્લી હોય ત્યારે એડમિનને ફક્ત એટલું દેખાય છે કે તમે ઘરે છો કે બહાર. તમારું ચોક્કસ લોકેશન ક્યારેય દેખાતું નથી.'],
+  'Set your home location in the Users tab to see who is at home.': ['Kaun ghar par hai dekhne ke liye Users mein ghar ki location set karo.', 'કોણ ઘરે છે તે જોવા સભ્યો ટેબમાં ઘરનું લોકેશન સેટ કરો.'],
+  'Home location saved': ['Ghar ki location save hui', 'ઘરનું લોકેશન સેવ થયું'], 'Finding location…': ['Location dhundh rahe…', 'લોકેશન શોધે છે…'], 'just now': ['abhi', 'હમણાં'],
+  'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Too long. Keep voice notes under 1 minute.': ['Bahut lamba. 1 minute se kam rakho.', 'બહુ લાંબું. 1 મિનિટથી ઓછું રાખો.'], 'Name updated': ['Naam badal gaya', 'નામ બદલાયું'],
 };
 const PATTERNS = [
   [/^by (.+)$/, ['$1 ne joda', '$1 એ ઉમેર્યું']],
+  [/^(\d+) min ago$/, ['$1 min pehle', '$1 મિનિટ પહેલાં']], [/^(\d+) h ago$/, ['$1 ghante pehle', '$1 કલાક પહેલાં']],
+  [/^🏠 At home$/, ['🏠 Ghar par', '🏠 ઘરે']], [/^🚶 Outside$/, ['🚶 Bahar', '🚶 બહાર']], [/^Last seen (.+)$/, ['Aakhri baar $1', 'છેલ્લે $1']], [/^(🏠|🚶) Last seen (.+)$/, ['$1 Aakhri baar $2', '$1 છેલ્લે $2']],
+  [/^📍 Location off$/, ['📍 Location band', '📍 લોકેશન બંધ']], [/^▶ Working since (.+)$/, ['▶ $1 se kaam chal raha', '▶ $1 થી કામ ચાલુ']],
+  [/^Suggested: (.+)$/, ['Sujhav: $1', 'સૂચન: $1']], [/^(\d+) to do$/, ['$1 karna hai', '$1 કરવાનું']],
+  [/^🚨 Urgent task from (.+?): (.+)$/, ['🚨 $1 ka jaldi wala kaam: $2', '🚨 $1 નું તાત્કાલિક કામ: $2']],
   [/^for (.+)$/, ['$1 ke liye', '$1 માટે']],
   [/^Sent by (.+)$/, ['$1 ne bheja', '$1 એ મોકલ્યું']],
   [/^Approved by (.+)$/, ['$1 ne approve kiya', '$1 એ મંજૂર કર્યું']],
@@ -677,7 +719,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '9 · voice reply';
+const APP_VERSION = '10 · team';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -844,6 +886,9 @@ function startApp() {
   S.unsub.push(api.watchCredits(list => { S.credits = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
   S.unsub.push(api.watchUsers(list => { S.users = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); render(); }, () => {}));
   S.unsub.push(api.watchSettings(d => { S.settings = d || {}; render(); }, () => {}));
+  S.presence = new Map();
+  S.unsub.push(api.watchPresence(l => { S.presence = new Map(l.map(p => [p.uid, p])); if (S.view === 'tasks') render(); }, () => {}));
+  startPresence();
   const mergeTasks = () => { S.taskList = [...new Map([...S.tLive, ...S.tOpen]).values()]; taskAlerts(); render(); };
   S.unsub.push(api.watchTasks(S.since, l => { S.tLive = new Map(l.map(t => [t.id, t])); mergeTasks(); }, err));
   S.unsub.push(api.watchOpenTasks(l => { S.tOpen = new Map(l.map(t => [t.id, t])); mergeTasks(); }, err));
@@ -1030,6 +1075,10 @@ function moreHTML() {
       }).join('')}</div>`;
     }
   }
+  if (S.isAdmin) html += `<div class="fgroup"><h3>🏠 Home location</h3>
+      <p>${S.settings?.home ? 'Saved. Team members show as “At home” within about 150 m of it.' : 'Not set yet. Stand inside the house and tap the button.'}</p>
+      <button class="btn sec" id="setHomeBtn">📍 Set home location (I'm at home now)</button></div>`;
+  else html += `<div class="fgroup"><h3>📍 Location</h3><p>While this app is open, it tells the admins only whether you are at home or outside. Your exact location is never shown.</p></div>`;
   if (!standalone) html += `<div class="fgroup"><h3>Add to home screen</h3><ol><li>iPhone: open in <b>Safari</b> → <b>Share</b> → <b>Add to Home Screen</b>.</li><li>Android: open in <b>Chrome</b> → <b>⋮</b> → <b>Add to Home screen</b>.</li></ol></div>`;
   return html + `</div>`;
 }
@@ -1428,16 +1477,72 @@ const timeStr = ms => ms ? new Date(ms).toLocaleTimeString('en-IN', {hour: 'nume
 const tStatus = t => t.status || (t.done ? 'done' : 'open');
 const findTask = id => S.taskList.find(x => x.id === id);
 const isMine = t => !t.assignedTo || t.assignedTo === S.user?.uid;
+const openish = st => st === 'open' || st === 'working';
 function myTaskActions() {
   if (!S.user) return [];
   const t = today();
-  return S.taskList.filter(x => (S.isAdmin && tStatus(x) === 'review') || (tStatus(x) === 'open' && x.date <= t && isMine(x) && (x.assignedTo || !S.isAdmin)));
+  return S.taskList.filter(x => (S.isAdmin && tStatus(x) === 'review') || (openish(tStatus(x)) && x.date <= t && isMine(x) && (x.assignedTo || !S.isAdmin)));
+}
+/* ---- team: who is busy / free, at home or not (location checked only while their app is open) ---- */
+const HOME_R = 150;
+function distM(a, b) { const R = 6371000, r = x => x * Math.PI / 180, dLat = r(b.lat - a.lat), dLng = r(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLng / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); }
+function agoText(ms) { if (!ms) return ''; const m = Math.round((Date.now() - ms) / 6e4);
+  return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : shortDate(ds(new Date(ms))); }
+function personState(uid) {
+  const busy = S.taskList.find(t => tStatus(t) === 'working' && t.assignedTo === uid);
+  const todo = S.taskList.filter(t => tStatus(t) === 'open' && t.assignedTo === uid && t.date <= today()).length;
+  const p = S.presence?.get(uid), fresh = p && Date.now() - p.at < 15 * 6e4;
+  const where = !p ? 'never' : p.loc === 'off' ? 'off' : p.atHome === true ? 'home' : p.atHome === false ? 'out' : 'seen';
+  return {busy, todo, p, fresh, where, available: !busy && where === 'home' && fresh};
+}
+function whereChip(s) {
+  if (s.where === 'never') return `<span class="badge b-mute">Not opened app yet</span>`;
+  const ago = agoText(s.p.at);
+  if (s.where === 'off') return `<span class="badge b-mute">📍 Location off · ${ago}</span>`;
+  if (s.where === 'seen') return `<span class="badge b-mute">Last seen ${ago}</span>`;
+  if (!s.fresh) return `<span class="badge b-mute">${s.where === 'home' ? '🏠' : '🚶'} Last seen ${ago}</span>`;
+  return s.where === 'home' ? `<span class="badge b-paid">🏠 At home · ${ago}</span>` : `<span class="badge b-credit">🚶 Outside · ${ago}</span>`;
+}
+function teamPeople() { return S.users.filter(u => u.status === 'approved' && u.uid !== S.user.uid && !(u.role === 'admin' || (u.email || '').toLowerCase() === ADMIN)); }
+function rankPeople() {
+  return teamPeople().map(u => ({u, s: personState(u.uid)}))
+    .sort((a, b) => (b.s.available - a.s.available) || (!a.s.busy - !b.s.busy) * -1 || (a.s.todo - b.s.todo) || (a.u.name || '').localeCompare(b.u.name || ''));
+}
+function teamHTML() {
+  const ppl = rankPeople(); if (!ppl.length) return '';
+  return `<details class="team" ${S.teamOpen === false ? '' : 'open'}><summary>👷 Team right now</summary>
+    ${ppl.map(({u, s}) => `<div class="tmrow"><div class="main"><div class="t"><span data-nt>${esc(u.name)}</span></div>
+      <div class="tmline">${s.busy ? `<span class="badge b-over">🔴 Busy</span> <span class="hint" style="margin:0" data-nt>${esc(s.busy.title)}</span>` : `<span class="badge b-paid">🟢 Free</span>`}${s.todo ? ` <span class="hint" style="margin:0">· ${s.todo} to do</span>` : ''}</div></div>
+      <div>${whereChip(s)}</div></div>`).join('')}
+    ${!S.settings?.home ? `<p class="hint">Set your home location in the Users tab to see who is at home.</p>` : ''}
+  </details>`;
+}
+function personOptLabel(u) {
+  const s = personState(u.uid);
+  return `${u.name} · ${s.busy ? '🔴 ' + tx('busy') : '🟢 ' + tx('free')}${s.fresh && s.where === 'home' ? ' · 🏠' : s.fresh && s.where === 'out' ? ' · 🚶' : ''}`;
+}
+let presT;
+function startPresence() {
+  clearInterval(presT);
+  const tick = () => {
+    if (document.hidden || !S.user || !S.me || S.isAdmin) return;   // only workers / members share presence
+    const base = {name: S.me.name || '', at: Date.now()}, home = S.settings?.home;
+    if (!navigator.geolocation || !home) { api.setPresence(S.user.uid, base).catch(() => {}); return; }
+    navigator.geolocation.getCurrentPosition(pos => {
+      const d = distM(home, {lat: pos.coords.latitude, lng: pos.coords.longitude});
+      const atHome = d <= (home.r || HOME_R) + Math.min(pos.coords.accuracy || 0, 100);
+      api.setPresence(S.user.uid, {...base, atHome, loc: 'on'}).catch(() => {});
+    }, () => api.setPresence(S.user.uid, {...base, atHome: null, loc: 'off'}).catch(() => {}), {enableHighAccuracy: true, maximumAge: 60000, timeout: 20000});
+  };
+  setTimeout(tick, 2500); presT = setInterval(tick, 120000);
+  if (!startPresence.bound) { startPresence.bound = true; document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); }); }
 }
 
 // in-app alerts (+ phone notification when allowed) for task changes made by others
 function taskAlerts() {
   if (!S.user) return;
-  const sig = t => tStatus(t) + '|' + (t.declinedAt || 0);
+  const sig = t => tStatus(t) + '|' + (t.declinedAt || 0) + '|' + (t.assignedTo || '');
   let seen; try { seen = JSON.parse(localStorage.getItem('taskSeen') || 'null'); } catch { seen = null; }
   const first = !S.taskSeenInit; S.taskSeenInit = true;
   const now = {}, msgs = [];
@@ -1446,7 +1551,8 @@ function taskAlerts() {
     if (!seen || seen[t.id] === now[t.id] || t._pending) continue;
     const st = tStatus(t), by = t.updatedBy || t.createdBy;
     if (by === S.user.uid) continue;
-    if (!(t.id in seen) && st === 'open' && isMine(t)) msgs.push(`New task from ${t.createdByName}: ${t.title}`);
+    const newForMe = isMine(t) && openish(st) && (!(t.id in seen) || String(seen[t.id]).split('|')[2] !== (t.assignedTo || ''));
+    if (newForMe && st === 'open' && !t.declinedAt) msgs.push(`${t.urgent ? '🚨 Urgent task' : 'New task'} from ${t.reassignedByName || t.createdByName}: ${t.title}`);
     else if (st === 'review' && S.isAdmin) msgs.push(`${t.submittedByName || 'Someone'} finished: ${t.title}. Please approve.`);
     else if (st === 'open' && t.declinedAt && isMine(t)) msgs.push(`Redo: ${t.title} (${t.declinedByName})`);
     else if (st === 'done' && t.submittedBy === S.user.uid) msgs.push(`Approved ✓ ${t.title}`);
@@ -1472,12 +1578,13 @@ function taskRow(t, carried) {
   if (carried && st !== 'done') bits.push(`<span class="old">from ${shortDate(t.date)}</span>`);
   if (st === 'review') bits.splice(0, bits.length, `Sent by ${esc(t.submittedByName || '—')} · ${timeStr(t.submittedAt)}`);
   if (st === 'done') bits.splice(0, bits.length, `Approved by ${esc(t.approvedByName || '—')}`);
+  if (st === 'working') bits.unshift(`<b class="working">▶ Working since ${timeStr(t.startedAt)}</b>`);
   if (t._pending) bits.push('syncing');
-  const icon = st === 'done' ? '✓' : st === 'review' ? '⏳' : '';
-  return `<div class="trow ${st}" data-task="${t.id}">
+  const icon = st === 'done' ? '✓' : st === 'review' ? '⏳' : st === 'working' ? '▶' : '';
+  return `<div class="trow ${st}${t.urgent && st !== 'done' ? ' urgent' : ''}" data-task="${t.id}">
     <span class="tick">${icon}</span>
-    <div class="main"><div class="t" data-nt>${esc(t.title)}</div>${trLine(t.title)}
-      ${st === 'open' && t.declinedAt ? `<div class="redo">↺ Redo${t.declineNote ? `: <span data-nt>${esc(t.declineNote)}</span>` : ''}</div>` : ''}
+    <div class="main">${t.urgent && st !== 'done' ? '<span class="badge b-over" style="margin:0 0 3px">🚨 Urgent</span>' : ''}<div class="t" data-nt>${esc(t.title)}</div>${trLine(t.title)}
+      ${openish(st) && t.declinedAt ? `<div class="redo">↺ Redo${t.declineNote ? `: <span data-nt>${esc(t.declineNote)}</span>` : ''}</div>` : ''}
       <div class="s">${t.hasVoice && !t.title.startsWith('🎤') ? '🎤 ' : ''}${t.hasPhoto ? '📷 ' : ''}${t.proofVoice && st !== 'open' ? '🗣 ' : ''}${bits.join(' · ')}</div></div>
     <span class="chev">›</span></div>`;
 }
@@ -1486,7 +1593,8 @@ function renderTasks() {
   const active = x => tStatus(x) !== 'done';
   const carry = isToday ? S.taskList.filter(x => active(x) && x.date < t) : [];
   const dayAll = [...carry, ...S.taskList.filter(x => x.date === d && active(x))].sort((a, b) => a.date.localeCompare(b.date) || (a.createdAt || 0) - (b.createdAt || 0));
-  const review = dayAll.filter(x => tStatus(x) === 'review'), open = dayAll.filter(x => tStatus(x) === 'open');
+  const rank = x => (x.urgent ? 0 : 2) + (tStatus(x) === 'working' ? 0 : 1);
+  const review = dayAll.filter(x => tStatus(x) === 'review'), open = dayAll.filter(x => openish(tStatus(x))).sort((a, b) => rank(a) - rank(b));
   const done = S.taskList.filter(x => tStatus(x) === 'done' && (x.doneDate === d || (x.date === d && !x.doneDate))).sort((a, b) => (b.approvedAt || 0) - (a.approvedAt || 0));
   const label = isToday ? 'Today' : d === addDays(t, 1) ? 'Tomorrow' : d === addDays(t, -1) ? 'Yesterday' : '';
   $('#main').innerHTML = `
@@ -1496,6 +1604,7 @@ function renderTasks() {
       <div class="stat"><small>Check</small><b style="color:var(--amber)">${review.length}</b></div>
       <div class="stat"><small>Done</small><b style="color:var(--accent)">${done.length}</b></div>
     </div>
+    ${S.isAdmin && isToday ? teamHTML() : ''}
     <button class="btn pri" data-newtask style="margin:0 0 6px">＋ New task${isToday ? '' : ' for ' + shortDate(d)}</button>
     ${!isToday ? `<button class="chip" data-tday="0" style="margin:6px 0">↩ Back to today</button>` : ''}
     ${review.length ? `<div class="section-t">${S.isAdmin ? 'Waiting for your approval' : 'Waiting for approval'} (${review.length})</div>` + review.map(x => taskRow(x, x.date < d)).join('') : ''}
@@ -1506,6 +1615,7 @@ function renderTasks() {
 
 function openTaskForm() {
   const people = S.users.filter(u => u.status === 'approved' || u.role === 'admin');
+  const team = rankPeople(), others = people.filter(u => !team.some(x => x.u.uid === u.uid));
   const voice = {data: null}, photo = {data: null};
   let touched = false;
   openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>New task</h2><button class="save" id="ntSave">Add</button></div>
@@ -1514,13 +1624,22 @@ function openTaskForm() {
       <div class="fgroup"><label class="flabel">Task</label>
         <textarea class="field" id="ntTitle" rows="2" placeholder="Type in any language, e.g. bed theek karwana hai"></textarea>
         <div class="row2" style="margin-top:10px">
-          <div><label class="flabel">For</label><select class="field" id="ntWho"><option value="">Anyone</option>${people.map(u => `<option value="${u.uid}">${esc(u.name)}</option>`).join('')}</select></div>
-          <div><label class="flabel">Day</label><input type="date" class="field" id="ntDate" value="${S.taskDay}"></div></div></div>
+          <div><label class="flabel">For</label><select class="field" id="ntWho" data-nt><option value="">${tx('Anyone')}</option>${team.map(({u}) => `<option value="${u.uid}">${esc(personOptLabel(u))}</option>`).join('')}${others.map(u => `<option value="${u.uid}">${esc(u.name)}</option>`).join('')}</select></div>
+          <div><label class="flabel">Day</label><input type="date" class="field" id="ntDate" value="${S.taskDay}"></div></div>
+        <label class="urg"><input type="checkbox" id="ntUrgent"> 🚨 Urgent – do it now</label>
+        <div class="hint" id="ntSuggest"></div></div>
       <div class="fgroup"><label class="flabel">Photo (optional)</label><div class="photo-box" id="ntPhoto"></div></div>
       <button class="btn pri" id="ntSave2">Add task</button>
     </div>`);
   $('#ntTitle').oninput = () => { touched = true; };
   mountVoice($('#ntVoice'), voice, txt => { if (!touched) $('#ntTitle').value = txt; });
+  $('#ntUrgent').onchange = ev => {
+    if (!ev.target.checked) { $('#ntSuggest').textContent = ''; return; }
+    $('#ntDate').value = today();
+    const best = team.find(x => x.s.available) || team.find(x => !x.s.busy);
+    if (best && !$('#ntWho').value) $('#ntWho').value = best.u.uid;
+    $('#ntSuggest').textContent = best ? tx(`Suggested: ${best.u.name}`) + (best.s.available ? ' 🟢🏠' : ' 🟢') : tx('Everyone is busy right now');
+  };
   const drawPhoto = () => { $('#ntPhoto').innerHTML = photo.data ? `<img src="${photo.data}" alt=""><button type="button" class="pbtn" id="ntPh">Change</button><button type="button" class="pdel" id="ntPhDel">Remove</button>` : `<button type="button" class="pbtn" id="ntPh">📷 Add photo</button>`;
     $('#ntPh').onclick = () => pickPhoto(false, d => { photo.data = d; drawPhoto(); }); $('#ntPhDel') && ($('#ntPhDel').onclick = () => { photo.data = null; drawPhoto(); }); };
   drawPhoto();
@@ -1532,7 +1651,7 @@ function openTaskForm() {
     const who = $('#ntWho').value, u = S.users.find(x => x.uid === who);
     const t = {id: api.newTaskId(), date: $('#ntDate').value || S.taskDay, title, assignedTo: who || '', assignedName: u ? u.name : '',
       createdBy: S.user.uid, createdByName: S.me.name, createdAt: Date.now(), updatedBy: S.user.uid,
-      status: 'open', done: false, hasVoice: !!voice.data, hasPhoto: !!photo.data};
+      status: 'open', done: false, hasVoice: !!voice.data, hasPhoto: !!photo.data, urgent: $('#ntUrgent').checked};
     if (voice.data) api.savePhoto('tv_' + t.id, voice.data).catch(e => toast('Voice: ' + errText(e)));
     if (photo.data) api.savePhoto('tp_' + t.id, photo.data).catch(e => toast('Photo: ' + errText(e)));
     api.saveTask(t).catch(e => toast(errText(e)));
@@ -1549,15 +1668,17 @@ function openTask(id) {
       <div class="fgroup tsheet"><div style="font-size:19px;font-weight:700" data-nt>${esc(t.title)}</div>
         <div id="tTrans" style="margin:6px 0 4px"></div>
         ${t.hasVoice ? playerHTML('pv1', '🎤 Voice note') : ''}
-        <div class="kv"><span>Status</span><span>${st === 'done' ? '<span class="badge b-paid" style="margin:0">Done ✓</span>' : st === 'review' ? '<span class="badge b-credit" style="margin:0">Waiting for approval</span>' : '<span class="badge b-mute" style="margin:0">To do</span>'}</span></div>
+        <div class="kv"><span>Status</span><span>${t.urgent && st !== 'done' ? '<span class="badge b-over" style="margin:0 4px 0 0">🚨 Urgent</span>' : ''}${st === 'done' ? '<span class="badge b-paid" style="margin:0">Done ✓</span>' : st === 'review' ? '<span class="badge b-credit" style="margin:0">Waiting for approval</span>' : st === 'working' ? `<span class="badge b-credit" style="margin:0">▶ Working since ${timeStr(t.startedAt)}</span>` : '<span class="badge b-mute" style="margin:0">To do</span>'}</span></div>
         <div class="kv"><span>Day</span><span>${prettyDate(t.date)}</span></div>
         ${t.assignedName ? `<div class="kv"><span>For</span><span>${esc(t.assignedName)}</span></div>` : ''}
         <div class="kv"><span>Added by</span><span>${esc(t.createdByName || '—')}</span></div></div>
       ${t.hasPhoto ? `<div class="fgroup" id="tpSlot"><p class="hint" style="margin:0">Loading photo…</p></div>` : ''}
-      ${t.declinedAt && st === 'open' ? `<div class="fgroup redo-box"><b>↺ Please redo</b> · ${esc(t.declinedByName || '')}<div data-nt>${esc(t.declineNote || '')}</div>${t.declineVoice ? playerHTML('pv2', '🎤 Instructions') : ''}</div>` : ''}
-      ${st !== 'open' && t.hasProof ? `<div class="fgroup"><div class="flabel">Done photo · ${esc(t.submittedByName || '')} ${timeStr(t.submittedAt)}</div><div id="tProofSlot"><p class="hint" style="margin:0">Loading…</p></div>${t.proofVoice ? playerHTML('pv3', '🎤 Voice reply') : ''}${t.proofNote ? `<p style="margin:8px 0 0" data-nt>${esc(t.proofNote)}</p>` : ''}</div>` : ''}
+      ${t.declinedAt && openish(st) ? `<div class="fgroup redo-box"><b>↺ Please redo</b> · ${esc(t.declinedByName || '')}<div data-nt>${esc(t.declineNote || '')}</div>${t.declineVoice ? playerHTML('pv2', '🎤 Instructions') : ''}</div>` : ''}
+      ${!openish(st) && t.hasProof ? `<div class="fgroup"><div class="flabel">Done photo · ${esc(t.submittedByName || '')} ${timeStr(t.submittedAt)}</div><div id="tProofSlot"><p class="hint" style="margin:0">Loading…</p></div>${t.proofVoice ? playerHTML('pv3', '🎤 Voice reply') : ''}${t.proofNote ? `<p style="margin:8px 0 0" data-nt>${esc(t.proofNote)}</p>` : ''}</div>` : ''}
       ${st === 'done' ? `<p class="hint">Approved by ${esc(t.approvedByName || '')} · ${t.doneDate ? shortDate(t.doneDate) : ''} ${timeStr(t.approvedAt)}</p>` : ''}
-      ${st === 'open' ? `<button class="btn pri" id="tSubmit">📷 Done – upload photo</button>` : ''}
+      ${st === 'open' ? `<button class="btn pri" id="tStart">▶ Start now</button><button class="btn sec" id="tSubmit">📷 Done – upload photo</button>` : ''}
+      ${st === 'working' ? `<button class="btn pri" id="tSubmit">📷 Done – upload photo</button><button class="btn sec" id="tUnstart">⏸ Not started yet</button>` : ''}
+      ${S.isAdmin && openish(st) ? `<button class="btn sec" id="tReassign">🔁 Give to someone else</button>` : ''}
       ${st === 'review' && S.isAdmin ? `<div class="row2"><button class="btn pri" id="tApprove">✓ Approve</button><button class="btn amber" id="tDecline">✗ Redo</button></div>` : ''}
       ${st === 'review' && !S.isAdmin ? `<p class="hint">Sent. An admin will check and approve it.</p>` : ''}
       ${st === 'done' && S.isAdmin ? `<button class="btn sec" id="tReopen">Reopen task</button>` : ''}
@@ -1565,18 +1686,42 @@ function openTask(id) {
     </div>`);
   { const box = $('#tTrans'); if (box) box.innerHTML = trLine(t.title); }
   if (t.hasVoice) loadPlayer('pv1', 'tv_' + t.id, '🎤 Voice note');
-  if (t.declineVoice && st === 'open') loadPlayer('pv2', 'tdv_' + t.id, '🎤 Instructions');
-  if (t.proofVoice && st !== 'open') loadPlayer('pv3', 'tpv_' + t.id, '🎤 Voice reply');
+  if (t.declineVoice && openish(st)) loadPlayer('pv2', 'tdv_' + t.id, '🎤 Instructions');
+  if (t.proofVoice && !openish(st)) loadPlayer('pv3', 'tpv_' + t.id, '🎤 Voice reply');
   if (t.hasPhoto) api.getPhoto('tp_' + t.id).then(p => { const el = $('#tpSlot'); if (el) el.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="">` : '<p class="hint" style="margin:0">Photo still uploading.</p>'; }).catch(() => {});
-  if (st !== 'open' && t.hasProof) api.getPhoto('tproof_' + t.id).then(p => { const el = $('#tProofSlot'); if (el) el.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="">` : '<p class="hint" style="margin:0">Photo still uploading.</p>'; }).catch(() => {});
+  if (!openish(st) && t.hasProof) api.getPhoto('tproof_' + t.id).then(p => { const el = $('#tProofSlot'); if (el) el.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="">` : '<p class="hint" style="margin:0">Photo still uploading.</p>'; }).catch(() => {});
   const upd = patch => api.saveTask({...strip(t), ...patch, updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
   $('#tSubmit') && ($('#tSubmit').onclick = () => openSubmit(id));
+  $('#tStart') && ($('#tStart').onclick = () => { const mine = t.assignedTo ? {} : {assignedTo: S.user.uid, assignedName: S.me.name};
+    upd({...mine, status: 'working', startedAt: Date.now(), startedByName: S.me.name}); closeSheet(); toast('Started'); });
+  $('#tUnstart') && ($('#tUnstart').onclick = () => { upd({status: 'open', startedAt: null}); closeSheet(); });
+  $('#tReassign') && ($('#tReassign').onclick = () => openReassign(id));
   $('#tApprove') && ($('#tApprove').onclick = () => { upd({status: 'done', done: true, approvedBy: S.user.uid, approvedByName: S.me.name, approvedAt: Date.now(), doneDate: today()}); closeSheet(); toast('Approved ✓'); });
   $('#tDecline') && ($('#tDecline').onclick = () => openDecline(id));
   $('#tReopen') && ($('#tReopen').onclick = () => { upd({status: 'open', done: false, approvedAt: null, approvedBy: null, approvedByName: null, doneDate: null}); closeSheet(); });
   $('#tEdit') && ($('#tEdit').onclick = () => { const v = prompt('Edit task', t.title); if (v && v.trim()) { upd({title: v.trim()}); closeSheet(); } });
   $('#tDel') && ($('#tDel').onclick = () => { if (!confirm('Delete this task?')) return; api.deleteTask(t.id).catch(e => toast(errText(e)));
     ['tv_', 'tp_', 'tproof_', 'tdv_', 'tpv_'].forEach(p => api.deletePhoto(p + t.id).catch(() => {})); closeSheet(); toast('Deleted'); });
+}
+
+function openReassign(id) {
+  const t = findTask(id); if (!t) return;
+  const team = rankPeople();
+  openSheet(`<div class="sh-head"><button data-back-task="${id}">Back</button><h2>Give to someone else</h2><span></span></div>
+    <div class="sh-body">
+      <div class="fgroup"><div style="font-size:17px;font-weight:700" data-nt>${esc(t.title)}</div>${t.assignedName ? `<div class="hint">For <span data-nt>${esc(t.assignedName)}</span></div>` : ''}</div>
+      <div class="fgroup">${team.length ? team.map(({u, s}) => `<button class="tmrow pick ${u.uid === t.assignedTo ? 'cur' : ''}" data-pick="${u.uid}">
+          <div class="main"><div class="t"><span data-nt>${esc(u.name)}</span></div><div class="tmline">${s.busy ? `<span class="badge b-over">🔴 Busy</span> <span class="hint" style="margin:0" data-nt>${esc(s.busy.title)}</span>` : `<span class="badge b-paid">🟢 Free</span>`}</div></div>
+          <div>${whereChip(s)}</div></button>`).join('') : '<p class="hint">No team members yet.</p>'}</div>
+      <label class="urg"><input type="checkbox" id="raUrgent" ${t.urgent ? 'checked' : ''}> 🚨 Urgent – do it now</label>
+    </div>`);
+  $('#sheet .sh-body').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-pick]'); if (!b) return;
+    const u = S.users.find(x => x.uid === b.dataset.pick);
+    api.saveTask({...strip(t), assignedTo: u.uid, assignedName: u.name, status: 'open', startedAt: null, urgent: $('#raUrgent').checked, date: $('#raUrgent').checked ? today() : t.date,
+      reassignedByName: S.me.name, updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
+    closeSheet(); toast(tx('Given to') + ' ' + u.name);
+  });
 }
 
 function openSubmit(id) {
@@ -1757,6 +1902,12 @@ async function mainClick(ev) {
   const us = t.closest('[data-ustat]'); if (us) return setUserStatus(us.dataset.uid, us.dataset.ustat);
   const ur = t.closest('[data-urole]'); if (ur) return setUserRole(ur.dataset.uid, ur.dataset.urole);
   if (t.closest('#signOutBtn')) return api.signOut();
+  if (t.closest('#setHomeBtn')) {
+    if (!navigator.geolocation) return toast('Location not available on this phone');
+    toast('Finding location…');
+    return navigator.geolocation.getCurrentPosition(pos => api.saveSettings({home: {lat: pos.coords.latitude, lng: pos.coords.longitude, r: HOME_R}}).then(() => toast('Home location saved')).catch(e => toast(errText(e))),
+      () => toast('Location not allowed. Allow it in phone settings.'), {enableHighAccuracy: true, timeout: 20000});
+  }
   if (t.closest('#notifBtn')) { try { const r = await Notification.requestPermission(); toast(r === 'granted' ? 'Alerts on' : 'Alerts not allowed'); } catch {} return render(); }
   if (t.closest('#renameBtn')) { const n = prompt('Your name', S.me.name); if (n && n.trim()) api.updateUser(S.user.uid, {name: n.trim()}).then(() => toast('Name updated')).catch(e => toast(errText(e))); return; }
   const td = t.closest('[data-tday]'); if (td) { const n = +td.dataset.tday; S.taskDay = n === 0 ? today() : addDays(S.taskDay, n); return render(); }
