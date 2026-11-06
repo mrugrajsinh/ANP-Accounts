@@ -1,6 +1,6 @@
 {
-  "name": "Ghar Diary",
-  "short_name": "Ghar Diary",
+  "name": "ANP Accounts",
+  "short_name": "ANP Accounts",
   "description": "Household purchase diary with credit (udhaar) tracking",
   "start_url": "./",
   "scope": "./",

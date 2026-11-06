@@ -6,14 +6,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Ghar Diary">
+<meta name="apple-mobile-web-app-title" content="ANP Accounts">
 <meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#141614" media="(prefers-color-scheme: dark)">
 <meta name="format-detection" content="telephone=no">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
-<title>Ghar Diary</title>
+<title>ANP Accounts</title>
 <style>
 :root{
   --bg:#f6f3ec; --card:#ffffff; --ink:#1c1e1b; --muted:#6f7169; --line:#e6e1d6; --grid:#ece8de;
@@ -423,7 +423,7 @@ function onUser(user) {
 function screenSetup() {
   document.body.classList.remove('wide');
   $('#app').innerHTML = `<div class="auth">
-    <img class="logo" src="icon-192.png" alt=""><h1>Ghar Diary</h1>
+    <img class="logo" src="icon-192.png" alt=""><h1>ANP Accounts</h1>
     <p class="tag">One-time setup needed</p>
     <div class="msg" style="text-align:left">Open <b>firebase-config.js</b> in your GitHub repo and paste your Firebase config. Full steps are in <b>SETUP.md</b>.<br><br>
     Want to look around first? <a href="?demo" style="color:var(--accent);font-weight:600">Open demo with sample data</a></div>
@@ -448,7 +448,7 @@ function screenLogin(mode) {
   document.body.classList.remove('wide');
   const up = mode === 'up', fg = mode === 'forgot';
   $('#app').innerHTML = `<div class="auth">
-    <img class="logo" src="icon-192.png" alt=""><h1>Ghar Diary</h1>
+    <img class="logo" src="icon-192.png" alt=""><h1>ANP Accounts</h1>
     <p class="tag">${up ? 'Create your account. The admin will approve you.' : fg ? 'We\'ll email you a reset link' : 'Household purchases, shared with family'}</p>
     <form id="authForm">
       ${up ? `<input class="field" id="aName" placeholder="Your name (e.g. Mummy)" autocomplete="name" required>` : ''}
@@ -884,7 +884,7 @@ $('#photoInput').onchange = async ev => {
 };
 $('#importInput').onchange = async ev => {
   const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
-  try { const d = JSON.parse(await f.text()); const list = Array.isArray(d) ? d : d.entries; if (!Array.isArray(list)) throw new Error('Not a Ghar Diary backup'); await uploadOld(list); }
+  try { const d = JSON.parse(await f.text()); const list = Array.isArray(d) ? d : d.entries; if (!Array.isArray(list)) throw new Error('Not a valid backup file'); await uploadOld(list); }
   catch (err) { toast('Upload failed: ' + err.message); }
 };
 
@@ -1071,7 +1071,7 @@ function reportRows() {
   const {list, c} = S.dashData, d = S.dash;
   const who = d.who ? (S.users.find(u => u.uid === d.who)?.name || '') : 'Everyone';
   const summary = [
-    ['Ghar Diary report'], ['Period', `${d.from} to ${d.to}`], ['Added by', who], ['Payment filter', d.pay || 'All'], ['Mode filter', d.mode || 'Any'], ['Shop filter', d.shop || 'All'], ['Search', d.q || '—'],
+    ['ANP Accounts report'], ['Period', `${d.from} to ${d.to}`], ['Added by', who], ['Payment filter', d.pay || 'All'], ['Mode filter', d.mode || 'Any'], ['Shop filter', d.shop || 'All'], ['Search', d.q || '—'],
     ['Generated', new Date().toLocaleString('en-IN')], [], ['Total purchases', c.tot], ['Paid', c.paid], ['Credit pending', c.pending], ['Bills', c.bills],
     [], ['By payment mode', 'Amount'], ...c.modes.map(x => [x.label, x.v]), [], ['By person', 'Amount'], ...c.people.map(x => [x.label, x.v]), [], ['By shop', 'Amount'], ...c.shops.map(x => [x.label, x.v])];
   const daily = [[c.byMonth ? 'Month' : 'Date', 'Bills', 'Paid', 'Credit pending', 'Total'], ...c.buckets.map(b => [b.key, b.bills, r2(b.paid), r2(b.credit), r2(b.total)]), ['TOTAL', c.bills, c.paid, c.pending, c.tot]];
@@ -1096,7 +1096,7 @@ function reportRows() {
 
 async function exportExcel() {
   if (S.view !== 'dash' || !S.dashData) return;
-  const sheets = reportRows(), name = `ghar-diary_${S.dash.from}_to_${S.dash.to}`;
+  const sheets = reportRows(), name = `anp-accounts_${S.dash.from}_to_${S.dash.to}`;
   try {
     const X = await loadXLSX(), wb = X.utils.book_new();
     for (const [title, rows] of Object.entries(sheets)) {

@@ -1,8 +1,8 @@
-# Ghar Diary – one-time setup (about 10 minutes)
+# ANP Accounts – one-time setup (about 10 minutes)
 
 ## 1. Create a free Firebase project
 1. Go to https://console.firebase.google.com and sign in with your Google account.
-2. **Create a project** → name it `ghar-diary` → you can turn off Google Analytics → **Create**.
+2. **Create a project** → name it `anp-accounts` → you can turn off Google Analytics → **Create**.
    Stay on the free **Spark** plan; no card is needed.
 
 ## 2. Turn on email login
@@ -21,7 +21,7 @@
 
 ## 5. Connect the app
 1. Click the gear icon → **Project settings** → scroll to **Your apps** → click the **</>** (Web) icon.
-2. App nickname: `ghar-diary` → **Register app** (skip Hosting).
+2. App nickname: `anp-accounts` → **Register app** (skip Hosting).
 3. Copy the values inside `firebaseConfig = { ... }` into `firebase-config.js` in place of the `PASTE_...` text.
    These keys are safe to put on GitHub: the security rules protect the data.
 
