@@ -610,7 +610,8 @@ const D = {
   'Delete this entry for everyone?': ['Yeh entry sab ke liye hatani hai?', 'આ એન્ટ્રી બધા માટે કાઢી નાખવી છે?'], 'Delete this task?': ['Yeh kaam hatana hai?', 'આ કામ કાઢી નાખવું છે?'], 'Edit task': ['Kaam badlo', 'કામ સુધારો'], 'Your name': ['Aapka naam', 'તમારું નામ'],
   'to pay': ['dena baaki', 'ચૂકવવાના બાકી'], '↺ Redo:': ['↺ Phir se karo:', '↺ ફરી કરો:'], 'Add to Home Screen': ['Add to Home Screen', 'Add to Home Screen (હોમ સ્ક્રીન પર ઉમેરો)'],
   'Add to Home screen': ['Add to Home screen', 'Add to Home screen (હોમ સ્ક્રીન પર ઉમેરો)'],
-  '👷 Team right now': ['👷 Team abhi', '👷 ટીમ અત્યારે'], 'busy': ['kaam par', 'કામમાં'], 'free': ['khaali', 'ફ્રી'], '🟢 Free': ['🟢 Khaali', '🟢 ફ્રી'], '🔴 Busy': ['🔴 Kaam par', '🔴 કામમાં'],
+  '👷 Team right now': ['👷 Team abhi', '👷 ટીમ અત્યારે'],
+  "No one else has joined yet. When family and workers sign up (and an admin approves them), you'll see here who is busy and who is free.": ['Abhi koi aur nahi juda. Parivaar aur workers sign up karenge (aur admin approve karega) tab yahan dikhega kaun kaam par hai aur kaun khaali.', 'હજુ બીજું કોઈ જોડાયું નથી. પરિવાર અને કામદારો જોડાશે (અને એડમિન મંજૂર કરશે) ત્યારે અહીં દેખાશે કોણ કામમાં છે અને કોણ ફ્રી.'], 'busy': ['kaam par', 'કામમાં'], 'free': ['khaali', 'ફ્રી'], '🟢 Free': ['🟢 Khaali', '🟢 ફ્રી'], '🔴 Busy': ['🔴 Kaam par', '🔴 કામમાં'],
   'Not opened app yet': ['App abhi nahi khola', 'એપ હજુ ખોલી નથી'], '▶ Start now': ['▶ Abhi shuru karo', '▶ હમણાં શરૂ કરો'], '⏸ Not started yet': ['⏸ Abhi shuru nahi kiya', '⏸ હજુ શરૂ નથી કર્યું'],
   '🔁 Give to someone else': ['🔁 Kisi aur ko do', '🔁 બીજાને આપો'], 'Give to someone else': ['Kisi aur ko do', 'બીજાને આપો'], '🚨 Urgent': ['🚨 Jaldi', '🚨 તાત્કાલિક'],
   '🚨 Urgent – do it now': ['🚨 Jaldi – abhi karo', '🚨 તાત્કાલિક – હમણાં કરો'], 'Everyone is busy right now': ['Abhi sab kaam par hain', 'અત્યારે બધા કામમાં છે'], 'Started': ['Shuru ho gaya', 'શરૂ થયું'],
@@ -719,7 +720,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '10 · team';
+const APP_VERSION = '11 · team for all';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1078,7 +1079,7 @@ function moreHTML() {
   if (S.isAdmin) html += `<div class="fgroup"><h3>🏠 Home location</h3>
       <p>${S.settings?.home ? 'Saved. Team members show as “At home” within about 150 m of it.' : 'Not set yet. Stand inside the house and tap the button.'}</p>
       <button class="btn sec" id="setHomeBtn">📍 Set home location (I'm at home now)</button></div>`;
-  else html += `<div class="fgroup"><h3>📍 Location</h3><p>While this app is open, it tells the admins only whether you are at home or outside. Your exact location is never shown.</p></div>`;
+  html += `<div class="fgroup"><h3>📍 Location</h3><p>While this app is open, it tells the admins only whether you are at home or outside. Your exact location is never shown.</p></div>`;
   if (!standalone) html += `<div class="fgroup"><h3>Add to home screen</h3><ol><li>iPhone: open in <b>Safari</b> → <b>Share</b> → <b>Add to Home Screen</b>.</li><li>Android: open in <b>Chrome</b> → <b>⋮</b> → <b>Add to Home screen</b>.</li></ol></div>`;
   return html + `</div>`;
 }
@@ -1504,18 +1505,19 @@ function whereChip(s) {
   if (!s.fresh) return `<span class="badge b-mute">${s.where === 'home' ? '🏠' : '🚶'} Last seen ${ago}</span>`;
   return s.where === 'home' ? `<span class="badge b-paid">🏠 At home · ${ago}</span>` : `<span class="badge b-credit">🚶 Outside · ${ago}</span>`;
 }
-function teamPeople() { return S.users.filter(u => u.status === 'approved' && u.uid !== S.user.uid && !(u.role === 'admin' || (u.email || '').toLowerCase() === ADMIN)); }
+function teamPeople() { return S.users.filter(u => (u.status === 'approved' || u.role === 'admin') && u.uid !== S.user.uid); }
 function rankPeople() {
   return teamPeople().map(u => ({u, s: personState(u.uid)}))
     .sort((a, b) => (b.s.available - a.s.available) || (!a.s.busy - !b.s.busy) * -1 || (a.s.todo - b.s.todo) || (a.u.name || '').localeCompare(b.u.name || ''));
 }
 function teamHTML() {
-  const ppl = rankPeople(); if (!ppl.length) return '';
+  const ppl = rankPeople();
   return `<details class="team" ${S.teamOpen === false ? '' : 'open'}><summary>👷 Team right now</summary>
+    ${!ppl.length ? `<p class="hint">No one else has joined yet. When family and workers sign up (and an admin approves them), you'll see here who is busy and who is free.</p>` : ''}
     ${ppl.map(({u, s}) => `<div class="tmrow"><div class="main"><div class="t"><span data-nt>${esc(u.name)}</span></div>
       <div class="tmline">${s.busy ? `<span class="badge b-over">🔴 Busy</span> <span class="hint" style="margin:0" data-nt>${esc(s.busy.title)}</span>` : `<span class="badge b-paid">🟢 Free</span>`}${s.todo ? ` <span class="hint" style="margin:0">· ${s.todo} to do</span>` : ''}</div></div>
       <div>${whereChip(s)}</div></div>`).join('')}
-    ${!S.settings?.home ? `<p class="hint">Set your home location in the Users tab to see who is at home.</p>` : ''}
+    ${ppl.length && !S.settings?.home ? `<p class="hint">Set your home location in the Users tab to see who is at home.</p>` : ''}
   </details>`;
 }
 function personOptLabel(u) {
@@ -1526,7 +1528,7 @@ let presT;
 function startPresence() {
   clearInterval(presT);
   const tick = () => {
-    if (document.hidden || !S.user || !S.me || S.isAdmin) return;   // only workers / members share presence
+    if (document.hidden || !S.user || !S.me) return;
     const base = {name: S.me.name || '', at: Date.now()}, home = S.settings?.home;
     if (!navigator.geolocation || !home) { api.setPresence(S.user.uid, base).catch(() => {}); return; }
     navigator.geolocation.getCurrentPosition(pos => {
@@ -1604,7 +1606,7 @@ function renderTasks() {
       <div class="stat"><small>Check</small><b style="color:var(--amber)">${review.length}</b></div>
       <div class="stat"><small>Done</small><b style="color:var(--accent)">${done.length}</b></div>
     </div>
-    ${S.isAdmin && isToday ? teamHTML() : ''}
+    ${isToday ? teamHTML() : ''}
     <button class="btn pri" data-newtask style="margin:0 0 6px">＋ New task${isToday ? '' : ' for ' + shortDate(d)}</button>
     ${!isToday ? `<button class="chip" data-tday="0" style="margin:6px 0">↩ Back to today</button>` : ''}
     ${review.length ? `<div class="section-t">${S.isAdmin ? 'Waiting for your approval' : 'Waiting for approval'} (${review.length})</div>` + review.map(x => taskRow(x, x.date < d)).join('') : ''}
