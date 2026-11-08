@@ -40,9 +40,8 @@ function person(doc) {
     tokens: ((f.pushTokens && f.pushTokens.arrayValue && f.pushTokens.arrayValue.values) || []).map(v => v.stringValue).filter(Boolean)};
 }
 
-async function handle(req, env) {
-  const body = JSON.parse(await req.text() || '{}');
-  const {idToken, to, title, body: text, url, tag} = body;
+async function handle(body, env) {
+  const {idToken, to, title, body: text, url, tag, delay} = body;
   if (!idToken || !title) return [400, {error: 'missing data'}];
 
   // 1. who is asking? (must be a signed-in, approved user of the app)
@@ -62,10 +61,12 @@ async function handle(req, env) {
   if (!callerOk) return [403, {error: 'not approved'}];
 
   const isAdmin = p => p.email === OWNER || (p.role === 'admin' && p.status === 'approved');
-  let targets = to === 'admins' ? people.filter(isAdmin)
+  let targets = to === 'me' ? people.filter(p => p.uid === caller.localId)
+    : to === 'admins' ? people.filter(isAdmin)
     : to === 'all' ? people.filter(p => p.status === 'approved' || p.email === OWNER)
     : people.filter(p => (Array.isArray(to) ? to : [to]).includes(p.uid) && (p.status === 'approved' || p.email === OWNER));
-  targets = targets.filter(p => p.uid !== caller.localId && p.tokens.length);
+  targets = targets.filter(p => (to === 'me' || p.uid !== caller.localId) && p.tokens.length);
+  if (delay) await new Promise(r => setTimeout(r, Math.min(15, Number(delay) || 0) * 1000));   // test alert: time to lock the phone
 
   // 3. send
   const link = new URL(url || './?go=tasks', APP_URL).href;
@@ -92,14 +93,16 @@ async function handle(req, env) {
 }
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const origin = req.headers.get('origin') || '';
     const cors = {'access-control-allow-origin': ORIGINS.includes(origin) ? origin : ORIGINS[0],
       'access-control-allow-methods': 'POST, OPTIONS', 'access-control-allow-headers': 'content-type'};
     if (req.method === 'OPTIONS') return new Response(null, {headers: cors});
     if (req.method !== 'POST') return new Response(env.SERVICE_ACCOUNT ? 'ANP push sender is ready ✓' : 'Almost ready: add the SERVICE_ACCOUNT secret', {headers: {...cors, 'content-type': 'text/plain; charset=utf-8'}});
     try {
-      const [status, out] = await handle(req, env);
+      const body = JSON.parse(await req.text() || '{}');
+      if (body.delay) { ctx.waitUntil(handle(body, env).catch(() => {})); return new Response(JSON.stringify({ok: true, queued: true}), {headers: {...cors, 'content-type': 'application/json'}}); }
+      const [status, out] = await handle(body, env);
       return new Response(JSON.stringify(out), {status, headers: {...cors, 'content-type': 'application/json'}});
     } catch (e) {
       return new Response(JSON.stringify({error: String(e && e.message || e)}), {status: 500, headers: {...cors, 'content-type': 'application/json'}});
