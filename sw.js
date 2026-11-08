@@ -1,6 +1,6 @@
 // App files: network-first (so GitHub updates show up), cache fallback when offline.
 // Firebase / Excel libraries: cache-first (their URLs are versioned).
-const CACHE = 'anp-accounts-v40';
+const CACHE = 'anp-accounts-v41';
 const ASSETS = ['./', './index.html', './firebase-config.js', './manifest.json', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './logo.jpg'];
 const LIBS = ['www.gstatic.com', 'cdn.jsdelivr.net', 'cdn.sheetjs.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
@@ -47,12 +47,13 @@ self.addEventListener('fetch', e => {
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   const url = new URL((e.notification.data && e.notification.data.url) || './?go=tasks', self.registration.scope).href;
-  e.waitUntil(self.clients.matchAll({type: 'window', includeUncontrolled: true}).then(list => {
-    for (const c of list) {
-      if (c.url.startsWith(self.registration.scope)) { c.postMessage({go: new URL(url).searchParams.get('go') || 'tasks'}); return c.focus(); }
-    }
+  e.waitUntil((async () => {
+    // remember where to go – the app reads this when it opens or comes to the front (works even if the phone ignores the URL)
+    try { const c = await caches.open('anp-nav'); await c.put('/nav', new Response(JSON.stringify({url, at: Date.now()}))); } catch (err) {}
+    const list = await self.clients.matchAll({type: 'window', includeUncontrolled: true});
+    for (const c of list) { if (c.url.startsWith(self.registration.scope)) { c.postMessage({url}); try { return await c.focus(); } catch (err) { return; } } }
     return self.clients.openWindow(url);
-  }));
+  })());
 });
 
 // Push messages (for alerts when the app is closed / phone locked)

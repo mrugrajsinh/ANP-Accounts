@@ -879,7 +879,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '40 · Blinkit one-by-one';
+const APP_VERSION = '41 · alerts open the exact item';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -938,7 +938,7 @@ async function boot() {
     const hadSW = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.register('sw.js', {updateViaCache: 'none'}).then(r => r.update()).catch(() => {});
     // when a new version installs, reload once so it shows straight away
-    navigator.serviceWorker.addEventListener('message', ev => { const g = ev.data && ev.data.go; if (g && S.started) { if (S.isStaff && g !== 'tasks') return; closeSheet(); S.view = g; render(); scrollTo(0, 0); } });
+    navigator.serviceWorker.addEventListener('message', ev => { const u = ev.data && (ev.data.url || (ev.data.go && './?go=' + ev.data.go)); if (u) navFromUrl(u); });
     navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadSW && !S.reloaded) { S.reloaded = true; location.reload(); } });
   }
   addEventListener('online', updateSync); addEventListener('offline', updateSync);
@@ -1018,10 +1018,32 @@ const ICON = {
   dash: '<path d="M4 4h16v16H4z"/><path d="M4 9h16M4 14h16M10 9v11"/>',
   more: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
 };
+// open the exact screen an alert points to: ?go=tasks&task=ID | book&book=K&entry=ID | salary&emp=ID | lists&list=ID
+function navFromUrl(u, tries = 0) {
+  let q; try { q = new URL(u, location.href).searchParams; } catch { return; }
+  const go = q.get('go'); if (!go) return;
+  if (!S.started) return setTimeout(() => navFromUrl(u, tries), 500);
+  if (S.isStaff && go !== 'tasks') return;
+  const id = q.get('task') || q.get('entry') || q.get('emp') || q.get('list');
+  const found = !id ? true : go === 'tasks' ? !!findTask(id) : go === 'book' ? !!findEntry(id) : go === 'salary' ? !!findEmp(id) : go === 'lists' ? !!findList(id) : true;
+  if (!found && tries < 16) return setTimeout(() => navFromUrl(u, tries + 1), 500);   // data still loading
+  closeSheet();
+  if (go === 'book' && BOOKS[q.get('book')]) { S.book = q.get('book'); const e = findEntry(id); if (e) S.month = e.date.slice(0, 7); S.view = 'book'; }
+  else if (['tasks', 'home', 'salary', 'lists'].includes(go)) S.view = go;
+  if (go === 'tasks' && id) { const t = findTask(id); if (t) S.taskDay = t.date; }
+  render(); scrollTo(0, 0);
+  if (!id || !found) return;
+  if (go === 'tasks') openTask(id); else if (go === 'book') openDetail(id); else if (go === 'salary') openEmp(id); else if (go === 'lists') openList(id);
+}
+async function navFromSW() { try { const c = await caches.open('anp-nav'), r = await c.match('/nav'); if (!r) return; const {url, at} = await r.json(); await c.delete('/nav'); if (Date.now() - at < 120000) navFromUrl(url); } catch {} }
+document.addEventListener('visibilitychange', () => { if (!document.hidden) navFromSW(); });
+
 function startApp() {
   S.started = true;
   { const qp = new URLSearchParams(location.search), fill = qp.get('fill'); if (fill) setTimeout(() => applyFill(fill), 2500);
-    const go = qp.get('go'); if (go && ['tasks', 'home', 'salary', 'lists'].includes(go)) S.view = go; if (go) history.replaceState(null, '', location.pathname + (location.search.includes('demo') ? '?demo' : '')); }
+    const go = qp.get('go'); if (go && ['tasks', 'home', 'salary', 'lists'].includes(go)) S.view = go;
+    if (go) { const u = location.href; setTimeout(() => navFromUrl(u), 300); }
+    setTimeout(navFromSW, 800); if (go) history.replaceState(null, '', location.pathname + (location.search.includes('demo') ? '?demo' : '')); }
   $('#app').innerHTML = `
   <header><div class="wrap">
     <div class="htop">
@@ -1443,8 +1465,8 @@ function openEmp(id) {
   const upd = f => { f(x); saveEmp(x); openEmp(id); };
   $('#sheet .calgrid').onclick = ev => { const b = ev.target.closest('[data-cday]'); if (!b) return; const d = b.dataset.cday, nx = {'': 'F', F: 'H', H: 'A', A: ''}[att[d] || ''];
     upd(o => { o.att = {...(o.att || {})}; if (nx) o.att[d] = nx; else delete o.att[d]; });
-    tellAdmins(`🗓 ${x.name}: ${nx === 'F' ? 'Full day' : nx === 'H' ? 'Half day' : nx === 'A' ? 'Absent' : 'cleared'} · ${shortDate(d)}`, `Marked by ${who()}`, 'att-' + x.id + d, 'salary'); };
-  $('#empFill').onclick = () => (tellAdmins(`🗓 ${x.name}: empty days marked Full`, `${monthLabel(m)} · by ${who()}`, 'att-' + x.id, 'salary'), upd(o => { o.att = {...(o.att || {})}; for (let i = 1; i <= n; i++) { const d = `${m}-${String(i).padStart(2, '0')}`; if (d <= t && !o.att[d]) o.att[d] = 'F'; } }));
+    tellAdmins(`🗓 ${x.name}: ${nx === 'F' ? 'Full day' : nx === 'H' ? 'Half day' : nx === 'A' ? 'Absent' : 'cleared'} · ${shortDate(d)}`, `Marked by ${who()}`, 'att-' + x.id + d, 'salary&emp=' + x.id); };
+  $('#empFill').onclick = () => (tellAdmins(`🗓 ${x.name}: empty days marked Full`, `${monthLabel(m)} · by ${who()}`, 'att-' + x.id, 'salary&emp=' + x.id), upd(o => { o.att = {...(o.att || {})}; for (let i = 1; i <= n; i++) { const d = `${m}-${String(i).padStart(2, '0')}`; if (d <= t && !o.att[d]) o.att[d] = 'F'; } }));
   $('#empAdv').onclick = () => openAdvance(id);
   document.querySelectorAll('#sheet [data-advdel]').forEach(b => b.onclick = () => { if (confirm('Delete this?')) upd(o => { o.adv = (o.adv || []).filter(a => a.id !== b.dataset.advdel); }); });
   $('#empEdit') && ($('#empEdit').onclick = () => openEmpForm(x));
@@ -1463,7 +1485,7 @@ function openAdvance(id) {
   const save = () => { const a = num($('#advAmt').value); if (!a) return toast('Enter the amount');
     const d = $('#advDate').value || today(); x.adv = [...(x.adv || []), {id: api.newId(), date: d, amount: a, note: $('#advNote').value.trim(), byName: S.me.name}];
     saveEmp(x); S.salMonth = d.slice(0, 7); render(); openEmp(id); toast('Advance saved');
-    tellAdmins(`💸 Advance ${money(a)} to ${x.name}`, `${shortDate(d)} · by ${who()}${$('#advNote')?.value ? ' · ' + $('#advNote').value : ''}`, null, 'salary'); };
+    tellAdmins(`💸 Advance ${money(a)} to ${x.name}`, `${shortDate(d)} · by ${who()}${$('#advNote')?.value ? ' · ' + $('#advNote').value : ''}`, null, 'salary&emp=' + x.id); };
   $('#advSave').onclick = save; $('#advSave2').onclick = save;
 }
 function openEmpPay(id) {
@@ -1481,7 +1503,7 @@ function openEmpPay(id) {
   mountUpi($('#spUpi'), {key: 'emp:' + x.id, amount: () => num($('#spAmt').value), note: () => `Salary ${monthLabel(m)}`, onPaid: u => { $('#spRef').value = u || ''; save(); }});
   const save = () => { x.paid = {...(x.paid || {}), [m]: {on: $('#spDate').value || today(), amount: num($('#spAmt').value), mode, ref: mode === 'Cash' ? '' : $('#spRef').value.trim(), byName: S.me.name}};
     saveEmp(x); render(); openEmp(id); toast('Salary paid');
-    tellAdmins(`💰 Salary paid to ${x.name} · ${money(x.paid[m].amount)}`, `${monthLabel(m)} · ${mode} · by ${who()}`, null, 'salary'); };
+    tellAdmins(`💰 Salary paid to ${x.name} · ${money(x.paid[m].amount)}`, `${monthLabel(m)} · ${mode} · by ${who()}`, null, 'salary&emp=' + x.id); };
   $('#spSave').onclick = save; $('#spSave2').onclick = save;
 }
 function openEmpForm(x) {
@@ -1501,7 +1523,7 @@ function openEmpForm(x) {
   const save = () => { const name = $('#efName').value.trim(); if (!name) return toast('Write the name');
     const o = x ? findEmp(x.id) || x : {id: api.newId(), book: 'emp', date: today(), att: {}, adv: [], paid: {}, items: [], createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name};
     Object.assign(o, {name, salary: num($('#efSal').value), halfPct: Math.min(100, Math.max(0, num($('#efHalf').value))), basis});
-    saveEmp(o); if (!x) S.lists.emp.push(o); tellAdmins(`💰 ${who()} ${x ? 'edited' : 'added'} ${o.name} in Salary`, `${money(o.salary)}/month`, null, 'salary'); render(); x ? openEmp(o.id) : closeSheet(); toast('Saved'); };
+    saveEmp(o); if (!x) S.lists.emp.push(o); tellAdmins(`💰 ${who()} ${x ? 'edited' : 'added'} ${o.name} in Salary`, `${money(o.salary)}/month`, null, 'salary&emp=' + o.id); render(); x ? openEmp(o.id) : closeSheet(); toast('Saved'); };
   $('#efSave').onclick = save; $('#efSave2').onclick = save;
   $('#efDel') && ($('#efDel').onclick = () => { if (!confirm(`Delete ${x.name} and all attendance?`)) return; api.deleteEntry(x.id).catch(er => toast(errText(er))); closeSheet(); toast('Deleted'); });
 }
@@ -2293,14 +2315,21 @@ async function testPush() {
     if (!r.ok || j.error) toast('Test failed: ' + (j.error || r.status)); else if (j.people === 0) toast('No phone saved yet – tap Retry');
   } catch (e) { toast('Test failed: ' + (e.message || e)); }
 }
-async function pushTo(to, title, body, tag, go = 'tasks') {
+async function pushTo(to, title, body, tag, go) {
   if (!PUSH_URL || api.demo) return;
+  if (!go || go === 'home' || go === 'tasks') {   // open the exact thing the alert is about
+    const t = String(tag || ''), id = t.replace(/^(task|e|r|l)-/, '');
+    if (t.startsWith('task-')) go = 'tasks&task=' + id;
+    else if (t.startsWith('e-') || t.startsWith('r-')) { const e = findEntry(id); go = e ? `book&book=${bookOf(e)}&entry=${id}` : (go || 'home'); }
+    else if (t.startsWith('l-')) go = 'lists&list=' + id;
+    else go = go || 'tasks';
+  }
   try { const idToken = await api.idToken(); if (!idToken) return;
     fetch(PUSH_URL, {method: 'POST', headers: {'content-type': 'text/plain'}, body: JSON.stringify({idToken, to, title, body, url: './?go=' + go, tag})}).catch(() => {});
   } catch {}
 }
 // every change in the app is reported to all admins (except the person who made it)
-const tellAdmins = (title, body, tag, go = 'home') => pushTo('admins', title, body, tag || 'a' + Date.now(), go);
+const tellAdmins = (title, body, tag, go) => pushTo('admins', title, body, tag || 'a' + Date.now(), go);
 const who = () => S.me?.name || 'Someone';
 const itemsText = e => bookOf(e) === 'iron' ? (() => { const c = ironCounts(e); return `Wash ${c.wash} · Iron ${c.iron}`; })() : (e.items || []).map(i => i.name).slice(0, 6).join(', ');
 async function notify(title, body, url = './?go=tasks') {
@@ -2698,7 +2727,7 @@ async function mainClick(ev) {
   const sm = t.closest('[data-salm]'); if (sm) { const [y, mo] = (S.salMonth || today().slice(0, 7)).split('-').map(Number), d = new Date(y, mo - 1 + +sm.dataset.salm, 1); S.salMonth = ds(d).slice(0, 7); return render(); }
   const at = t.closest('[data-att]'); if (at) { const x = findEmp(at.dataset.att); if (!x) return; x.att = {...(x.att || {})};
     if (x.att[at.dataset.day] === at.dataset.v) delete x.att[at.dataset.day]; else x.att[at.dataset.day] = at.dataset.v; saveEmp(x);
-    const v = x.att[at.dataset.day]; tellAdmins(`🗓 ${x.name}: ${v === 'F' ? 'Full day' : v === 'H' ? 'Half day' : v === 'A' ? 'Absent' : 'cleared'} · ${shortDate(at.dataset.day)}`, `Marked by ${who()}`, 'att-' + x.id + at.dataset.day, 'salary'); return render(); }
+    const v = x.att[at.dataset.day]; tellAdmins(`🗓 ${x.name}: ${v === 'F' ? 'Full day' : v === 'H' ? 'Half day' : v === 'A' ? 'Absent' : 'cleared'} · ${shortDate(at.dataset.day)}`, `Marked by ${who()}`, 'att-' + x.id + at.dataset.day, 'salary&emp=' + x.id); return render(); }
   const em = t.closest('[data-emp]'); if (em) return openEmp(em.dataset.emp);
   const li = t.closest('[data-list]'); if (li) return openList(li.dataset.list);
   const db = t.closest('[data-dbook]'); if (db) { S.dash.book = db.dataset.dbook; return renderDash(); }
