@@ -1,6 +1,6 @@
 // App files: network-first (so GitHub updates show up), cache fallback when offline.
 // Firebase / Excel libraries: cache-first (their URLs are versioned).
-const CACHE = 'anp-accounts-v23';
+const CACHE = 'anp-accounts-v24';
 const ASSETS = ['./', './index.html', './firebase-config.js', './manifest.json', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './logo.jpg'];
 const LIBS = ['www.gstatic.com', 'cdn.sheetjs.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
@@ -41,4 +41,27 @@ self.addEventListener('fetch', e => {
       })
       .catch(() => caches.match(e.request, {ignoreSearch: true}).then(r => r || caches.match('./index.html')))
   );
+});
+
+// Tapping a notification opens the app (or brings it to the front) on the right screen
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = new URL((e.notification.data && e.notification.data.url) || './?go=tasks', self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({type: 'window', includeUncontrolled: true}).then(list => {
+    for (const c of list) {
+      if (c.url.startsWith(self.registration.scope)) { c.postMessage({go: new URL(url).searchParams.get('go') || 'tasks'}); return c.focus(); }
+    }
+    return self.clients.openWindow(url);
+  }));
+});
+
+// Push messages (for alerts when the app is closed / phone locked)
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch { d = {notification: {title: 'ANP Accounts', body: e.data ? e.data.text() : ''}}; }
+  const n = d.notification || d.data || {};
+  e.waitUntil(self.registration.showNotification(n.title || 'ANP Accounts', {
+    body: n.body || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: n.tag || undefined,
+    data: {url: (d.data && d.data.url) || './?go=tasks'}
+  }));
 });

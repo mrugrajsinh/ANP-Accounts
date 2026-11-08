@@ -146,6 +146,23 @@ table.items .a{text-align:right;font-weight:600;font-variant-numeric:tabular-num
 .stat.danger{background:#fdecea;border-color:#f3b8b0}.stat.danger small,.stat.danger b{color:#b3261e}
 tr.notback td{background:#fdf1ef}tr.notback td:first-child{box-shadow:inset 4px 0 0 #c62828}
 .bulkbtn{margin:0 0 8px}
+.bookbtn .bicon.sal{background:#e3f1e0}.bookbtn .bicon.chk{background:#e6ecfb}
+@media (prefers-color-scheme:dark){.bookbtn .bicon.sal{background:#1f3a22}.bookbtn .bicon.chk{background:#22304d}}
+.attrow{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 10px;margin-bottom:8px}
+.attrow .nm{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.attbtns{display:flex;gap:5px}
+.ab{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:7px 9px;font-size:13px;font-weight:600;color:var(--muted)}
+.abF.on{background:#2e7d32;border-color:#2e7d32;color:#fff}.abH.on{background:#b7791f;border-color:#b7791f;color:#fff}.abA.on{background:#c62828;border-color:#c62828;color:#fff}
+.card.emp{align-items:flex-start;text-align:left}.card.emp .amt{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.calhead,.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.calhead span{text-align:center;font-size:11px;color:var(--muted);font-weight:700}
+.cal{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:5px 0 3px;font-size:14px;font-weight:600;display:flex;flex-direction:column;align-items:center;min-height:42px;color:inherit}
+.cal small{font-size:9px;font-weight:700;height:11px}.cal:disabled{opacity:.35}.cal.today{outline:2px solid var(--accent)}
+.cal.cF{background:#e3f1e0;border-color:#9fd0a6;color:#1e5e23}.cal.cH{background:#fdf0d5;border-color:#ecc77a;color:#7a5200}.cal.cA{background:#fdecea;border-color:#f3b8b0;color:#b3261e}
+.row-add{display:grid;grid-template-columns:1fr 80px auto;gap:6px;align-items:center}
+.clrow{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}.clrow:last-child{border-bottom:0}.clrow .main{flex:1;min-width:0}.clrow .t{font-weight:600}.clrow .s{font-size:13px;color:var(--muted)}
+.clbox{width:28px;height:28px;flex:none;border-radius:8px;border:2px solid var(--line);background:#fff;font-weight:800;color:#fff}
+.clrow.got .clbox{background:#2e7d32;border-color:#2e7d32}.clrow.na .clbox{background:#c62828;border-color:#c62828}.clrow.got .t{text-decoration:line-through;color:var(--muted)}
+.clrow .chip{padding:6px 10px;font-size:13px;margin:0}.chip.bl{background:#f8cb46;border-color:#e6b52e;color:#1b5e20;font-weight:700;text-decoration:none}
+a.btn{display:block;text-align:center;text-decoration:none}
 .scard.urgent{border-color:#f3b8b0;box-shadow:inset 4px 0 0 #c62828}
 .bk-row{display:flex;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line)}.bk-row:last-child{border-bottom:0}
 .bk-row input{width:22px;height:22px;flex:none;accent-color:var(--accent)}.bk-row .main{flex:1;min-width:0}.bk-row .t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bk-row .s{font-size:13px;color:var(--muted)}.bk-row b{flex:none}
@@ -253,6 +270,7 @@ table.dt .clip{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-spac
 
 header h1{font-size:clamp(21px,6.4vw,28px);white-space:nowrap;min-width:0;overflow:hidden}
 #title{overflow:hidden;text-overflow:ellipsis}
+.renamebtn{border:0;background:none;font-size:17px;padding:0 6px;margin-left:2px;flex:none}
 .backbtn{font-size:34px;line-height:1;color:var(--accent);margin:-4px 2px 0 -6px;padding:0 6px}
 .books{display:flex;flex-direction:column;gap:12px;margin-top:8px}
 .bookbtn{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px 16px;box-shadow:var(--shadow)}
@@ -674,7 +692,16 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Wash rate ₹': ['Dhulai bhaav ₹', 'ધોલાઈ ભાવ ₹'], 'Iron rate ₹': ['Istri bhaav ₹', 'ઈસ્ત્રી ભાવ ₹'], '↩ Mark returned': ['↩ Wapas aaya', '↩ પાછું આવ્યું'], '↩ Mark all clothes returned': ['↩ Saare kapde wapas aaye', '↩ બધાં કપડાં પાછાં આવ્યાં'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Salary': ['Pagaar', 'પગાર'], 'Checklists': ['Checklist', 'ચેકલિસ્ટ'], 'Attendance, advance & payouts': ['Haaziri, advance aur pagaar', 'હાજરી, ઉપાડ અને પગાર'], 'Shopping lists, Blinkit…': ['Kharidi list, Blinkit…', 'ખરીદી યાદી, Blinkit…'],
+  'Full': ['Poora', 'પૂરો'], 'Half': ['Aadha', 'અડધો'], 'Absent': ['Gair-haazir', 'ગેરહાજર'], 'Earned so far': ['Ab tak kamaya', 'અત્યાર સુધી'], 'To pay (after advance)': ['Dena hai (advance ke baad)', 'આપવાના (ઉપાડ પછી)'], 'This month': ['Is mahine', 'આ મહિને'],
+  'Advance this month': ['Is mahine advance', 'આ મહિને ઉપાડ'], 'No advance.': ['Koi advance nahi.', 'કોઈ ઉપાડ નથી.'], '＋ Add advance': ['＋ Advance jodo', '＋ ઉપાડ ઉમેરો'], 'Advance': ['Advance', 'ઉપાડ'], 'Advance saved': ['Advance save hua', 'ઉપાડ સેવ થયો'],
+  'Calculation': ['Hisaab', 'હિસાબ'], 'Monthly salary': ['Mahine ki pagaar', 'માસિક પગાર'], 'Full days': ['Poore din', 'પૂરા દિવસ'], 'Earned': ['Kamaya', 'કમાણી'], 'Advance taken': ['Advance liya', 'ઉપાડ લીધો'], 'To pay': ['Dena hai', 'આપવાના'],
+  'Mark all empty days till today as Full': ['Aaj tak ke khaali din Poora karo', 'આજ સુધીના ખાલી દિવસ પૂરા કરો'], 'Mark salary paid': ['Pagaar de di', 'પગાર ચૂકવ્યો'], 'Salary paid': ['Pagaar di', 'પગાર ચૂકવ્યો'], 'Pay salary': ['Pagaar do', 'પગાર આપો'],
+  'Add person': ['Vyakti jodo', 'વ્યક્તિ ઉમેરો'], 'Edit person': ['Vyakti badlo', 'વ્યક્તિ સુધારો'], 'Delete person': ['Vyakti hatao', 'વ્યક્તિ કાઢો'], 'Monthly salary ₹': ['Mahine ki pagaar ₹', 'માસિક પગાર ₹'], 'Half day pays (% of a full day)': ['Aadhe din ka % (poore din ka)', 'અડધા દિવસના % (પૂરા દિવસના)'],
+  'Per day pay =': ['Ek din ki pagaar =', 'એક દિવસનો પગાર ='], 'Salary ÷ days in month': ['Pagaar ÷ mahine ke din', 'પગાર ÷ મહિનાના દિવસ'], 'Salary ÷ 30': ['Pagaar ÷ 30', 'પગાર ÷ 30'], 'Amount paid ₹': ['Di gayi rakam ₹', 'આપેલી રકમ ₹'], 'Amount ₹': ['Rakam ₹', 'રકમ ₹'],
+  'Book name': ['Book ka naam', 'બુકનું નામ'], 'List name': ['List ka naam', 'યાદીનું નામ'], 'Blinkit order': ['Blinkit order', 'Blinkit ઑર્ડર'], 'Item, e.g. Vim bar': ['Saaman, jaise Vim bar', 'વસ્તુ, દા.ત. Vim bar'], 'To get': ['Lena hai', 'લેવાનું'],
+  "Tick ✓ when it's in the cart or bought. Tap N/A if Blinkit doesn't have it.": ['Cart mein ya kharid liya to ✓ karo. Blinkit pe nahi hai to N/A dabao.', 'કાર્ટમાં કે ખરીદી લીધું હોય તો ✓ કરો. Blinkit પર ન હોય તો N/A દબાવો.'], 'Not available': ['Nahi mila', 'મળ્યું નહીં'],
+  '📤 Share list (WhatsApp)': ['📤 List bhejo (WhatsApp)', '📤 યાદી મોકલો (WhatsApp)'], 'Delete list': ['List hatao', 'યાદી કાઢો'], 'Nothing left to get. 🎉': ['Kuch lena baaki nahi. 🎉', 'કશું લેવાનું બાકી નથી. 🎉'], 'Wash rate ₹': ['Dhulai bhaav ₹', 'ધોલાઈ ભાવ ₹'], 'Iron rate ₹': ['Istri bhaav ₹', 'ઈસ્ત્રી ભાવ ₹'], '↩ Mark returned': ['↩ Wapas aaya', '↩ પાછું આવ્યું'], '↩ Mark all clothes returned': ['↩ Saare kapde wapas aaye', '↩ બધાં કપડાં પાછાં આવ્યાં'],
   'All returned': ['Sab wapas aa gaye', 'બધું પાછું આવ્યું'], 'Returned': ['Wapas aaya', 'પાછું આવ્યું'], 'Undone': ['Hata diya', 'પાછું લીધું'], 'e.g. Curtain': ['jaise parda', 'દા.ત. પડદો'], 'My tasks': ['Mera kaam', 'મારાં કામ'], 'Staff': ['Staff', 'સ્ટાફ'], 'Family': ['Parivaar', 'પરિવાર'], 'Approve family': ['Parivaar mein jodo', 'પરિવાર તરીકે મંજૂર'], 'Approve staff': ['Staff mein jodo', 'સ્ટાફ તરીકે મંજૂર'],
   'Make staff': ['Staff banao', 'સ્ટાફ બનાવો'], 'Make family': ['Parivaar banao', 'પરિવાર બનાવો'], '▶ Start': ['▶ Shuru karo', '▶ શરૂ કરો'], '⏸ Not started': ['⏸ Abhi shuru nahi', '⏸ હજી શરૂ નથી'], '📷 Done': ['📷 Ho gaya', '📷 થઈ ગયું'],
   'Sent': ['Bhej diya', 'મોકલ્યું'], 'No work right now. 🙏': ['Abhi koi kaam nahi. 🙏', 'હમણાં કોઈ કામ નથી. 🙏'], 'Coming days': ['Aane wale din', 'આવતા દિવસો'], 'Sent ✓ Task done': ['Bhej diya ✓ Kaam ho gaya', 'મોકલ્યું ✓ કામ થઈ ગયું'],
@@ -810,7 +837,9 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '23 · iron others & returns';
+const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
+function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
+const APP_VERSION = '24 · salary, checklists';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -842,7 +871,7 @@ const S = {
 
 function mergeEntries() {
   const m = new Map([...S.live, ...S.credits]);
-  for (const [k, e] of m) if (e.book === 'things' || e.book === 'guide' || e.book === 'pooja') m.delete(k);
+  for (const [k, e] of m) if (e.book && !BOOKS[e.book]) m.delete(k);
   S.entries = [...m.values()].sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || 0) - (a.createdAt || 0));
   S.rangeCache = null;
 }
@@ -869,6 +898,7 @@ async function boot() {
     const hadSW = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.register('sw.js', {updateViaCache: 'none'}).then(r => r.update()).catch(() => {});
     // when a new version installs, reload once so it shows straight away
+    navigator.serviceWorker.addEventListener('message', ev => { const g = ev.data && ev.data.go; if (g && S.started) { if (S.isStaff && g !== 'tasks') return; closeSheet(); S.view = g; render(); scrollTo(0, 0); } });
     navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadSW && !S.reloaded) { S.reloaded = true; location.reload(); } });
   }
   addEventListener('online', updateSync); addEventListener('offline', updateSync);
@@ -950,10 +980,11 @@ const ICON = {
 };
 function startApp() {
   S.started = true;
+  { const go = new URLSearchParams(location.search).get('go'); if (go && ['tasks', 'home', 'salary', 'lists'].includes(go)) S.view = go; if (go) history.replaceState(null, '', location.pathname + (location.search.includes('demo') ? '?demo' : '')); }
   $('#app').innerHTML = `
   <header><div class="wrap">
     <div class="htop">
-      <h1><button class="backbtn hidden" id="backBtn" aria-label="Back">‹</button><span id="title">Home</span><span class="sync hidden" id="sync"></span></h1>
+      <h1><button class="backbtn hidden" id="backBtn" aria-label="Back">‹</button><span id="title">Home</span><button class="renamebtn hidden" id="renameBook" aria-label="Rename">✏️</button><span class="sync hidden" id="sync"></span></h1>
       <div class="monthnav hidden" id="monthnav"><button id="mPrev" aria-label="Previous month">‹</button><span id="mLabel"></span><button id="mNext" aria-label="Next month">›</button></div>
       <button class="xlbtn hidden" id="xlBtn">⬇ Excel</button>
       <div id="hdrLang" class="hidden">${langSwitch(true)}</div>
@@ -968,7 +999,9 @@ function startApp() {
   </div></nav>`;
   document.querySelector('nav').onclick = ev => { const b = ev.target.closest('[data-view]'); if (b) { S.view = b.dataset.view; render(); scrollTo(0, 0); } };
   $('#backBtn').onclick = () => { S.view = 'home'; S.q = ''; $('#search').value = ''; render(); scrollTo(0, 0); };
-  $('#fab').onclick = () => S.view === 'tasks' ? openTaskForm() : openForm(null, S.book);
+  $('#fab').onclick = () => S.view === 'tasks' ? openTaskForm() : S.view === 'salary' ? openEmpForm() : S.view === 'lists' ? openListForm() : openForm(null, S.book);
+  $('#renameBook').onclick = async () => { const k = S.book, n = prompt(tx('Book name'), BOOKS[k].name); if (n == null) return;
+    const names = {...(S.settings.bookNames || {}), [k]: n.trim()}; try { await api.saveSettings({bookNames: names}); S.settings.bookNames = names; applyBookNames(); render(); toast('Saved'); } catch (e) { toast(errText(e)); } };
   $('#xlBtn').onclick = exportExcel;
   $('#mPrev').onclick = () => { S.month = monthStart(S.month + '-01', 1).slice(0, 7); ensureMonth(); render(); };
   $('#mNext').onclick = () => { S.month = monthStart(S.month + '-01', -1).slice(0, 7); ensureMonth(); render(); };
@@ -977,6 +1010,7 @@ function startApp() {
   $('#main').addEventListener('change', mainChange);
 
   const err = e => toast(errText(e));
+  S.lists = {emp: [], check: []};
   if (S.isStaff) {
     S.view = 'tasks'; S.entries = []; S.users = []; S.settings = {};
     startPresence();
@@ -985,10 +1019,11 @@ function startApp() {
     S.unsub.push(api.watchOpenTasks(l => { S.tOpen = new Map(l.map(t => [t.id, t])); mergeT(); }, err));
     return render();
   }
+  for (const k of ['emp', 'check']) S.unsub.push(api.watchBook(k, list => { S.lists[k] = list.sort((a, b) => k === 'check' ? (b.createdAt || 0) - (a.createdAt || 0) : (a.name || '').localeCompare(b.name || '')); if (['home', 'salary', 'lists'].includes(S.view)) render(); refreshOpenSheet(k); }, err));
   S.unsub.push(api.watchEntries(S.since, list => { S.live = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
   S.unsub.push(api.watchCredits(list => { S.credits = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
   S.unsub.push(api.watchUsers(list => { S.users = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); render(); }, () => {}));
-  S.unsub.push(api.watchSettings(d => { S.settings = d || {}; render(); }, () => {}));
+  S.unsub.push(api.watchSettings(d => { S.settings = d || {}; applyBookNames(); render(); }, () => {}));
   S.presence = new Map();
   S.unsub.push(api.watchPresence(l => { S.presence = new Map(l.map(p => [p.uid, p])); if (S.view === 'tasks') render(); }, () => {}));
   startPresence();
@@ -1014,16 +1049,18 @@ function updateSync() {
 function render() {
   if (!S.started || !$('#main')) return;
   if (S.isStaff && S.view !== 'tasks' && S.view !== 'more') S.view = 'tasks';
-  const v = S.view, inBook = v === 'book', sub = inBook;
+  const v = S.view, inBook = v === 'book', sub = inBook || v === 'salary' || v === 'lists';
   document.querySelectorAll('nav [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v || (sub && b.dataset.view === 'home')));
-  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'ANP Accounts', tasks: S.isStaff ? 'My tasks' : 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account'}[v];
+  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'ANP Accounts', tasks: S.isStaff ? 'My tasks' : 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account', salary: 'Salary', lists: 'Checklists'}[v];
+  $('#title').toggleAttribute('data-nt', inBook);
+  $('#renameBook').classList.toggle('hidden', !(inBook && S.isAdmin));
   $('#backBtn').classList.toggle('hidden', !sub);
   $('#monthnav').classList.toggle('hidden', !inBook);
   $('#search').classList.toggle('hidden', !(inBook && S.book !== 'iron'));
   $('#search').placeholder = tx('Search item…');
   $('#xlBtn').classList.toggle('hidden', v !== 'dash');
   $('#hdrLang').classList.toggle('hidden', v !== 'home');
-  $('#fab').classList.toggle('hidden', !(sub || (v === 'tasks' && !S.isStaff)));
+  $('#fab').classList.toggle('hidden', !(sub || (v === 'tasks' && !S.isStaff)) || (v === 'salary' && !S.isAdmin));
   $('#mLabel').textContent = monthLabel(S.month);
   const act = myTaskActions().length;
   $('#dot-tasks').textContent = act; $('#dot-tasks').classList.toggle('hidden', !act);
@@ -1032,7 +1069,7 @@ function render() {
   updateSync();
   if (v === 'dash') return renderDash();
   if (v === 'tasks') return S.isStaff ? renderStaffTasks() : renderTasks();
-  $('#main').innerHTML = v === 'home' ? homeHTML() : inBook ? (S.book === 'iron' ? ironHTML() : bookHTML()) : moreHTML();
+  $('#main').innerHTML = v === 'home' ? homeHTML() : v === 'salary' ? salaryHTML() : v === 'lists' ? listsHTML() : inBook ? (S.book === 'iron' ? ironHTML() : bookHTML()) : moreHTML();
 }
 
 /* ================= home ================= */
@@ -1052,7 +1089,15 @@ function homeHTML() {
       <span class="bmain"><span class="bname">${b.name}</span><span class="bsub">This month <b>${money(sum(mon, total))}</b></span>
         <span class="bbadges">${due ? `<span class="badge b-credit">${money(due)} to pay</span>` : ''}${extra}</span></span>
       <span class="chev">›</span></button>`;
-  }).join('')}</div>
+  }).join('')}
+    ${(() => { const em = S.lists?.emp || [], m = today().slice(0, 7), unmarked = em.filter(x => !(x.att || {})[today()]).length;
+      return `<button class="bookbtn" data-goto="salary"><span class="bicon sal">💰</span><span class="bmain"><span class="bname">Salary</span>
+        <span class="bsub">${em.length ? `${em.length} people · this month <b>${money(sum(em, x => empMonth(x, m).payable))}</b>` : 'Attendance, advance & payouts'}</span>
+        ${em.length && unmarked ? `<span class="bbadges"><span class="badge b-credit">${unmarked} not marked today</span></span>` : ''}</span><span class="chev">›</span></button>`; })()}
+    ${(() => { const ls = S.lists?.check || [], open = ls.reduce((t, l) => t + (l.items || []).filter(i => !i.st).length, 0);
+      return `<button class="bookbtn" data-goto="lists"><span class="bicon chk">🧾</span><span class="bmain"><span class="bname">Checklists</span>
+        <span class="bsub">${ls.length ? `${ls.length} list${ls.length === 1 ? '' : 's'}${open ? ` · <b>${open}</b> items to get` : ' · all done'}` : 'Shopping lists, Blinkit…'}</span></span><span class="chev">›</span></button>`; })()}
+  </div>
   ${acts ? `<button class="bookbtn small" data-goto="tasks"><span class="bicon">✅</span><span class="bmain"><span class="bname">${acts} task${acts === 1 ? '' : 's'} need you</span><span class="bsub">Open Tasks</span></span><span class="chev">›</span></button>` : ''}`;
 }
 
@@ -1204,7 +1249,7 @@ function openSheet(html) {
   $('#overlay').classList.add('open'); $('#sheet').classList.add('open');
   $('#sheet .sh-body')?.scrollTo(0, 0);
 }
-function closeSheet() { $('#overlay').classList.remove('open'); $('#sheet').classList.remove('open'); S.editing = null; Rec.cancel(); document.querySelectorAll('#sheet video').forEach(v => v.pause()); document.querySelectorAll('#sheet audio').forEach(a => a.pause()); }
+function closeSheet() { S.listOpen = null; S.empOpen = null; $('#overlay').classList.remove('open'); $('#sheet').classList.remove('open'); S.editing = null; Rec.cancel(); document.querySelectorAll('#sheet video').forEach(v => v.pause()); document.querySelectorAll('#sheet audio').forEach(a => a.pause()); }
 $('#overlay').onclick = closeSheet;
 const findEntry = id => S.entries.find(x => x.id === id) || S.rangeCache?.list.find(x => x.id === id);
 
@@ -1281,6 +1326,183 @@ function openMarkPaid(id) {
     const upd = {...strip(e), paidOn: $('#payDate').value || today(), paidMode: mode, paidRef: mode === 'Cash' ? '' : $('#payRef').value.trim(), paidByName: S.me.name, updatedAt: Date.now(), updatedByName: S.me.name};
     api.saveEntry(upd).catch(err => toast(errText(err))); Object.assign(e, upd); openDetail(e.id); toast('Marked as paid');
   };
+}
+
+/* ================= salary: attendance, advance, payouts ================= */
+// Each person is one doc (book 'emp'): att = {date: 'F'|'H'|'A'}, adv = [{id, date, amount, note}], paid = {'YYYY-MM': {on, amount, mode, ref}}
+const daysIn = ym => new Date(+ym.slice(0, 4), +ym.slice(5, 7), 0).getDate();
+function empMonth(x, ym) {
+  const att = x.att || {}, d = Object.keys(att).filter(k => k.startsWith(ym));
+  const F = d.filter(k => att[k] === 'F').length, H = d.filter(k => att[k] === 'H').length, A = d.filter(k => att[k] === 'A').length;
+  const base = x.basis === '30' ? 30 : daysIn(ym), perDay = num(x.salary) / base, half = (x.halfPct ?? 50) / 100;
+  const earned = r2(perDay * (F + H * half)), adv = sum((x.adv || []).filter(a => (a.date || '').startsWith(ym)), a => num(a.amount));
+  return {F, H, A, marked: d.length, perDay: r2(perDay), half, earned, adv, payable: r2(earned - adv), paid: (x.paid || {})[ym] || null, base};
+}
+function saveEmp(x) { x.updatedAt = Date.now(); x.updatedByName = S.me.name; api.saveEntry(strip(x)).catch(e => toast(errText(e))); }
+const findEmp = id => (S.lists?.emp || []).find(x => x.id === id);
+function salaryHTML() {
+  const em = S.lists.emp, m = S.salMonth || (S.salMonth = today().slice(0, 7)), t = today();
+  if (!em.length) return `<div class="empty">No one added yet.<br>${S.isAdmin ? 'Tap <b>+</b> to add a person and their monthly salary.' : 'An admin can add people here.'}</div>`;
+  const tot = em.map(x => empMonth(x, m));
+  return `<div class="daynav"><button data-salm="-1" aria-label="Previous month">‹</button><span>${monthLabel(m)}</span><button data-salm="1" aria-label="Next month">›</button></div>
+    <div class="stats"><div class="stat"><small>Earned so far</small><b>${money(sum(tot, z => z.earned))}</b></div><div class="stat"><small>To pay (after advance)</small><b style="color:var(--amber)">${money(sum(tot, z => z.paid ? 0 : z.payable))}</b></div></div>
+    ${m === t.slice(0, 7) ? `<div class="section-t">Today · ${prettyDate(t)}</div>` + em.map(x => { const v = (x.att || {})[t] || '';
+      return `<div class="attrow"><span class="nm" data-nt>${esc(x.name)}</span><div class="attbtns">${[['F', 'Full'], ['H', 'Half'], ['A', 'Absent']].map(([c, l]) => `<button class="ab ab${c} ${v === c ? 'on' : ''}" data-att="${x.id}" data-day="${t}" data-v="${c}">${l}</button>`).join('')}</div></div>`; }).join('') : ''}
+    <div class="section-t">This month</div>
+    ${em.map((x, k) => { const z = tot[k];
+      return `<button class="card emp" data-emp="${x.id}"><div class="main"><div class="t" data-nt>${esc(x.name)}</div>
+        <div class="s">${money(x.salary)}/month · Full ${z.F} · Half ${z.H} · Absent ${z.A}</div>
+        ${z.adv ? `<div class="s">Advance ${money(z.adv)}</div>` : ''}</div>
+        <div class="amt"><b>${money(z.payable)}</b>${z.paid ? `<span class="badge b-paid">Paid ${shortDate(z.paid.on)}</span>` : `<span class="badge b-mute">to pay</span>`}</div></button>`; }).join('')}`;
+}
+function openEmp(id) {
+  const x = findEmp(id); if (!x) return;
+  const m = S.salMonth || today().slice(0, 7), z = empMonth(x, m), att = x.att || {}, t = today();
+  const first = new Date(+m.slice(0, 4), +m.slice(5, 7) - 1, 1).getDay(), n = daysIn(m);
+  const cells = Array(first).fill('<span></span>').concat(Array.from({length: n}, (_, i) => { const d = `${m}-${String(i + 1).padStart(2, '0')}`, v = att[d] || '';
+    return `<button class="cal c${v} ${d === t ? 'today' : ''}" data-cday="${d}" ${d > t ? 'disabled' : ''}>${i + 1}<small>${v === 'F' ? 'Full' : v === 'H' ? 'Half' : v === 'A' ? 'Abs' : ''}</small></button>`; }));
+  const advs = (x.adv || []).filter(a => (a.date || '').startsWith(m)).sort((a, b) => a.date.localeCompare(b.date));
+  S.empOpen = id;
+  openSheet(`<div class="sh-head"><button data-close>Close</button><h2 data-nt>${esc(x.name)}</h2>${S.isAdmin ? `<button id="empEdit">Edit</button>` : '<span></span>'}</div>
+    <div class="sh-body">
+      <div class="dt-top"><div class="amt">${money(z.payable)}</div><div class="sub">${monthLabel(m)} · to pay after advance</div></div>
+      <div class="fgroup"><div class="flabel">Attendance · tap a day to change (Full → Half → Absent → clear)</div>
+        <div class="calhead">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => `<span>${d}</span>`).join('')}</div><div class="calgrid">${cells.join('')}</div>
+        <button type="button" class="chip" id="empFill" style="margin-top:10px">Mark all empty days till today as Full</button></div>
+      <div class="fgroup"><div class="flabel">Calculation</div>
+        <div class="kv"><span>Monthly salary</span><span>${money(x.salary)}</span></div>
+        <div class="kv"><span>Per day (÷ ${z.base})</span><span>${money(z.perDay)}</span></div>
+        <div class="kv"><span>Full days</span><span>${z.F} × ${money(z.perDay)}</span></div>
+        <div class="kv"><span>Half days (${Math.round(z.half * 100)}%)</span><span>${z.H} × ${money(r2(z.perDay * z.half))}</span></div>
+        <div class="kv"><span>Absent</span><span>${z.A}</span></div>
+        <div class="kv"><span>Earned</span><span><b>${money(z.earned)}</b></span></div>
+        <div class="kv"><span>Advance taken</span><span>− ${money(z.adv)}</span></div>
+        <div class="kv"><span><b>To pay</b></span><span><b>${money(z.payable)}</b></span></div></div>
+      <div class="fgroup"><div class="flabel">Advance this month</div>
+        ${advs.length ? advs.map(a => `<div class="kv"><span>${shortDate(a.date)}${a.note ? ` · <span data-nt>${esc(a.note)}</span>` : ''}</span><span>${money(a.amount)} ${S.isAdmin ? `<button class="pdel" data-advdel="${a.id}">×</button>` : ''}</span></div>`).join('') : '<p class="hint" style="margin:0">No advance.</p>'}
+        <button type="button" class="btn sec" id="empAdv" style="margin-top:10px">＋ Add advance</button></div>
+      ${z.paid ? `<div class="fgroup"><div class="kv"><span>Salary paid</span><span><span class="badge b-paid" style="margin:0">${money(z.paid.amount)} · ${esc(z.paid.mode)} · ${shortDate(z.paid.on)}</span></span></div></div>
+        ${S.isAdmin ? `<button class="btn sec" id="empUnpay">Undo payment</button>` : ''}`
+        : S.isAdmin ? `<button class="btn amber" id="empPay">Pay salary · ${money(z.payable)}</button>` : ''}
+    </div>`);
+  const upd = f => { f(x); saveEmp(x); openEmp(id); };
+  $('#sheet .calgrid').onclick = ev => { const b = ev.target.closest('[data-cday]'); if (!b) return; const d = b.dataset.cday, nx = {'': 'F', F: 'H', H: 'A', A: ''}[att[d] || ''];
+    upd(o => { o.att = {...(o.att || {})}; if (nx) o.att[d] = nx; else delete o.att[d]; }); };
+  $('#empFill').onclick = () => upd(o => { o.att = {...(o.att || {})}; for (let i = 1; i <= n; i++) { const d = `${m}-${String(i).padStart(2, '0')}`; if (d <= t && !o.att[d]) o.att[d] = 'F'; } });
+  $('#empAdv').onclick = () => openAdvance(id);
+  document.querySelectorAll('#sheet [data-advdel]').forEach(b => b.onclick = () => { if (confirm('Delete this?')) upd(o => { o.adv = (o.adv || []).filter(a => a.id !== b.dataset.advdel); }); });
+  $('#empEdit') && ($('#empEdit').onclick = () => openEmpForm(x));
+  $('#empUnpay') && ($('#empUnpay').onclick = () => { if (confirm('Undo payment?')) upd(o => { o.paid = {...(o.paid || {})}; delete o.paid[m]; }); });
+  $('#empPay') && ($('#empPay').onclick = () => openEmpPay(id));
+}
+function openAdvance(id) {
+  const x = findEmp(id); if (!x) return;
+  openSheet(`<div class="sh-head"><button data-empback="${id}">Back</button><h2>Advance</h2><button class="save" id="advSave">Save</button></div>
+    <div class="sh-body"><div class="fgroup"><div style="font-weight:700" data-nt>${esc(x.name)}</div>
+      <label class="flabel" style="margin-top:10px">Amount ₹</label><input class="field" id="advAmt" type="number" inputmode="decimal" min="0" placeholder="0">
+      <label class="flabel" style="margin-top:10px">Date</label><input class="field" type="date" id="advDate" value="${today()}">
+      <label class="flabel" style="margin-top:10px">Note (optional)</label><input class="field" id="advNote" placeholder="e.g. for medicine" autocomplete="off"></div>
+      <button class="btn pri" id="advSave2">Save advance</button></div>`);
+  setTimeout(() => $('#advAmt')?.focus(), 300);
+  const save = () => { const a = num($('#advAmt').value); if (!a) return toast('Enter the amount');
+    const d = $('#advDate').value || today(); x.adv = [...(x.adv || []), {id: api.newId(), date: d, amount: a, note: $('#advNote').value.trim(), byName: S.me.name}];
+    saveEmp(x); S.salMonth = d.slice(0, 7); render(); openEmp(id); toast('Advance saved'); };
+  $('#advSave').onclick = save; $('#advSave2').onclick = save;
+}
+function openEmpPay(id) {
+  const x = findEmp(id); if (!x) return;
+  const m = S.salMonth || today().slice(0, 7), z = empMonth(x, m); let mode = 'Cash';
+  openSheet(`<div class="sh-head"><button data-empback="${id}">Back</button><h2>Pay salary</h2><button class="save" id="spSave">Save</button></div>
+    <div class="sh-body"><div class="dt-top"><div class="sub" data-nt>${esc(x.name)} · ${monthLabel(m)}</div></div>
+      <div class="fgroup"><label class="flabel">Amount paid ₹</label><input class="field" id="spAmt" type="number" inputmode="decimal" min="0" value="${z.payable}">
+        <label class="flabel" style="margin-top:10px">Paid on</label><input class="field" type="date" id="spDate" value="${today()}">
+        <label class="flabel" style="margin-top:12px">Paid by</label>
+        <div class="modes" id="spModes">${PAY.map(p => `<button type="button" class="chip big ${p === mode ? 'on' : ''}" data-pm="${p}">${p === 'Cash' ? '💵' : '📱'} ${p}</button>`).join('')}</div>
+        <div id="spRefWrap" class="hidden"><label class="flabel">UTR (optional)</label><input class="field" id="spRef" autocomplete="off"></div></div>
+      <button class="btn amber" id="spSave2">Mark salary paid</button></div>`);
+  $('#spModes').onclick = ev => { const b = ev.target.closest('[data-pm]'); if (!b) return; mode = b.dataset.pm; $('#spModes').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); $('#spRefWrap').classList.toggle('hidden', mode === 'Cash'); };
+  const save = () => { x.paid = {...(x.paid || {}), [m]: {on: $('#spDate').value || today(), amount: num($('#spAmt').value), mode, ref: mode === 'Cash' ? '' : $('#spRef').value.trim(), byName: S.me.name}};
+    saveEmp(x); render(); openEmp(id); toast('Salary paid'); };
+  $('#spSave').onclick = save; $('#spSave2').onclick = save;
+}
+function openEmpForm(x) {
+  const e = x ? {...x} : {id: null, name: '', salary: '', halfPct: 50, basis: 'month'};
+  openSheet(`<div class="sh-head"><button ${x ? `data-empback="${x.id}"` : 'data-close'}>Cancel</button><h2>${x ? 'Edit person' : 'Add person'}</h2><button class="save" id="efSave">Save</button></div>
+    <div class="sh-body"><div class="fgroup">
+      <label class="flabel">Name</label><input class="field" id="efName" value="${esc(e.name)}" placeholder="e.g. Ashok" autocomplete="off" autocapitalize="words">
+      <label class="flabel" style="margin-top:10px">Monthly salary ₹</label><input class="field" id="efSal" type="number" inputmode="decimal" min="0" value="${esc(e.salary)}" placeholder="10000">
+      <label class="flabel" style="margin-top:10px">Half day pays (% of a full day)</label><input class="field" id="efHalf" type="number" inputmode="numeric" min="0" max="100" value="${e.halfPct ?? 50}">
+      <label class="flabel" style="margin-top:10px">Per day pay =</label>
+      <div class="modes" id="efBasis"><button type="button" class="chip ${e.basis !== '30' ? 'on' : ''}" data-b="month">Salary ÷ days in month</button><button type="button" class="chip ${e.basis === '30' ? 'on' : ''}" data-b="30">Salary ÷ 30</button></div>
+      <p class="hint">Example: ₹10,000 in a 30-day month = ₹333 a day. Half day at 50% = ₹167.</p></div>
+      <button class="btn pri" id="efSave2">Save</button>
+      ${x && S.isAdmin ? `<button class="btn dan" id="efDel">Delete person</button>` : ''}</div>`);
+  let basis = e.basis === '30' ? '30' : 'month';
+  $('#efBasis').onclick = ev => { const b = ev.target.closest('[data-b]'); if (!b) return; basis = b.dataset.b; $('#efBasis').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); };
+  const save = () => { const name = $('#efName').value.trim(); if (!name) return toast('Write the name');
+    const o = x ? findEmp(x.id) || x : {id: api.newId(), book: 'emp', date: today(), att: {}, adv: [], paid: {}, items: [], createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name};
+    Object.assign(o, {name, salary: num($('#efSal').value), halfPct: Math.min(100, Math.max(0, num($('#efHalf').value))), basis});
+    saveEmp(o); if (!x) S.lists.emp.push(o); render(); x ? openEmp(o.id) : closeSheet(); toast('Saved'); };
+  $('#efSave').onclick = save; $('#efSave2').onclick = save;
+  $('#efDel') && ($('#efDel').onclick = () => { if (!confirm(`Delete ${x.name} and all attendance?`)) return; api.deleteEntry(x.id).catch(er => toast(errText(er))); closeSheet(); toast('Deleted'); });
+}
+
+/* ================= checklists (shopping lists, Blinkit) ================= */
+// item.st: '' = to get, 'got' = done / added, 'na' = not available
+const findList = id => (S.lists?.check || []).find(x => x.id === id);
+const blinkit = q => 'https://blinkit.com/s/?q=' + encodeURIComponent(q);
+function saveList(l) { l.updatedAt = Date.now(); l.updatedByName = S.me.name; api.saveEntry(strip(l)).catch(e => toast(errText(e))); }
+function listsHTML() {
+  const ls = S.lists.check;
+  if (!ls.length) return `<div class="empty">No checklists yet.<br>Tap <b>+</b> to make one, e.g. "Blinkit order".</div>`;
+  return ls.map(l => { const it = l.items || [], got = it.filter(i => i.st === 'got').length, na = it.filter(i => i.st === 'na').length, left = it.length - got - na;
+    return `<button class="card" data-list="${l.id}"><div class="main"><div class="t" data-nt>${esc(l.name)}</div>
+      <div class="s">${it.length} items · by ${esc(l.createdByName || '')}</div></div>
+      <div class="amt">${left ? `<span class="badge b-credit">${left} to get</span>` : `<span class="badge b-paid">Done ✓</span>`}${na ? `<span class="badge b-over">${na} not available</span>` : ''}</div></button>`; }).join('');
+}
+function openList(id) {
+  const l = findList(id); if (!l) return;
+  S.listOpen = id;
+  const it = l.items || [], left = it.filter(i => !i.st), got = it.filter(i => i.st === 'got'), na = it.filter(i => i.st === 'na');
+  const row = (i) => { const k = it.indexOf(i);
+    return `<div class="clrow ${i.st}"><button class="clbox" data-clst="${k}" aria-label="Done">${i.st === 'got' ? '✓' : i.st === 'na' ? '✗' : ''}</button>
+      <div class="main"><div class="t" data-nt>${esc(i.name)}</div>${i.qty || i.st === 'na' ? `<div class="s">${i.qty ? esc(i.qty) : ''}${i.st === 'na' ? `${i.qty ? ' · ' : ''}<b style="color:#c62828">Not available</b>` : ''}</div>` : ''}</div>
+      ${i.st ? `<button class="chip" data-clundo="${k}">Undo</button>` : `<a class="chip bl" href="${blinkit(i.name)}" target="_blank" rel="noopener">Blinkit</a><button class="chip" data-clna="${k}">N/A</button>`}
+      <button class="pdel" data-cldel="${k}" aria-label="Remove">×</button></div>`; };
+  openSheet(`<div class="sh-head"><button data-close>Close</button><h2 data-nt>${esc(l.name)}</h2><button id="clRename">Rename</button></div>
+    <div class="sh-body">
+      <div class="fgroup"><div class="row-add"><input class="field" id="clNew" placeholder="Item, e.g. Vim bar" autocomplete="off" autocapitalize="sentences"><input class="field" id="clQty" placeholder="Qty" autocomplete="off"><button type="button" class="sbtn" id="clAdd">+ Add</button></div>
+        <p class="hint">Tick ✓ when it's in the cart or bought. Tap N/A if Blinkit doesn't have it.</p></div>
+      <div class="fgroup">${left.length ? `<div class="flabel">To get (${left.length})</div>` + left.map(row).join('') : '<p class="hint" style="margin:0">Nothing left to get. 🎉</p>'}
+        ${got.length ? `<div class="flabel" style="margin-top:12px">Done (${got.length})</div>` + got.map(row).join('') : ''}
+        ${na.length ? `<div class="flabel" style="margin-top:12px;color:#c62828">Not available (${na.length})</div>` + na.map(row).join('') : ''}</div>
+      ${left.length ? `<a class="btn pri" id="clBlink" href="${blinkit(left[0].name)}" target="_blank" rel="noopener">🛒 Open Blinkit · ${esc(left[0].name)}</a>` : ''}
+      <button class="btn sec" id="clShare">📤 Share list (WhatsApp)</button>
+      <button class="btn dan" id="clDel">Delete list</button>
+    </div>`);
+  const upd = f => { f(l); saveList(l); openList(id); };
+  const add = () => { const n = $('#clNew').value.trim(); if (!n) return $('#clNew').focus();
+    l.items = [...(l.items || []), {name: n, qty: $('#clQty').value.trim(), st: ''}]; saveList(l); openList(id); setTimeout(() => $('#clNew')?.focus(), 50); };
+  $('#clAdd').onclick = add; $('#clNew').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); $('#clQty').focus(); } }; $('#clQty').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); add(); } };
+  $('#sheet .sh-body').onclick = ev => { const b = ev.target.closest('[data-clst],[data-clna],[data-clundo],[data-cldel]'); if (!b) return;
+    if (b.dataset.clst != null) return upd(o => { const i = o.items[+b.dataset.clst]; i.st = i.st === 'got' ? '' : 'got'; });
+    if (b.dataset.clna != null) return upd(o => { o.items[+b.dataset.clna].st = 'na'; });
+    if (b.dataset.clundo != null) return upd(o => { o.items[+b.dataset.clundo].st = ''; });
+    if (b.dataset.cldel != null) return upd(o => { o.items.splice(+b.dataset.cldel, 1); }); };
+  $('#clRename').onclick = () => { const n = prompt(tx('List name'), l.name); if (n && n.trim()) upd(o => { o.name = n.trim(); }); };
+  $('#clDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(l.id).catch(e => toast(errText(e))); closeSheet(); toast('Deleted'); };
+  $('#clShare').onclick = async () => {
+    const txt = `🧾 ${l.name}\n` + (l.items || []).map(i => `${i.st === 'got' ? '✅' : i.st === 'na' ? '❌' : '⬜'} ${i.name}${i.qty ? ' – ' + i.qty : ''}${i.st === 'na' ? ' (not available)' : ''}`).join('\n');
+    try { if (navigator.share) await navigator.share({text: txt}); else { await navigator.clipboard.writeText(txt); toast('Copied'); } } catch {} };
+}
+function openListForm() {
+  const n = prompt(tx('List name'), tx('Blinkit order')); if (!n || !n.trim()) return;
+  const l = {id: api.newId(), book: 'check', date: today(), name: n.trim(), items: [], createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name};
+  saveList(l); S.lists.check.unshift(l); render(); openList(l.id);
+}
+function refreshOpenSheet(k) {
+  if (!$('#sheet').classList.contains('open') || document.activeElement?.matches?.('#sheet input, #sheet textarea')) return;
+  if (k === 'check' && S.listOpen && $('#clNew')) openList(S.listOpen);
 }
 
 /* ================= pay many credit entries at once ================= */
@@ -1717,11 +1939,11 @@ function taskAlerts() {
   if (first && msgs.length > 1) { toast(`${msgs.length} task updates since you last opened`); notify('ANP Accounts', `${msgs.length} task updates`); return; }
   msgs.slice(0, 3).forEach((m, i) => setTimeout(() => { toast(m); notify('ANP Accounts', m); }, i * 2600));
 }
-async function notify(title, body) {
+async function notify(title, body, url = './?go=tasks') {
   try {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
     const reg = await navigator.serviceWorker?.getRegistration();
-    if (reg) reg.showNotification(title, {body, icon: 'icon-192.png', badge: 'icon-192.png', tag: body.slice(0, 40)});
+    if (reg) reg.showNotification(title, {body, icon: 'icon-192.png', badge: 'icon-192.png', tag: body.slice(0, 40), data: {url}});
     else new Notification(title, {body, icon: 'icon-192.png'});
   } catch {}
 }
@@ -1977,7 +2199,7 @@ async function rangeEntries() {
   if (from >= S.since) return S.entries.filter(e => e.date >= from && e.date <= to);
   const key = from + '|' + to;
   if (S.rangeCache?.key === key) return S.rangeCache.list;
-  const list = (await api.fetchRange(from, to)).filter(e => !['things', 'guide', 'pooja'].includes(e.book));
+  const list = (await api.fetchRange(from, to)).filter(e => !e.book || BOOKS[e.book]);
   const m = new Map(list.map(e => [e.id, e]));
   S.entries.forEach(e => { if (e.date >= from && e.date <= to) m.set(e.id, e); });
   S.rangeCache = {key, list: [...m.values()]};
@@ -2083,6 +2305,11 @@ async function mainClick(ev) {
   const g = t.closest('[data-goto]'); if (g) { S.view = g.dataset.goto; S.q = ''; $('#search').value = ''; render(); return scrollTo(0, 0); }
   if (t.closest('[data-rates]')) return openRateCard();
   if (t.closest('[data-bulkpay]')) return openBulkPay();
+  const sm = t.closest('[data-salm]'); if (sm) { const [y, mo] = (S.salMonth || today().slice(0, 7)).split('-').map(Number), d = new Date(y, mo - 1 + +sm.dataset.salm, 1); S.salMonth = ds(d).slice(0, 7); return render(); }
+  const at = t.closest('[data-att]'); if (at) { const x = findEmp(at.dataset.att); if (!x) return; x.att = {...(x.att || {})};
+    if (x.att[at.dataset.day] === at.dataset.v) delete x.att[at.dataset.day]; else x.att[at.dataset.day] = at.dataset.v; saveEmp(x); return render(); }
+  const em = t.closest('[data-emp]'); if (em) return openEmp(em.dataset.emp);
+  const li = t.closest('[data-list]'); if (li) return openList(li.dataset.list);
   const db = t.closest('[data-dbook]'); if (db) { S.dash.book = db.dataset.dbook; return renderDash(); }
   const p = t.closest('[data-preset]');
   if (p) { S.dash.preset = p.dataset.preset; if (p.dataset.preset !== 'custom') [S.dash.from, S.dash.to] = presetRange(p.dataset.preset); return renderDash(); }
@@ -2110,6 +2337,7 @@ function mainChange(ev) {
 $('#sheet').addEventListener('click', ev => {
   const t = ev.target;
   if (t.closest('[data-close]')) return closeSheet();
+  const eb = t.closest('[data-empback]'); if (eb) return openEmp(eb.dataset.empback);
   const back = t.closest('[data-back]'); if (back) return openDetail(back.dataset.back);
   const bt = t.closest('[data-back-task]'); if (bt) { Rec.cancel(); return openTask(bt.dataset.backTask); }
   const ed = t.closest('[data-edit]'); if (ed) return openForm(findEntry(ed.dataset.edit));
