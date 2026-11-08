@@ -353,6 +353,8 @@ nav{background:color-mix(in srgb,var(--card) 92%,transparent)}
 .bookbtn[data-book="ganesh"] .bicon{background:#fde3b5}
 .bookbtn[data-book="veg"] .bicon{background:#dcefcf}
 .bookbtn[data-book="iron"] .bicon{background:#dde6f6}
+.bookbtn[data-book="blinkit"] .bicon{background:#fff3b0}
+@media (prefers-color-scheme:dark){.bookbtn[data-book="blinkit"] .bicon{background:#4a4412}}
 @media (prefers-color-scheme:dark){
   .bookbtn[data-book="ganesh"] .bicon{background:#4a3517} .bookbtn[data-book="veg"] .bicon{background:#263c22} .bookbtn[data-book="iron"] .bicon{background:#232f44}
 }
@@ -696,7 +698,7 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Order paid': ['Order ka payment', 'ઑર્ડરની ચુકવણી'], 'Final amount paid ₹ (from the Blinkit bill)': ['Kul kitna diya ₹ (Blinkit bill se)', 'કુલ કેટલા ચૂકવ્યા ₹ (Blinkit બિલમાંથી)'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Empty': ['Khaali', 'ખાલી'], 'Online orders': ['Online order', 'ઑનલાઇન ઑર્ડર'], 'Order paid': ['Order ka payment', 'ઑર્ડરની ચુકવણી'], 'Final amount paid ₹ (from the Blinkit bill)': ['Kul kitna diya ₹ (Blinkit bill se)', 'કુલ કેટલા ચૂકવ્યા ₹ (Blinkit બિલમાંથી)'],
   'Add to': ['Kis mein jode', 'શેમાં ઉમેરવું'], 'Bill screenshot (optional)': ['Bill ki photo (optional)', 'બિલનો ફોટો (વૈકલ્પિક)'], '📷 Add bill photo': ['📷 Bill ki photo', '📷 બિલનો ફોટો'], 'Save to purchases': ['Kharidi mein save karo', 'ખરીદીમાં સેવ કરો'], 'Edit task': ['Kaam badlo', 'કામ સુધારો'], 'Write the task in any language, e.g. bed theek karwana hai': ['Kisi bhi bhasha mein kaam likho, jaise bed theek karwana hai', 'કોઈપણ ભાષામાં કામ લખો, દા.ત. bed theek karwana hai'],
   '🎤 The voice note stays with the task.': ['🎤 Voice note kaam ke saath rahega.', '🎤 વૉઇસ નોટ કામ સાથે રહેશે.'], 'Write the task': ['Kaam likho', 'કામ લખો'], 'Salary': ['Pagaar', 'પગાર'], 'Checklists': ['Checklist', 'ચેકલિસ્ટ'], 'Attendance, advance & payouts': ['Haaziri, advance aur pagaar', 'હાજરી, ઉપાડ અને પગાર'], 'Shopping lists, Blinkit…': ['Kharidi list, Blinkit…', 'ખરીદી યાદી, Blinkit…'],
   'Full': ['Poora', 'પૂરો'], 'Half': ['Aadha', 'અડધો'], 'Absent': ['Gair-haazir', 'ગેરહાજર'], 'Earned so far': ['Ab tak kamaya', 'અત્યાર સુધી'], 'To pay (after advance)': ['Dena hai (advance ke baad)', 'આપવાના (ઉપાડ પછી)'], 'This month': ['Is mahine', 'આ મહિને'],
@@ -841,11 +843,12 @@ const BOOKS = {
   ganesh: {key: 'ganesh', name: 'Ganesh', icon: '🛒', sub: 'Kirana & general items', unit: 'pcs'},
   veg: {key: 'veg', name: 'Vegetables', icon: '🥬', sub: 'Sabzi & fruits', unit: 'kg'},
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
+  blinkit: {key: 'blinkit', name: 'Blinkit', icon: '🛍️', sub: 'Online orders', unit: 'pcs'},
 };
-const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
+const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '27 · blinkit amount';
+const APP_VERSION = '28 · blinkit book';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1465,7 +1468,7 @@ function listsHTML() {
   return ls.map(l => { const it = l.items || [], got = it.filter(i => i.st === 'got').length, na = it.filter(i => i.st === 'na').length, left = it.length - got - na;
     return `<button class="card" data-list="${l.id}"><div class="main"><div class="t" data-nt>${esc(l.name)}</div>
       <div class="s">${it.length} items · by ${esc(l.createdByName || '')}</div></div>
-      <div class="amt">${left ? `<span class="badge b-credit">${left} to get</span>` : `<span class="badge b-paid">Done ✓</span>`}${na ? `<span class="badge b-over">${na} not available</span>` : ''}</div></button>`; }).join('');
+      <div class="amt">${!it.length ? `<span class="badge b-mute">Empty</span>` : left ? `<span class="badge b-credit">${left} to get</span>` : `<span class="badge b-paid">Done ✓</span>`}${na ? `<span class="badge b-over">${na} not available</span>` : ''}</div></button>`; }).join('');
 }
 function openList(id) {
   const l = findList(id); if (!l) return;
@@ -1484,7 +1487,7 @@ function openList(id) {
         ${got.length ? `<div class="flabel" style="margin-top:12px">Done (${got.length})</div>` + got.map(row).join('') : ''}
         ${na.length ? `<div class="flabel" style="margin-top:12px;color:#c62828">Not available (${na.length})</div>` + na.map(row).join('') : ''}</div>
       ${l.paid ? `<button class="fgroup paidbox" data-open="${l.paid.entryId}" id="clPaidBox"><b>✓ Paid ${money(l.paid.amount)}</b> · ${esc(l.paid.mode)} · ${shortDate(l.paid.on)}<div class="hint" style="margin:2px 0 0">Added to ${esc(BOOKS[l.paid.book]?.name || '')} · tap to see</div></button>`
-        : got.length ? `<button class="btn amber" id="clPay">💳 Order paid – add amount to ${esc(BOOKS.ganesh.name)}</button>` : ''}
+        : got.length ? `<button class="btn amber" id="clPay">💳 Order paid – add amount to ${esc(BOOKS.blinkit.name)}</button>` : ''}
       ${left.length ? `<a class="btn pri" id="clBlink" href="${blinkit(left[0].name)}" target="_blank" rel="noopener">🛒 Open Blinkit · ${esc(left[0].name)}</a>` : ''}
       <button class="btn sec" id="clShare">📤 Share list (WhatsApp)</button>
       <button class="btn dan" id="clDel">Delete list</button>
@@ -1510,7 +1513,7 @@ function openList(id) {
 function openListPay(id) {
   const l = findList(id); if (!l) return;
   const got = (l.items || []).filter(i => i.st === 'got');
-  let mode = 'UPI', book = 'ganesh'; const photo = {data: null};
+  let mode = 'UPI', book = 'blinkit'; const photo = {data: null};
   openSheet(`<div class="sh-head"><button data-listback="${id}">Back</button><h2>Order paid</h2><button class="save" id="lpSave">Save</button></div>
     <div class="sh-body">
       <div class="fgroup"><div style="font-weight:700" data-nt>${esc(l.name)}</div><div class="hint" data-nt>${got.map(i => esc(i.name) + (i.qty ? ' ×' + esc(i.qty) : '')).join(', ')}</div>
@@ -1518,8 +1521,7 @@ function openListPay(id) {
         <label class="flabel" style="margin-top:10px">Paid on</label><input class="field" type="date" id="lpDate" value="${today()}">
         <label class="flabel" style="margin-top:12px">Paid by</label>
         <div class="modes" id="lpModes">${PAY.map(m => `<button type="button" class="chip big ${m === mode ? 'on' : ''}" data-pm="${m}">${m === 'Cash' ? '💵' : '📱'} ${m}</button>`).join('')}</div>
-        <label class="flabel" style="margin-top:12px">Add to</label>
-        <div class="modes" id="lpBook">${['ganesh', 'veg'].map(k => `<button type="button" class="chip ${k === book ? 'on' : ''}" data-bk="${k}">${BOOKS[k].icon} <span data-nt>${esc(BOOKS[k].name)}</span></button>`).join('')}</div></div>
+        <p class="hint">Saved in ${BOOKS.blinkit.icon} <b data-nt>${esc(BOOKS.blinkit.name)}</b> purchases.</p></div>
       <div class="fgroup"><label class="flabel">Bill screenshot (optional)</label><div class="photo-box" id="lpPhoto"></div></div>
       <button class="btn amber" id="lpSave2">Save to purchases</button>
     </div>`);
@@ -1527,12 +1529,11 @@ function openListPay(id) {
   const drawP = () => { $('#lpPhoto').innerHTML = photo.data ? `<img src="${photo.data}" alt=""><button type="button" class="pbtn" id="lpPh">Change</button>` : `<button type="button" class="pbtn" id="lpPh">📷 Add bill photo</button>`; $('#lpPh').onclick = () => pickPhoto(false, d => { photo.data = d; drawP(); }); };
   drawP();
   $('#lpModes').onclick = ev => { const b = ev.target.closest('[data-pm]'); if (!b) return; mode = b.dataset.pm; $('#lpModes').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); };
-  $('#lpBook').onclick = ev => { const b = ev.target.closest('[data-bk]'); if (!b) return; book = b.dataset.bk; $('#lpBook').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); };
   const save = () => {
     const amt = num($('#lpAmt').value); if (!amt) return toast('Enter the amount');
     const date = $('#lpDate').value || today();
     const e = {id: api.newId(), book, date, vendor: 'Blinkit', status: 'paid', mode, ref: '', dueDate: null,
-      items: [{name: `Blinkit · ${l.name}`, qty: 1, unit: 'pcs', rate: amt, amount: amt, priceOnly: true}],
+      items: [{name: l.name, qty: 1, unit: 'pcs', rate: amt, amount: amt, priceOnly: true}],
       notes: got.map(i => i.name + (i.qty ? ' ×' + i.qty : '')).join(', '), hasPhoto: !!photo.data, fromList: l.id,
       createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name, updatedAt: Date.now(), updatedByName: S.me.name};
     if (photo.data) api.savePhoto(e.id, photo.data).catch(er => toast('Photo: ' + errText(er)));
@@ -1646,7 +1647,7 @@ function openForm(existing, book) {
   const k = existing ? bookOf(existing) : (book || 'ganesh'), iron = k === 'iron', B = BOOKS[k];
   const e = existing ? strip(JSON.parse(JSON.stringify(existing))) : {
     id: null, book: k, date: today(), vendor: B.name, items: iron ? [] : [{name: '', qty: 1, unit: B.unit, rate: '', amount: ''}],
-    status: iron ? 'credit' : 'paid', mode: 'Cash', ref: '', dueDate: addDays(today(), 30), notes: '', hasPhoto: false
+    status: iron ? 'credit' : 'paid', mode: k === 'blinkit' ? 'UPI' : 'Cash', ref: '', dueDate: addDays(today(), 30), notes: '', hasPhoto: false
   };
   if (!e.dueDate) e.dueDate = addDays(e.date, 30);
   if (!PAY.includes(e.mode)) e.mode = 'Cash';
