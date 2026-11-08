@@ -719,7 +719,8 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Pay to which saved UPI ID?': ['Kis saved UPI ID ko pay karna hai?', 'કયા સેવ કરેલા UPI ID ને ચૂકવવું?'], '📷 Scan new QR': ['📷 Naya QR scan', '📷 નવો QR સ્કૅન'], '⌨️ Type new ID': ['⌨️ Nayi ID likho', '⌨️ નવું ID લખો'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Added to cart': ['Cart mein daala', 'કાર્ટમાં નાખ્યું'], 'next': ['agla', 'આગળનું'], 'left': ['baaki', 'બાકી'], 'Open again': ['Fir kholo', 'ફરી ખોલો'], 'Stop': ['Ruko', 'બંધ કરો'],
+  'Opens Blinkit for each item one by one. Add it to the cart, come back, tap ✓ – the next one opens.': ['Har saaman ke liye Blinkit ek-ek karke khulega. Cart mein daalo, wapas aao, ✓ dabao – agla khulega.', 'દરેક વસ્તુ માટે Blinkit એક પછી એક ખુલશે. કાર્ટમાં નાખો, પાછા આવો, ✓ દબાવો – આગળનું ખુલશે.'], 'Pay to which saved UPI ID?': ['Kis saved UPI ID ko pay karna hai?', 'કયા સેવ કરેલા UPI ID ને ચૂકવવું?'], '📷 Scan new QR': ['📷 Naya QR scan', '📷 નવો QR સ્કૅન'], '⌨️ Type new ID': ['⌨️ Nayi ID likho', '⌨️ નવું ID લખો'],
   'Add more': ['Aur jodo', 'વધુ ઉમેરો'], 'Rename': ['Naam badlo', 'નામ બદલો'], 'Remove': ['Hatao', 'કાઢો'], '📷 Scan QR': ['📷 QR scan', '📷 QR સ્કૅન'], 'Max 8 photos': ['Zyada se zyada 8 photo', 'વધુમાં વધુ 8 ફોટા'], 'Did the payment go through?': ['Payment ho gaya?', 'ચુકવણી થઈ ગઈ?'], 'Yes, paid': ['Haan, ho gaya', 'હા, થઈ ગઈ'], 'No / failed': ['Nahi / fail', 'ના / નિષ્ફળ'],
   'Pay to': ['Kisko', 'કોને'], 'Change': ['Badlo', 'બદલો'], 'Other UPI': ['Aur UPI', 'બીજું UPI'], 'Amount fills in automatically. After paying, come back here.': ['Rakam apne aap bhar jayegi. Pay karke yahan wapas aao.', 'રકમ આપોઆપ ભરાશે. ચૂકવીને અહીં પાછા આવો.'],
   "Pay from here: scan the shop's UPI QR once, it is remembered.": ['Yahin se pay karo: dukaan ka UPI QR ek baar scan karo, yaad rahega.', 'અહીંથી ચૂકવો: દુકાનનો UPI QR એક વાર સ્કૅન કરો, યાદ રહેશે.'], '📷 Scan UPI QR': ['📷 UPI QR scan', '📷 UPI QR સ્કૅન'], '⌨️ Type UPI ID': ['⌨️ UPI ID likho', '⌨️ UPI ID લખો'],
@@ -874,7 +875,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '34 · admin alerts for everything';
+const APP_VERSION = '35 · Blinkit shop-all';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1531,7 +1532,8 @@ function openList(id) {
         ${na.length ? `<div class="flabel" style="margin-top:12px;color:#c62828">Not available (${na.length})</div>` + na.map(row).join('') : ''}</div>
       ${l.paid ? `<button class="fgroup paidbox" data-open="${l.paid.entryId}" id="clPaidBox"><b>✓ Paid ${money(l.paid.amount)}</b> · ${esc(l.paid.mode)} · ${shortDate(l.paid.on)}<div class="hint" style="margin:2px 0 0">Added to ${esc(BOOKS[l.paid.book]?.name || '')} · tap to see</div></button>`
         : got.length ? `<button class="btn amber" id="clPay">💳 Order paid – add amount to ${esc(BOOKS.blinkit.name)}</button>` : ''}
-      ${left.length ? `<a class="btn pri" id="clBlink" href="${blinkit(left[0].name)}" target="_blank" rel="noopener">🛒 Open Blinkit · ${esc(left[0].name)}</a>` : ''}
+      ${left.length ? `<button class="btn pri" id="clShopAll">🛒 Shop all on Blinkit · ${left.length} item${left.length === 1 ? '' : 's'}</button>
+        <p class="hint" style="margin-top:-4px">Opens Blinkit for each item one by one. Add it to the cart, come back, tap ✓ – the next one opens.</p>` : ''}
       <button class="btn sec" id="clShare">📤 Share list (WhatsApp)</button>
       <button class="btn dan" id="clDel">Delete list</button>
     </div>`);
@@ -1545,6 +1547,7 @@ function openList(id) {
     if (b.dataset.clundo != null) return upd(o => { o.items[+b.dataset.clundo].st = ''; });
     if (b.dataset.cldel != null) return upd(o => { o.items.splice(+b.dataset.cldel, 1); }); };
   $('#clPay') && ($('#clPay').onclick = () => openListPay(id));
+  $('#clShopAll') && ($('#clShopAll').onclick = () => shopNext(id));
   $('#clPaidBox') && ($('#clPaidBox').onclick = () => { const e = findEntry(l.paid.entryId); if (e) openDetail(e.id); else toast('Entry not found'); });
   $('#clRename').onclick = () => { const n = prompt(tx('List name'), l.name); if (n && n.trim()) upd(o => { o.name = n.trim(); }); };
   $('#clDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(l.id).catch(e => toast(errText(e))); closeSheet(); toast('Deleted'); };
@@ -1587,6 +1590,33 @@ function openListPay(id) {
   };
   $('#lpSave').onclick = save; $('#lpSave2').onclick = save;
 }
+
+// Guided Blinkit run: open item → come back → Added / Not available → next item opens
+function shopNext(id) {
+  const l = findList(id); if (!l) return;
+  const k = (l.items || []).findIndex(i => !i.st);
+  if (k < 0) { S.shopRun = null; openList(id); return toast('All items done – checkout in Blinkit'); }
+  S.shopRun = {id, k, at: Date.now()};
+  const i = l.items[k]; window.open(blinkit(i.name), '_blank') || (location.href = blinkit(i.name));
+}
+function askShopResult() {
+  const r = S.shopRun; if (!r || Date.now() - r.at < 1500) return;
+  const l = findList(r.id), i = l?.items?.[r.k]; if (!i) { S.shopRun = null; return; }
+  const left = l.items.filter(x => !x.st).length;
+  let d = $('#upiAsk'); if (!d) { d = document.createElement('div'); d.id = 'upiAsk'; document.body.appendChild(d); }
+  d.innerHTML = `<div class="upibox"><div class="hint" style="margin:0">${tx('Blinkit')} · ${left} ${tx('left')}</div>
+    <div style="font-size:22px;font-weight:800;margin:6px 0" data-nt>${esc(i.name)}${i.qty ? ' × ' + esc(i.qty) : ''}</div>
+    <button class="btn pri" id="shAdded">✓ ${tx('Added to cart')}${left > 1 ? ' · ' + tx('next') : ''}</button>
+    <button class="btn sec" id="shNA" style="color:#c62828">✗ ${tx('Not available')}${left > 1 ? ' · ' + tx('next') : ''}</button>
+    <div class="row2"><button class="btn sec" id="shAgain" style="margin:0">↻ ${tx('Open again')}</button><button class="btn sec" id="shStop" style="margin:0">${tx('Stop')}</button></div></div>`;
+  d.classList.add('on');
+  const mark = st => { d.classList.remove('on'); l.items[r.k].st = st; saveList(l); if (S.listOpen === r.id) openList(r.id); S.shopRun = null; setTimeout(() => shopNext(r.id), 250); };
+  $('#shAdded').onclick = () => mark('got'); $('#shNA').onclick = () => mark('na');
+  $('#shAgain').onclick = () => { d.classList.remove('on'); S.shopRun.at = Date.now(); window.open(blinkit(i.name), '_blank') || (location.href = blinkit(i.name)); };
+  $('#shStop').onclick = () => { d.classList.remove('on'); S.shopRun = null; };
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.shopRun) setTimeout(askShopResult, 400); });
+window.addEventListener('focus', () => { if (S.shopRun) setTimeout(askShopResult, 600); });
 
 function openListForm() {
   const n = prompt(tx('List name'), tx('Blinkit order')); if (!n || !n.trim()) return;
