@@ -474,6 +474,7 @@ const errText = e => {
 /* ================= data layer: Firebase ================= */
 async function firebaseAPI(cfg) {
   const B = 'https://www.gstatic.com/firebasejs/10.12.2/';
+  const VAPID = 'BKb0bZk-WSnN-pITZNgRyNQrxK7PBjdvm20OzQHBlDmBYIlrLJhM55ZaEGBN4AEkDdLUFfCIOFNIq39OUKFG2NA';
   const [{initializeApp}, A, F] = await Promise.all([import(B + 'firebase-app.js'), import(B + 'firebase-auth.js'), import(B + 'firebase-firestore.js')]);
   const app = initializeApp(cfg);
   const auth = A.getAuth(app);
@@ -496,6 +497,9 @@ async function firebaseAPI(cfg) {
     createMe: (uid, d) => F.setDoc(F.doc(db, 'users', uid), d),
     watchUsers: (cb, err) => F.onSnapshot(col('users'), s => cb(s.docs.map(d => ({uid: d.id, ...d.data()}))), err),
     updateUser: (uid, p) => F.updateDoc(F.doc(db, 'users', uid), p),
+    idToken: () => auth.currentUser ? auth.currentUser.getIdToken() : null,
+    pushToken: async reg => { const M = await import(B + 'firebase-messaging.js'); if (!(await M.isSupported())) return null;
+      return M.getToken(M.getMessaging(app), {vapidKey: VAPID, serviceWorkerRegistration: reg}); },
     watchEntries: (since, cb, err) => F.onSnapshot(F.query(col('entries'), F.where('date', '>=', since)), {includeMetadataChanges: true}, s => cb(list(s)), err),
     watchCredits: (cb, err) => F.onSnapshot(F.query(col('entries'), F.where('status', '==', 'credit')), {includeMetadataChanges: true}, s => cb(list(s)), err),
     watchBook: (book, cb, err) => F.onSnapshot(F.query(col('entries'), F.where('book', '==', book)), {includeMetadataChanges: true}, s => cb(list(s)), err),
@@ -572,6 +576,7 @@ function demoAPI() {
     createMe: async (uid, d) => { users[uid] = d; emit(); },
     watchUsers: cb => watch(() => cb(Object.entries(users).map(([uid, u]) => ({uid, ...u})))),
     updateUser: async (uid, p) => { Object.assign(users[uid], p); emit(); },
+    idToken: async () => null, pushToken: async () => null,
     watchEntries: (since, cb) => watch(() => cb(Object.values(entries).filter(e => e.date >= since).map(e => ({...e})))),
     watchCredits: cb => watch(() => cb(Object.values(entries).filter(e => e.status === 'credit').map(e => ({...e})))),
     watchBook: (book, cb) => watch(() => cb(Object.values(entries).filter(e => e.book === book).map(e => ({...e})))),
@@ -848,7 +853,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '28 · blinkit book';
+const APP_VERSION = '29 · lock-screen alerts';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1020,6 +1025,7 @@ function startApp() {
 
   const err = e => toast(errText(e));
   S.lists = {emp: [], check: []};
+  setTimeout(() => setupPush(), 4000);
   if (S.isStaff) {
     S.view = 'tasks'; S.entries = []; S.users = []; S.settings = {};
     startPresence();
@@ -1221,7 +1227,7 @@ function moreHTML() {
   const mine = `<div class="fgroup"><h3 data-nt>${esc(me.name || '')}</h3><p>${esc(S.user.email)} · ${S.isOwner ? 'Main admin' : S.isAdmin ? 'Admin' : S.isStaff ? 'Staff' : 'Family'}${api.demo ? ' · DEMO' : ''}</p><p class="hint">App version: ${APP_VERSION}</p>
       <div class="flabel" style="margin-top:10px">Language</div>${langSwitch()}
       <button class="btn sec" id="renameBtn">Change my name</button>
-      ${notif === 'default' ? `<button class="btn sec" id="notifBtn">🔔 Turn on task alerts</button>` : notif === 'granted' ? `<p class="hint">🔔 Task alerts are on for this phone.</p>` : ''}
+      ${notif === 'default' ? `<button class="btn sec" id="notifBtn">🔔 Turn on task alerts</button>` : notif === 'granted' ? `<p class="hint">🔔 Task alerts are on for this phone${PUSH_URL ? (S.pushOn ? ', also when locked.' : S.pushErr ? ` (lock-screen: ${esc(S.pushErr)})` : '.') : '.'}</p>` : notif === 'denied' ? `<p class="hint">🔕 Alerts are blocked. Allow notifications for this app in phone Settings.</p>` : ''}
       <button class="btn dan" id="signOutBtn">Sign out</button></div>`;
   if (S.isAdmin) {
     const groups = [['approved', 'Have access'], ['pending', 'Waiting for approval'], ['removed', 'Access removed']];
@@ -1988,9 +1994,28 @@ function taskAlerts() {
   if (first && msgs.length > 1) { toast(`${msgs.length} task updates since you last opened`); notify('ANP Accounts', `${msgs.length} task updates`); return; }
   msgs.slice(0, 3).forEach((m, i) => setTimeout(() => { toast(m); notify('ANP Accounts', m); }, i * 2600));
 }
+/* ---- lock-screen alerts: each phone saves its push token; the sender (Cloudflare Worker) delivers ---- */
+const PUSH_URL = (window.GHAR_CONFIG && window.GHAR_CONFIG.pushUrl) || '';
+async function setupPush(force) {
+  try {
+    if (!PUSH_URL || api.demo || !('Notification' in window) || Notification.permission !== 'granted' || !('serviceWorker' in navigator)) return;
+    const reg = await navigator.serviceWorker.ready, token = await api.pushToken(reg);
+    if (!token) return;
+    const have = S.me?.pushTokens || [];
+    if (!have.includes(token) || force) await api.updateUser(S.user.uid, {pushTokens: [...have.filter(t => t !== token).slice(-3), token]});
+    S.pushOn = true;
+  } catch (e) { console.warn('push setup', e); S.pushErr = String(e?.message || e); }
+}
+async function pushTo(to, title, body, tag) {
+  if (!PUSH_URL || api.demo) return;
+  try { const idToken = await api.idToken(); if (!idToken) return;
+    fetch(PUSH_URL, {method: 'POST', headers: {'content-type': 'text/plain'}, body: JSON.stringify({idToken, to, title, body, url: './?go=tasks', tag})}).catch(() => {});
+  } catch {}
+}
 async function notify(title, body, url = './?go=tasks') {
   try {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (S.pushOn) return;   // the push sender already shows it on this phone
     const reg = await navigator.serviceWorker?.getRegistration();
     if (reg) reg.showNotification(title, {body, icon: 'icon-192.png', badge: 'icon-192.png', tag: body.slice(0, 40), data: {url}});
     else new Notification(title, {body, icon: 'icon-192.png'});
@@ -2110,6 +2135,7 @@ function openTaskForm() {
     if (voice.data) api.savePhoto('tv_' + t.id, voice.data).catch(e => toast('Voice: ' + errText(e)));
     if (photo.data) api.savePhoto('tp_' + t.id, photo.data).catch(e => toast('Photo: ' + errText(e)));
     api.saveTask(t).catch(e => toast(errText(e)));
+    pushTo(t.assignedTo ? [t.assignedTo] : 'all', `${t.urgent ? '🚨 Urgent task' : 'New task'} · ${S.me.name}`, t.title, 'task-' + t.id);
     closeSheet(); toast('Task added');
   };
   $('#ntSave').onclick = save; $('#ntSave2').onclick = save;
@@ -2152,7 +2178,7 @@ function openTask(id) {
     upd({...mine, status: 'working', startedAt: Date.now(), startedByName: S.me.name}); closeSheet(); toast('Started'); });
   $('#tUnstart') && ($('#tUnstart').onclick = () => { upd({status: 'open', startedAt: null}); closeSheet(); });
   $('#tReassign') && ($('#tReassign').onclick = () => openReassign(id));
-  $('#tApprove') && ($('#tApprove').onclick = () => { upd({status: 'done', done: true, approvedBy: S.user.uid, approvedByName: S.me.name, approvedAt: Date.now(), doneDate: today()}); closeSheet(); toast('Approved ✓'); });
+  $('#tApprove') && ($('#tApprove').onclick = () => { upd({status: 'done', done: true, approvedBy: S.user.uid, approvedByName: S.me.name, approvedAt: Date.now(), doneDate: today()}); pushTo([t.submittedBy || t.assignedTo].filter(Boolean), 'Approved ✓', t.title, 'task-' + t.id); closeSheet(); toast('Approved ✓'); });
   $('#tDecline') && ($('#tDecline').onclick = () => openDecline(id));
   $('#tReopen') && ($('#tReopen').onclick = () => { upd({status: 'open', done: false, approvedAt: null, approvedBy: null, approvedByName: null, doneDate: null}); closeSheet(); });
   $('#tEdit') && ($('#tEdit').onclick = () => openTaskEdit(id));
@@ -2196,6 +2222,7 @@ function openReassign(id) {
     const u = S.users.find(x => x.uid === b.dataset.pick);
     api.saveTask({...strip(t), assignedTo: u.uid, assignedName: u.name, status: 'open', startedAt: null, urgent: $('#raUrgent').checked, date: $('#raUrgent').checked ? today() : t.date,
       reassignedByName: S.me.name, updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
+    pushTo([u.uid], `${$('#raUrgent').checked ? '🚨 Urgent task' : 'New task'} · ${S.me.name}`, t.title, 'task-' + t.id);
     closeSheet(); toast(tx('Given to') + ' ' + u.name);
   });
 }
@@ -2222,6 +2249,7 @@ function openSubmit(id) {
     api.savePhoto('tproof_' + t.id, photo.data).catch(e => toast('Photo: ' + errText(e)));
     if (voice.data) api.savePhoto('tpv_' + t.id, voice.data).catch(e => toast('Voice: ' + errText(e)));
     api.saveTask({...strip(t), status: 'review', done: false, hasProof: true, proofVoice: !!voice.data, proofNote: $('#sbNote').value.trim(), submittedBy: S.user.uid, submittedByName: S.me.name, submittedAt: Date.now(), updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
+    pushTo('admins', `✅ ${S.me.name} finished a task`, `${t.title} · please check`, 'task-' + t.id);
     closeSheet(); toast(S.isStaff ? 'Sent ✓ Task done' : 'Sent for approval');
   };
   $('#sbSave').onclick = send; $('#sbSave2').onclick = send;
@@ -2246,6 +2274,7 @@ function openDecline(id) {
     if (voice.data) api.savePhoto('tdv_' + t.id, voice.data).catch(e => toast('Voice: ' + errText(e)));
     api.saveTask({...strip(t), status: 'open', done: false, declinedAt: Date.now(), declinedBy: S.user.uid, declinedByName: S.me.name, declineNote: note, declineVoice: !!voice.data,
       hasProof: false, proofVoice: false, updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
+    pushTo([t.submittedBy || t.assignedTo].filter(Boolean), `↺ Redo · ${S.me.name}`, note ? `${t.title}: ${note}` : t.title, 'task-' + t.id);
     closeSheet(); toast('Sent back to redo');
   };
   $('#dcSave').onclick = send; $('#dcSave2').onclick = send;
@@ -2385,7 +2414,7 @@ async function mainClick(ev) {
   const us = t.closest('[data-ustat]'); if (us) return setUserStatus(us.dataset.uid, us.dataset.ustat, us.dataset.asrole);
   const ur = t.closest('[data-urole]'); if (ur) return setUserRole(ur.dataset.uid, ur.dataset.urole);
   if (t.closest('#signOutBtn')) return api.signOut();
-  if (t.closest('#notifBtn')) { try { const r = await Notification.requestPermission(); toast(r === 'granted' ? 'Alerts on' : 'Alerts not allowed'); } catch {} return render(); }
+  if (t.closest('#notifBtn')) { try { const r = await Notification.requestPermission(); toast(r === 'granted' ? 'Alerts on' : 'Alerts not allowed'); if (r === 'granted') await setupPush(true); } catch {} return render(); }
   if (t.closest('#renameBtn')) { const n = prompt('Your name', S.me.name); if (n && n.trim()) api.updateUser(S.user.uid, {name: n.trim()}).then(() => toast('Name updated')).catch(e => toast(errText(e))); return; }
   const td = t.closest('[data-tday]'); if (td) { const n = +td.dataset.tday; S.taskDay = n === 0 ? today() : addDays(S.taskDay, n); return render(); }
   const tl = t.closest('[data-tlang]'); if (tl) { try { localStorage.setItem('tLang', tl.dataset.tlang); } catch {} return render(); }
