@@ -271,6 +271,8 @@ header h1{font-size:clamp(21px,6.4vw,28px);white-space:nowrap;min-width:0;overfl
 .stats.three{grid-template-columns:1fr 1fr 1fr}
 .chip.big{padding:10px 18px;font-size:15.5px}
 .igrid3{display:grid;grid-template-columns:1.6fr 1fr 1fr 32px;gap:6px;align-items:end}
+.orates{margin-top:6px;padding-right:38px}.orates label span{display:block;font-size:11px;color:var(--muted);font-weight:600;margin:0 0 2px 2px}.orates .field{padding:9px 8px}
+.retbtn{border:1px solid var(--line);background:#fff;border-radius:14px;padding:4px 10px;font-size:13px;font-weight:600;color:var(--accent);margin-top:6px}.retbtn.on{background:#e7f4ea;border-color:#b9dfc3;color:#2e7d32}
 .igrid3 label span{display:block;font-size:11px;color:var(--muted);font-weight:600;margin:0 0 2px 2px}
 .igrid3 .field{padding:9px 8px}
 .irow.iron .hint{margin:4px 2px 0}
@@ -672,7 +674,8 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'My tasks': ['Mera kaam', 'મારાં કામ'], 'Staff': ['Staff', 'સ્ટાફ'], 'Family': ['Parivaar', 'પરિવાર'], 'Approve family': ['Parivaar mein jodo', 'પરિવાર તરીકે મંજૂર'], 'Approve staff': ['Staff mein jodo', 'સ્ટાફ તરીકે મંજૂર'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Wash rate ₹': ['Dhulai bhaav ₹', 'ધોલાઈ ભાવ ₹'], 'Iron rate ₹': ['Istri bhaav ₹', 'ઈસ્ત્રી ભાવ ₹'], '↩ Mark returned': ['↩ Wapas aaya', '↩ પાછું આવ્યું'], '↩ Mark all clothes returned': ['↩ Saare kapde wapas aaye', '↩ બધાં કપડાં પાછાં આવ્યાં'],
+  'All returned': ['Sab wapas aa gaye', 'બધું પાછું આવ્યું'], 'Returned': ['Wapas aaya', 'પાછું આવ્યું'], 'Undone': ['Hata diya', 'પાછું લીધું'], 'e.g. Curtain': ['jaise parda', 'દા.ત. પડદો'], 'My tasks': ['Mera kaam', 'મારાં કામ'], 'Staff': ['Staff', 'સ્ટાફ'], 'Family': ['Parivaar', 'પરિવાર'], 'Approve family': ['Parivaar mein jodo', 'પરિવાર તરીકે મંજૂર'], 'Approve staff': ['Staff mein jodo', 'સ્ટાફ તરીકે મંજૂર'],
   'Make staff': ['Staff banao', 'સ્ટાફ બનાવો'], 'Make family': ['Parivaar banao', 'પરિવાર બનાવો'], '▶ Start': ['▶ Shuru karo', '▶ શરૂ કરો'], '⏸ Not started': ['⏸ Abhi shuru nahi', '⏸ હજી શરૂ નથી'], '📷 Done': ['📷 Ho gaya', '📷 થઈ ગયું'],
   'Sent': ['Bhej diya', 'મોકલ્યું'], 'No work right now. 🙏': ['Abhi koi kaam nahi. 🙏', 'હમણાં કોઈ કામ નથી. 🙏'], 'Coming days': ['Aane wale din', 'આવતા દિવસો'], 'Sent ✓ Task done': ['Bhej diya ✓ Kaam ho gaya', 'મોકલ્યું ✓ કામ થઈ ગયું'],
   "After sending, this task closes for you. If the photo isn't clear, it will come back to you to redo.": ['Bhejne ke baad yeh kaam band ho jayega. Photo saaf nahi hui to dobara karne ke liye wapas aayega.', 'મોકલ્યા પછી આ કામ બંધ થશે. ફોટો સાફ ન હોય તો ફરી કરવા પાછું આવશે.'], 'Price ₹': ['Daam ₹', 'કિંમત ₹'], 'Price': ['Daam', 'કિંમત'], 'last': ['pichhli baar', 'છેલ્લે'], 'Others (optional)': ['Aur (optional)', 'બીજું (વૈકલ્પિક)'], 'Other': ['Aur', 'બીજું'],
@@ -807,7 +810,7 @@ const BOOKS = {
   iron: {key: 'iron', name: 'Iron', icon: '👕', sub: 'Wash & iron clothes', unit: 'pcs'},
 };
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
-const APP_VERSION = '22 · staff, bulk pay';
+const APP_VERSION = '23 · iron others & returns';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -816,7 +819,7 @@ const bookOf = e => BOOKS[e.book] ? e.book : 'ganesh';
 const DEFAULT_RATES = ['Shirt', 'T-shirt', 'Pant', 'Saree', 'Kurta', 'Dress', 'Bedsheet', 'Blanket'].map(c => ({cat: c, wash: 0, iron: 0}));
 const ironRates = () => (Array.isArray(S.settings?.ironRates) && S.settings.ironRates.length ? S.settings.ironRates : DEFAULT_RATES);
 const rateOf = cat => ironRates().find(r => r.cat.toLowerCase() === String(cat || '').toLowerCase()) || {cat, wash: 0, iron: 0};
-const ironCounts = e => (e.items || []).reduce((a, i) => (i.other ? a : {wash: a.wash + num(i.wash), iron: a.iron + num(i.iron)}), {wash: 0, iron: 0});
+const ironCounts = e => (e.items || []).reduce((a, i) => ({wash: a.wash + num(i.wash), iron: a.iron + num(i.iron)}), {wash: 0, iron: 0});
 const ironOthers = e => (e.items || []).filter(i => i.other).reduce((t, i) => t + num(i.amount), 0);
 function returnState(e) {
   const g = ironCounts(e), given = g.wash + g.iron, back = num(e.retWash) + num(e.retIron);
@@ -1209,9 +1212,12 @@ const findEntry = id => S.entries.find(x => x.id === id) || S.rangeCache?.list.f
 function openDetail(id) {
   const e = findEntry(id); if (!e) return;
   const k = bookOf(e), iron = k === 'iron';
-  const rows = (e.items || []).map(i => iron
-    ? (i.other ? `<tr><td><div class="n" data-nt>${esc(i.note || 'Others')}</div><div class="q">Others · ${num(i.qty) || 1} × ${money(num(i.rate) || num(i.amount))}</div></td><td class="a">${money(i.amount)}</td></tr>`
-      : `<tr><td><div class="n" data-nt>${esc(i.name)}</div><div class="q">${num(i.wash) ? `Wash ${i.wash} × ${money(i.washRate)}` : ''}${num(i.wash) && num(i.iron) ? ' · ' : ''}${num(i.iron) ? `Iron ${i.iron} × ${money(i.ironRate)}` : ''}</div></td><td class="a">${money(i.amount)}</td></tr>`)
+  const rows = (e.items || []).map((i, idx) => iron
+    ? (() => { const wi = num(i.wash) + num(i.iron), back = itemBack(e, i);
+        const q = i.other && !wi ? `Others · ${num(i.qty) || 1} × ${money(num(i.rate) || num(i.amount))}`
+          : `${i.other ? 'Others · ' : ''}${num(i.wash) ? `Wash ${i.wash} × ${money(i.washRate)}` : ''}${num(i.wash) && num(i.iron) ? ' · ' : ''}${num(i.iron) ? `Iron ${i.iron} × ${money(i.ironRate)}` : ''}`;
+        return `<tr><td><div class="n" data-nt>${esc(i.other ? i.note || 'Others' : i.name)}</div><div class="q">${q}</div>
+          ${wi ? `<button type="button" class="retbtn ${back ? 'on' : ''}" data-iret="${e.id}" data-idx="${idx}">${back ? `✓ Returned${typeof back === 'string' ? ' ' + shortDate(back) : ''}` : '↩ Mark returned'}</button>` : ''}</td><td class="a">${money(i.amount)}</td></tr>`; })()
     : `<tr><td><div class="n" data-nt>${esc(i.name)}</div><div class="q">${+i.qty || 0} ${esc(i.unit)}</div></td><td class="a">${money(i.amount)}</td></tr>`).join('');
   const pay = e.status === 'paid'
     ? `<div class="kv"><span>Payment</span><span>Paid · ${esc(e.mode)}</span></div>${e.ref ? `<div class="kv"><span>UTR</span><span>${esc(e.ref)}</span></div>` : ''}`
@@ -1228,7 +1234,7 @@ function openDetail(id) {
         <div class="kv"><span>Added by</span><span>${esc(e.createdByName || '—')}</span></div>
         ${e.notes ? `<div class="kv"><span>Notes</span><span data-nt>${esc(e.notes)}</span></div>` : ''}</div>
       ${e.hasPhoto ? `<div class="fgroup" id="photoSlot"><p class="hint" style="margin:0">Loading photo…</p></div>` : ''}
-      ${iron && !r.done && r.txt ? `<button class="btn pri" data-return="${e.id}">↩ Mark clothes returned</button>` : ''}
+      ${iron && !r.done && r.txt ? `<button class="btn pri" data-return="${e.id}">↩ Mark all clothes returned</button>` : ''}
       ${isPending(e) ? `<button class="btn amber" data-markpaid="${e.id}">Mark as paid</button>` : ''}
       ${e.status === 'credit' && e.paidOn ? `<button class="btn sec" data-unpay="${e.id}">Undo payment</button>` : ''}
       ${canDelete ? `<button class="btn dan" data-delete="${e.id}">Delete</button>` : ''}
@@ -1236,24 +1242,25 @@ function openDetail(id) {
   if (e.hasPhoto) api.getPhoto(e.id).then(p => { const s = $('#photoSlot'); if (s) s.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="">` : `<p class="hint" style="margin:0">Photo still uploading.</p>`; }).catch(() => {});
 }
 
-function openReturn(id) {
+// per-cloth return: each item keeps its own retOn; entry totals (retWash/retIron/retOn) are worked out from them
+function itemBack(e, i) {
+  if (i.retOn) return i.retOn;
+  const anyItem = (e.items || []).some(x => x.retOn);
+  return !anyItem && returnState(e).done ? (e.retOn || true) : '';
+}
+function retTotals(items) {
+  const back = items.filter(i => i.retOn);
+  return {retWash: back.reduce((t, i) => t + num(i.wash), 0), retIron: back.reduce((t, i) => t + num(i.iron), 0),
+    retOn: back.map(i => i.retOn).sort().pop() || null};
+}
+function setReturned(id, idx) {   // idx = item index, or null for all
   const e = findEntry(id); if (!e) return;
-  const g = ironCounts(e);
-  openSheet(`<div class="sh-head"><button data-back="${id}">Back</button><h2>Clothes returned</h2><button class="save" id="retSave">Save</button></div>
-    <div class="sh-body">
-      <div class="fgroup">
-        <p class="hint" style="margin-top:0">Given on ${prettyDate(e.date)}: Wash ${g.wash} · Iron ${g.iron}</p>
-        <div class="row2"><div><label class="flabel">Wash returned</label><input class="field" id="rWash" type="number" inputmode="numeric" min="0" value="${num(e.retWash) || g.wash}"></div>
-        <div><label class="flabel">Iron returned</label><input class="field" id="rIron" type="number" inputmode="numeric" min="0" value="${num(e.retIron) || g.iron}"></div></div>
-        <label class="flabel" style="margin-top:10px">Returned on</label><input type="date" class="field" id="rDate" value="${today()}">
-      </div>
-      <button class="btn pri" id="retSave2">Save</button>
-    </div>`);
-  const save = () => {
-    const u = {...strip(e), retWash: num($('#rWash').value), retIron: num($('#rIron').value), retOn: $('#rDate').value || today(), retByName: S.me.name, updatedAt: Date.now()};
-    api.saveEntry(u).catch(er => toast(errText(er))); Object.assign(e, u); openDetail(id); toast('Return saved');
-  };
-  $('#retSave').onclick = save; $('#retSave2').onclick = save;
+  const items = (e.items || []).map(i => ({...i, ...(itemBack(e, i) && !i.retOn ? {retOn: e.retOn || today()} : {})}));
+  if (idx == null) items.forEach(i => { if (num(i.wash) + num(i.iron) && !i.retOn) i.retOn = today(); });
+  else { const i = items[idx]; if (i.retOn) delete i.retOn; else i.retOn = today(); }
+  const u = {...strip(e), items, ...retTotals(items), retByName: S.me.name, updatedAt: Date.now(), updatedByName: S.me.name};
+  api.saveEntry(u).catch(er => toast(errText(er))); Object.assign(e, u); mergeEntries(); render(); openDetail(id);
+  toast(idx == null ? 'All returned' : items[idx].retOn ? 'Returned' : 'Undone');
 }
 
 function openMarkPaid(id) {
@@ -1340,7 +1347,7 @@ function itemRow(it = {}, unit = 'pcs') {
 function ironRow(it = {}) {
   const cats = ironRates().map(r => r.cat), cur = it.cat || it.name || cats[0] || '';
   const r = rateOf(cur);
-  return `<div class="irow iron">
+  return `<div class="irow iron" data-ret="${esc(it.retOn || '')}">
     <div class="igrid3">
       <label><span>Cloth</span><select class="field n-cat" data-nt>${[...new Set([...cats, cur])].filter(Boolean).map(c => `<option ${c === cur ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
       <label><span>Wash</span><input class="field n-w" type="number" inputmode="numeric" min="0" placeholder="0" value="${num(it.wash) || ''}"></label>
@@ -1349,13 +1356,16 @@ function ironRow(it = {}) {
     </div><div class="hint n-hint">Wash ${money(r.wash)} · Iron ${money(r.iron)} per cloth</div></div>`;
 }
 function otherRow(it = {}) {
-  const q = it.other ? (num(it.qty) || 1) : '', r = it.other ? (num(it.rate) || num(it.amount)) : '';
-  return `<div class="irow orow"><div class="igrid3">
-      <label><span>Other</span><input class="field o-name" placeholder="e.g. Curtain, starch" value="${esc(it.note || '')}" autocomplete="off" autocapitalize="sentences"></label>
-      <label><span>Qty</span><input class="field o-q" type="number" inputmode="numeric" min="0" placeholder="1" value="${q}"></label>
-      <label><span>Rate ₹</span><input class="field o-r" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${r}"></label>
-      <button type="button" class="i-del o-del" aria-label="Remove">×</button>
-    </div></div>`;
+  const old = it.other && !('washRate' in it) && !num(it.wash) && !num(it.iron);   // older "qty × rate" style
+  const w = old ? (num(it.qty) || 1) : num(it.wash) || '', i = old ? '' : num(it.iron) || '';
+  const wr = old ? (num(it.rate) || num(it.amount)) : num(it.washRate) || '', ir = old ? '' : num(it.ironRate) || '';
+  return `<div class="irow orow" data-ret="${esc(it.retOn || '')}"><div class="igrid3">
+      <label><span>Other</span><input class="field o-name" placeholder="e.g. Curtain" value="${esc(it.note || '')}" autocomplete="off" autocapitalize="sentences"></label>
+      <label><span>Wash</span><input class="field o-w" type="number" inputmode="numeric" min="0" placeholder="0" value="${w}"></label>
+      <label><span>Iron</span><input class="field o-i" type="number" inputmode="numeric" min="0" placeholder="0" value="${i}"></label>
+      <button type="button" class="i-del o-del" aria-label="Remove">×</button></div>
+    <div class="row2 orates"><label><span>Wash rate ₹</span><input class="field o-wr" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${wr}"></label>
+      <label><span>Iron rate ₹</span><input class="field o-ir" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${ir}"></label></div></div>`;
 }
 function calcIronRow(el) {
   const r = rateOf(el.querySelector('.n-cat').value), w = num(el.querySelector('.n-w').value), i = num(el.querySelector('.n-i').value);
@@ -1452,11 +1462,12 @@ function renderPhoto() {
 function readIronItems() {
   const items = [...document.querySelectorAll('#items .irow')].map(el => {
     const cat = el.querySelector('.n-cat').value, r = rateOf(cat), w = num(el.querySelector('.n-w').value), i = num(el.querySelector('.n-i').value);
-    return {name: cat, cat, wash: w, iron: i, qty: w + i, unit: 'pcs', washRate: num(r.wash), ironRate: num(r.iron), rate: 0, amount: r2(w * num(r.wash) + i * num(r.iron))};
+    return {name: cat, cat, wash: w, iron: i, qty: w + i, unit: 'pcs', washRate: num(r.wash), ironRate: num(r.iron), rate: 0, amount: r2(w * num(r.wash) + i * num(r.iron)), ...(el.dataset.ret ? {retOn: el.dataset.ret} : {})};
   }).filter(x => x.wash || x.iron);
   document.querySelectorAll('#others .orow').forEach(el => {
-    const note = el.querySelector('.o-name').value.trim(), rate = num(el.querySelector('.o-r').value), qRaw = el.querySelector('.o-q').value, qty = qRaw === '' ? 1 : num(qRaw);
-    if (rate || note) items.push({name: 'Others', other: true, note, qty, unit: 'pcs', rate, amount: r2(qty * rate)});
+    const note = el.querySelector('.o-name').value.trim(), w = num(el.querySelector('.o-w').value), i = num(el.querySelector('.o-i').value),
+      wr = num(el.querySelector('.o-wr').value), ir = num(el.querySelector('.o-ir').value);
+    if (w || i || note) items.push({name: 'Others', other: true, note, wash: w, iron: i, qty: w + i, unit: 'pcs', washRate: wr, ironRate: ir, rate: 0, amount: r2(w * wr + i * ir), ...(el.dataset.ret ? {retOn: el.dataset.ret} : {})});
   });
   return items;
 }
@@ -1471,6 +1482,7 @@ function saveForm() {
   if (iron) {
     items = readIronItems();
     if (!items.length) return toast('Enter how many clothes');
+    if (items.some(i => i.retOn)) Object.assign(e, retTotals(items));
   } else {
     items = [...document.querySelectorAll('#items .irow')].map(r => {
       const qty = num(r.querySelector('.i-qty').value), amount = num(r.querySelector('.i-amt').value), unit = r.querySelector('.i-unit').value;
@@ -2031,7 +2043,7 @@ function reportRows() {
   for (const k of BOOK_KEYS) {
     const es = list.filter(e => bookOf(e) === k); if (d.book && d.book !== k) continue;
     if (k === 'iron') sheets.Iron = [['Date', 'Cloth', 'Wash', 'Iron', 'Wash rate', 'Iron rate', 'Amount', 'Entry total', 'Returned wash', 'Returned iron', 'Returned on', 'Status', 'Paid by', 'UTR', 'Added by'],
-      ...es.flatMap(e => (e.items || []).map((i, n) => [e.date, i.other ? (i.note || 'Others') + (num(i.qty) > 1 || num(i.rate) !== num(i.amount) ? ` (${num(i.qty)} × ${num(i.rate)})` : '') : i.name, i.other ? '' : num(i.wash), i.other ? '' : num(i.iron), i.other ? '' : num(i.washRate), i.other ? '' : num(i.ironRate), num(i.amount),
+      ...es.flatMap(e => (e.items || []).map((i, n) => [e.date, i.other ? 'Others: ' + (i.note || '') + (!num(i.wash) && !num(i.iron) && num(i.rate) ? ` (${num(i.qty)} × ${num(i.rate)})` : '') : i.name, num(i.wash), num(i.iron), num(i.washRate), num(i.ironRate), num(i.amount),
         n ? '' : total(e), n ? '' : num(e.retWash), n ? '' : num(e.retIron), n ? '' : (e.retOn || ''), n ? '' : statusText(e), n ? '' : (e.status === 'paid' ? e.mode : e.paidMode || ''), n ? '' : (e.ref || e.paidRef || ''), n ? '' : (e.createdByName || '')]))];
     else sheets[BOOKS[k].name] = [['Date', 'Item', 'Qty', 'Unit', 'Price', 'Entry total', 'Status', 'Paid by', 'Paid on', 'UTR', 'Added by', 'Notes'],
       ...es.flatMap(e => (e.items || []).map((i, n) => [e.date, i.name, num(i.qty), i.unit, num(i.amount), n ? '' : total(e), n ? '' : statusText(e),
@@ -2102,7 +2114,8 @@ $('#sheet').addEventListener('click', ev => {
   const bt = t.closest('[data-back-task]'); if (bt) { Rec.cancel(); return openTask(bt.dataset.backTask); }
   const ed = t.closest('[data-edit]'); if (ed) return openForm(findEntry(ed.dataset.edit));
   const mp = t.closest('[data-markpaid]'); if (mp) return openMarkPaid(mp.dataset.markpaid);
-  const rt = t.closest('[data-return]'); if (rt) return openReturn(rt.dataset.return);
+  const rt = t.closest('[data-return]'); if (rt) return setReturned(rt.dataset.return, null);
+  const ir = t.closest('[data-iret]'); if (ir) return setReturned(ir.dataset.iret, +ir.dataset.idx);
   const up = t.closest('[data-unpay]');
   if (up) { const e = findEntry(up.dataset.unpay); const u = {...strip(e), paidOn: null, paidMode: null, paidRef: null, paidByName: null, updatedAt: Date.now(), updatedByName: S.me.name};
     api.saveEntry(u).catch(err => toast(errText(err))); Object.assign(e, u); return openDetail(e.id); }
