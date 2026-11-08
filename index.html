@@ -126,6 +126,9 @@ input[type=date].field{min-height:44px}
 .hint{font-size:12.5px;color:var(--muted);margin-top:6px}
 .photo-box{display:flex;gap:12px;align-items:center}
 .photo-box img{width:72px;height:72px;border-radius:12px;object-fit:cover}
+.photo-box{flex-wrap:wrap}.pthumbs{display:flex;flex-wrap:wrap;gap:8px;width:100%}.pth{position:relative}.pth img{display:block}
+.pthx{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:#c62828;color:#fff;font-weight:800;line-height:22px;padding:0}
+.rp img{cursor:pointer}
 .pbtn{padding:10px 14px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-weight:600}
 .pdel{color:var(--red);font-weight:600;padding:10px 4px}
 
@@ -146,6 +149,8 @@ table.items .a{text-align:right;font-weight:600;font-variant-numeric:tabular-num
 .stat.danger{background:#fdecea;border-color:#f3b8b0}.stat.danger small,.stat.danger b{color:#b3261e}
 tr.notback td{background:#fdf1ef}tr.notback td:first-child{box-shadow:inset 4px 0 0 #c62828}
 .bulkbtn{margin:0 0 8px}
+.paylist{display:flex;flex-direction:column;gap:6px}.payee{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:1px solid #cfdcf5;background:#fff;border-radius:12px;padding:9px 12px;font:inherit}
+.payee span{font-size:12.5px;color:var(--muted)}.payee.on{border-color:#1a3d8f;box-shadow:inset 0 0 0 1px #1a3d8f}
 .upipay{background:#f3f7ff;border:1px solid #cfdcf5;border-radius:14px;padding:10px 12px;margin:8px 0 10px}
 @media (prefers-color-scheme:dark){.upipay{background:#1b2436;border-color:#2c3a57}}
 .upito{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}.upito .chip{margin:0 0 0 auto;padding:4px 10px;font-size:13px}
@@ -426,7 +431,7 @@ b.working{color:var(--amber)}
 <div class="overlay" id="overlay"></div>
 <div class="sheet" id="sheet"></div>
 <div class="toast" id="toast"></div>
-<input type="file" id="photoInput" accept="image/*" class="hidden">
+<input type="file" id="photoInput" accept="image/*" class="hidden" multiple>
 <input type="file" id="taskPhotoInput" accept="image/*" capture="environment" class="hidden">
 <input type="file" id="importInput" accept="application/json,.json" class="hidden">
 <datalist id="dl-items"></datalist>
@@ -459,6 +464,7 @@ const monthLabel = m => parse(m + '-01').toLocaleDateString(LOC(), {month:'short
 const monthStart = (s, back = 0) => { const d = parse(s); d.setDate(1); d.setMonth(d.getMonth() - back); return ds(d); };
 const monthEnd = s => { const d = parse(s); d.setMonth(d.getMonth() + 1, 0); return ds(d); };
 const total = e => r2((e.items || []).reduce((t, i) => t + num(i.amount), 0));
+const photoIdsOf = e => e.photoIds?.length ? e.photoIds : e.hasPhoto ? [e.id] : [];
 const sum = (arr, f) => r2(arr.reduce((t, x) => t + f(x), 0));
 const isPending = e => e.status === 'credit' && !e.paidOn;
 const MODES = ['Cash', 'UPI', 'Card', 'Bank transfer', 'Cheque', 'Other'];
@@ -713,7 +719,8 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Did the payment go through?': ['Payment ho gaya?', 'ચુકવણી થઈ ગઈ?'], 'Yes, paid': ['Haan, ho gaya', 'હા, થઈ ગઈ'], 'No / failed': ['Nahi / fail', 'ના / નિષ્ફળ'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Pay to which saved UPI ID?': ['Kis saved UPI ID ko pay karna hai?', 'કયા સેવ કરેલા UPI ID ને ચૂકવવું?'], '📷 Scan new QR': ['📷 Naya QR scan', '📷 નવો QR સ્કૅન'], '⌨️ Type new ID': ['⌨️ Nayi ID likho', '⌨️ નવું ID લખો'],
+  'Add more': ['Aur jodo', 'વધુ ઉમેરો'], 'Rename': ['Naam badlo', 'નામ બદલો'], 'Remove': ['Hatao', 'કાઢો'], '📷 Scan QR': ['📷 QR scan', '📷 QR સ્કૅન'], 'Max 8 photos': ['Zyada se zyada 8 photo', 'વધુમાં વધુ 8 ફોટા'], 'Did the payment go through?': ['Payment ho gaya?', 'ચુકવણી થઈ ગઈ?'], 'Yes, paid': ['Haan, ho gaya', 'હા, થઈ ગઈ'], 'No / failed': ['Nahi / fail', 'ના / નિષ્ફળ'],
   'Pay to': ['Kisko', 'કોને'], 'Change': ['Badlo', 'બદલો'], 'Other UPI': ['Aur UPI', 'બીજું UPI'], 'Amount fills in automatically. After paying, come back here.': ['Rakam apne aap bhar jayegi. Pay karke yahan wapas aao.', 'રકમ આપોઆપ ભરાશે. ચૂકવીને અહીં પાછા આવો.'],
   "Pay from here: scan the shop's UPI QR once, it is remembered.": ['Yahin se pay karo: dukaan ka UPI QR ek baar scan karo, yaad rahega.', 'અહીંથી ચૂકવો: દુકાનનો UPI QR એક વાર સ્કૅન કરો, યાદ રહેશે.'], '📷 Scan UPI QR': ['📷 UPI QR scan', '📷 UPI QR સ્કૅન'], '⌨️ Type UPI ID': ['⌨️ UPI ID likho', '⌨️ UPI ID લખો'],
   "Point at the shop's UPI QR": ['Dukaan ke UPI QR par camera rakho', 'દુકાનના UPI QR સામે કૅમેરા રાખો'], 'Pick QR photo instead': ['QR ki photo chuno', 'QR નો ફોટો પસંદ કરો'], 'Scan a new QR?': ['Naya QR scan karein?', 'નવો QR સ્કૅન કરવો?'],
@@ -867,7 +874,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '32 · UPI pay';
+const APP_VERSION = '33 · saved UPI, more photos';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1168,7 +1175,7 @@ function bookHTML() {
     html += `<div class="dhead"><span>${date === today() ? 'Today · ' : ''}${prettyDate(date)}</span><b>${money(sum(es, total))}</b></div>`;
     html += es.map(e => `<button class="card" data-open="${e.id}">
       <div class="main">${(e.items || []).map(i => `<div class="line"><span data-nt>${esc(i.name)}</span><span class="q">${+i.qty || 0} ${esc(i.unit || '')} · ${money(i.amount)}</span></div>`).join('')}
-        <div class="s">by ${esc(e.createdByName || '—')}${e.hasPhoto ? ' · 📎' : ''}${e._pending ? ' · syncing' : ''}</div></div>
+        <div class="s">by ${esc(e.createdByName || '—')}${photoIdsOf(e).length ? ` · 📎${photoIdsOf(e).length > 1 ? photoIdsOf(e).length : ''}` : ''}${e._pending ? ' · syncing' : ''}</div></div>
       <div class="r"><div class="amt">${money(total(e))}</div>${badge(e)}</div></button>`).join('');
   }
   return html;
@@ -1258,6 +1265,12 @@ function moreHTML() {
       }).join('')}</div>`;
     }
   }
+  { const ps = payees();
+    html += `<div class="fgroup"><h3>💳 Saved UPI IDs (${ps.length})</h3>
+      ${ps.length ? ps.map((x, k) => `<div class="urow"><div class="main"><div class="t" data-nt>${esc(x.pn || x.pa)}</div><div class="s" data-nt>${esc(x.pa)}</div></div><div class="acts"><button class="sbtn ghost" data-pyren="${k}">Rename</button><button class="sbtn ghost" data-pydel="${k}">Remove</button></div></div>`).join('')
+        : '<p class="hint">None yet. Scan a shop\'s QR when paying by UPI, or add one here.</p>'}
+      <div class="row2" style="margin-top:8px"><button class="btn sec" data-pyscan style="margin:0">📷 Scan QR</button><button class="btn sec" data-pyadd style="margin:0">⌨️ Type UPI ID</button></div>
+      ${S.isAdmin ? '<p class="hint">Saved by an admin = available on every family phone.</p>' : ''}</div>`; }
   html += mine;
   if (!standalone) html += `<div class="fgroup"><h3>Add to home screen</h3><ol><li>iPhone: open in <b>Safari</b> → <b>Share</b> → <b>Add to Home Screen</b>.</li><li>Android: open in <b>Chrome</b> → <b>⋮</b> → <b>Add to Home screen</b>.</li></ol></div>`;
   return html + `</div>`;
@@ -1310,13 +1323,14 @@ function openDetail(id) {
         ${iron && r.txt ? `<div class="kv"><span>Return</span><span><span class="badge ${r.cls}" style="margin:0">${r.txt}</span></span></div>` : ''}
         <div class="kv"><span>Added by</span><span>${esc(e.createdByName || '—')}</span></div>
         ${e.notes ? `<div class="kv"><span>Notes</span><span data-nt>${esc(e.notes)}</span></div>` : ''}</div>
-      ${e.hasPhoto ? `<div class="fgroup" id="photoSlot"><p class="hint" style="margin:0">Loading photo…</p></div>` : ''}
+      ${photoIdsOf(e).length ? `<div class="fgroup"><div class="flabel">Photos (${photoIdsOf(e).length}) · tap to open</div><div class="rpics" id="photoSlot">${photoIdsOf(e).map(pid => `<div class="rp" data-pslot="${pid}"><p class="hint">Loading…</p></div>`).join('')}</div></div>` : ''}
       ${iron && !r.done && r.txt ? `<button class="btn pri" data-return="${e.id}">↩ Mark all clothes returned</button>` : ''}
       ${isPending(e) ? `<button class="btn amber" data-markpaid="${e.id}">Mark as paid</button>` : ''}
       ${e.status === 'credit' && e.paidOn ? `<button class="btn sec" data-unpay="${e.id}">Undo payment</button>` : ''}
       ${canDelete ? `<button class="btn dan" data-delete="${e.id}">Delete</button>` : ''}
     </div>`);
-  if (e.hasPhoto) api.getPhoto(e.id).then(p => { const s = $('#photoSlot'); if (s) s.innerHTML = p ? `<img class="bigphoto" src="${p}" alt="">` : `<p class="hint" style="margin:0">Photo still uploading.</p>`; }).catch(() => {});
+  photoIdsOf(e).forEach(pid => api.getPhoto(pid).then(p => { const s = document.querySelector(`[data-pslot="${pid}"]`); if (!s) return;
+    s.innerHTML = p ? `<img src="${p}" alt="">` : `<p class="hint" style="margin:0">Still uploading.</p>`; if (p) s.onclick = () => viewPhoto(p); }).catch(() => {}));
 }
 
 // per-cloth return: each item keeps its own retOn; entry totals (retWash/retIron/retOn) are worked out from them
@@ -1677,7 +1691,7 @@ function openForm(existing, book) {
   };
   if (!e.dueDate) e.dueDate = addDays(e.date, 30);
   if (!PAY.includes(e.mode)) e.mode = 'Cash';
-  S.editing = e; S.dueDays = existing ? null : 30; S.photo = {changed: false, data: null};
+  S.editing = e; S.dueDays = existing ? null : 30; S.photos = photoIdsOf(e).map(pid => ({id: pid, data: null})); S.photosOld = photoIdsOf(e);
   S.history = iron ? new Map() : itemHistory(k);
   const ironItems = iron ? e.items.filter(i => !i.other) : [], others = iron ? e.items.filter(i => i.other) : [];
   openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>${existing ? 'Edit' : 'Add'} · ${B.icon} ${B.name}</h2><button class="save" id="saveBtn">Save</button></div>
@@ -1707,13 +1721,13 @@ function openForm(existing, book) {
           <div class="modes" id="dueChips">${[7, 15, 30].map(d => `<button type="button" class="chip ${S.dueDays === d ? 'on' : ''}" data-due="${d}">${d} days</button>`).join('')}</div>
           <input type="date" class="field" id="fDue" value="${e.dueDate}">
         </div></div>
-      <div class="fgroup"><label class="flabel">Photo (optional)</label><div class="photo-box" id="photoBox"></div></div>
+      <div class="fgroup"><label class="flabel">Photos (optional)</label><div class="photo-box" id="photoBox"></div></div>
       <div class="fgroup"><label class="flabel">Notes (optional)</label><textarea class="field" id="fNotes" rows="2" placeholder="Anything to remember">${esc(e.notes)}</textarea></div>
       <button class="btn pri" id="saveBtn2">Save</button>
     </div>`);
   renderPhoto(); updateTotal();
   mountUpi($('#fUpi'), {key: k, amount: () => formTotal(), note: () => `${B.name} ${shortDate($('#fDate').value || today())}`, onPaid: u => { $('#fRef').value = u || ''; saveForm(); }});
-  if (existing && e.hasPhoto) api.getPhoto(e.id).then(p => { if (S.editing === e && !S.photo.changed) { S.photo.data = p; renderPhoto(); } }).catch(() => {});
+  S.photos.forEach(ph => api.getPhoto(ph.id).then(p => { if (S.editing === e && p) { ph.data = p; renderPhoto(); } }).catch(() => {}));
   if (!existing) setTimeout(() => (iron ? $('#items .n-w') : $('#items .i-name'))?.focus(), 350);
   const form = $('#form');
   form.addEventListener('input', ev => {
@@ -1741,8 +1755,9 @@ function openForm(existing, book) {
     if (md) { e.mode = md.dataset.mode; $('#modeChips').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === md)); $('#refWrap').classList.toggle('hidden', e.mode === 'Cash'); }
     const du = t.closest('[data-due]');
     if (du) { S.dueDays = +du.dataset.due; $('#dueChips').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === du)); $('#fDue').value = addDays($('#fDate').value || today(), S.dueDays); }
-    if (t.closest('#addPhoto')) pickPhoto(false, d => { S.photo = {changed: true, data: d}; renderPhoto(); });
-    if (t.closest('#delPhoto')) { S.photo = {changed: true, data: null}; renderPhoto(); }
+    if (t.closest('#addPhoto')) pickPhoto(false, d => { if (S.photos.length >= 8) return toast('Max 8 photos'); S.photos.push({id: null, data: d, fresh: true}); renderPhoto(); });
+    const dp = t.closest('[data-delph]'); if (dp) { S.photos.splice(+dp.dataset.delph, 1); renderPhoto(); }
+    const vp = t.closest('[data-viewph]'); if (vp) { const ph = S.photos[+vp.dataset.viewph]; if (ph?.data) viewPhoto(ph.data); }
   });
   $('#addItem').onclick = () => {
     $('#items').insertAdjacentHTML('beforeend', iron ? ironRow() : itemRow({}, B.unit));
@@ -1752,10 +1767,9 @@ function openForm(existing, book) {
 }
 
 function renderPhoto() {
-  const p = S.photo?.data, has = p || (S.editing?.hasPhoto && !S.photo.changed);
-  $('#photoBox').innerHTML = has
-    ? `${p ? `<img src="${p}" alt="">` : '<span class="hint">Photo attached</span>'}<button type="button" class="pbtn" id="addPhoto">Change</button><button type="button" class="pdel" id="delPhoto">Remove</button>`
-    : `<button type="button" class="pbtn" id="addPhoto">📷 Add photo</button>`;
+  const ps = S.photos || [];
+  $('#photoBox').innerHTML = `${ps.length ? `<div class="pthumbs">${ps.map((ph, k) => `<div class="pth">${ph.data ? `<img src="${ph.data}" alt="" data-viewph="${k}">` : '<span class="hint">…</span>'}<button type="button" class="pthx" data-delph="${k}" aria-label="Remove">×</button></div>`).join('')}</div>` : ''}
+    ${ps.length < 8 ? `<button type="button" class="pbtn" id="addPhoto">📷 ${ps.length ? 'Add more' : 'Add photo'}</button>` : ''}`;
 }
 function readIronItems() {
   const items = [...document.querySelectorAll('#items .irow')].map(el => {
@@ -1793,10 +1807,14 @@ function saveForm() {
   const isNew = !e.id;
   if (isNew) { e.id = api.newId(); e.createdAt = Date.now(); e.createdBy = S.user.uid; e.createdByName = S.me.name; }
   e.updatedAt = Date.now(); e.updatedByName = S.me.name;
-  if (S.photo.changed) {
-    e.hasPhoto = !!S.photo.data;
-    (S.photo.data ? api.savePhoto(e.id, S.photo.data) : api.deletePhoto(e.id)).catch(err => toast('Photo: ' + errText(err)));
-  }
+  { const ids = [];
+    for (const ph of S.photos) {
+      if (!ph.id) { ph.id = !ids.includes(e.id) && !S.photosOld.includes(e.id) && !S.photos.some(x => x.id === e.id) ? e.id : e.id + '_' + api.newId().slice(0, 8);
+        api.savePhoto(ph.id, ph.data).catch(err => toast('Photo: ' + errText(err))); }
+      ids.push(ph.id);
+    }
+    S.photosOld.filter(x => !ids.includes(x)).forEach(x => api.deletePhoto(x).catch(() => {}));
+    e.photoIds = ids; e.hasPhoto = ids.length > 0; }
   api.saveEntry(e).catch(err => toast('Not saved: ' + errText(err)));
   S.month = e.date.slice(0, 7); ensureMonth();
   closeSheet(); toast(isNew ? `Saved · ${money(total(e))}` : 'Updated');
@@ -1822,19 +1840,33 @@ function viewPhoto(src) { if (!src) return; let v = $('#pview');
   v.querySelector('img').src = src; v.classList.remove('z'); v.classList.add('on'); v.scrollTop = 0; }
 function pickPhoto(camera, cb) { photoCb = cb; (camera ? $('#taskPhotoInput') : $('#photoInput')).click(); }
 async function onPicked(ev) {
-  const f = ev.target.files[0]; ev.target.value = '';
-  if (!f || !photoCb) return;
-  const url = URL.createObjectURL(f);
-  try { photoCb(await fitPhoto(await loadImg(url))); } catch (err) { toast(err.message); }
-  URL.revokeObjectURL(url);
+  const fs = [...ev.target.files]; ev.target.value = '';
+  if (!fs.length || !photoCb) return;
+  for (const f of fs.slice(0, 8)) {
+    const url = URL.createObjectURL(f);
+    try { photoCb(await fitPhoto(await loadImg(url))); } catch (err) { toast(err.message); }
+    URL.revokeObjectURL(url);
+  }
 }
 $('#photoInput').onchange = onPicked; $('#taskPhotoInput').onchange = onPicked;
 
 /* ================= UPI: pay from the app, scan a shop's QR, confirm on return ================= */
 // UPI apps never report back to a web app, so when the person returns we simply ask "Did it go through?"
-function upiOf(key) { let l = null; try { l = JSON.parse(localStorage.getItem('upi_' + key) || 'null'); } catch {} return (S.settings?.upi || {})[key] || l; }
+function upiOf(key) { let l = null; try { l = JSON.parse(localStorage.getItem('upi_' + key) || 'null'); } catch {} return l || (S.settings?.upi || {})[key]; }
+// saved UPI IDs: shared list (admins) + this phone's list
+function payees() {
+  let l = []; try { l = JSON.parse(localStorage.getItem('payees') || '[]'); } catch {}
+  const all = [...(S.settings?.payees || []), ...l, ...Object.values(S.settings?.upi || {})];
+  const m = new Map(); all.forEach(p => { if (p?.pa && !m.has(p.pa.toLowerCase())) m.set(p.pa.toLowerCase(), p); }); return [...m.values()];
+}
+async function savePayees(list) {
+  try { localStorage.setItem('payees', JSON.stringify(list)); } catch {}
+  if (S.isAdmin) { try { await api.saveSettings({payees: list}); S.settings.payees = list; } catch {} }
+}
+async function addPayee(p) { const l = payees().filter(x => x.pa.toLowerCase() !== p.pa.toLowerCase()); l.unshift({pa: p.pa, pn: p.pn || '', ...(p.mc ? {mc: p.mc} : {})}); await savePayees(l); }
 async function saveUpi(key, p) {
   try { localStorage.setItem('upi_' + key, JSON.stringify(p)); } catch {}
+  addPayee(p);
   if (S.isAdmin) { const all = {...(S.settings?.upi || {}), [key]: p}; try { await api.saveSettings({upi: all}); S.settings.upi = all; } catch {} }
 }
 function parseUpi(text) {
@@ -1848,19 +1880,24 @@ function upiLink(app, p, amt, note) {
 }
 function mountUpi(el, {key, amount, note, onPaid}) {
   if (!el) return;
-  const draw = () => { const p = upiOf(key);
+  let picking = false;
+  const draw = () => { const p = upiOf(key), saved = payees();
+    if (picking || (!p && saved.length)) { el.innerHTML = `<div class="upipay"><div class="hint" style="margin:0 0 8px">${tx('Pay to which saved UPI ID?')}</div>
+        <div class="paylist">${saved.map((x, k) => `<button type="button" class="payee ${p && p.pa === x.pa ? 'on' : ''}" data-payee="${k}"><b data-nt>${esc(x.pn || x.pa)}</b><span data-nt>${esc(x.pa)}</span></button>`).join('')}</div>
+        <div class="row2" style="margin-top:8px"><button type="button" class="btn sec" data-upiscan style="margin:0">📷 Scan new QR</button><button type="button" class="btn sec" data-upitype style="margin:0">⌨️ Type new ID</button></div></div>`; return; }
     el.innerHTML = p ? `<div class="upipay"><div class="upito">Pay to <b data-nt>${esc(p.pn || p.pa)}</b><span class="hint" style="margin:0" data-nt>${esc(p.pa)}</span><button type="button" class="chip" data-upichg>Change</button></div>
         <div class="upiapps">${[['gpay', 'GPay'], ['phonepe', 'PhonePe'], ['paytm', 'Paytm'], ['any', 'Other UPI']].map(([k, l]) => `<button type="button" class="upiapp" data-upiapp="${k}">${l}</button>`).join('')}</div>
         <div class="hint" style="margin:6px 0 0">Amount fills in automatically. After paying, come back here.</div></div>`
       : `<div class="upipay"><div class="hint" style="margin:0 0 8px">Pay from here: scan the shop's UPI QR once, it is remembered.</div>
         <div class="row2"><button type="button" class="btn sec" data-upiscan style="margin:0">📷 Scan UPI QR</button><button type="button" class="btn sec" data-upitype style="margin:0">⌨️ Type UPI ID</button></div></div>`; };
-  const setP = p => { saveUpi(key, {pa: p.pa, pn: p.pn || '', ...(p.mc ? {mc: p.mc} : {})}); draw(); toast('UPI saved: ' + (p.pn || p.pa)); };
+  const setP = p => { picking = false; saveUpi(key, {pa: p.pa, pn: p.pn || '', ...(p.mc ? {mc: p.mc} : {})}); draw(); toast('UPI saved: ' + (p.pn || p.pa)); };
   el.onclick = ev => {
+    const py = ev.target.closest('[data-payee]'); if (py) { const x = payees()[+py.dataset.payee]; picking = false; saveUpi(key, x); return draw(); }
+    if (ev.target.closest('[data-upichg]')) { picking = true; return draw(); }
     if (ev.target.closest('[data-upiscan]')) return openQrScanner(t => { const p = parseUpi(t); if (!p) return toast('Not a UPI QR'); setP(p); });
-    if (ev.target.closest('[data-upitype]') || ev.target.closest('[data-upichg]')) {
-      if (ev.target.closest('[data-upichg]') && confirm(tx('Scan a new QR?'))) return openQrScanner(t => { const p = parseUpi(t); if (!p) return toast('Not a UPI QR'); setP(p); });
-      const pa = prompt(tx('UPI ID (e.g. shop@okaxis)'), upiOf(key)?.pa || ''); if (!pa || !pa.includes('@')) return;
-      const pn = prompt(tx('Name (optional)'), upiOf(key)?.pn || '') || ''; return setP({pa: pa.trim(), pn: pn.trim()});
+    if (ev.target.closest('[data-upitype]')) {
+      const pa = prompt(tx('UPI ID (e.g. shop@okaxis)'), ''); if (!pa || !pa.includes('@')) return;
+      const pn = prompt(tx('Name (optional)'), '') || ''; return setP({pa: pa.trim(), pn: pn.trim()});
     }
     const a = ev.target.closest('[data-upiapp]'); if (!a) return;
     const amt = num(typeof amount === 'function' ? amount() : amount); if (!amt) return toast('Enter the amount first');
@@ -2531,6 +2568,13 @@ async function mainClick(ev) {
   const us = t.closest('[data-ustat]'); if (us) return setUserStatus(us.dataset.uid, us.dataset.ustat, us.dataset.asrole);
   const ur = t.closest('[data-urole]'); if (ur) return setUserRole(ur.dataset.uid, ur.dataset.urole);
   if (t.closest('#signOutBtn')) return api.signOut();
+  const pr = t.closest('[data-pyren]'); if (pr) { const l = payees(), x = l[+pr.dataset.pyren]; const n = prompt(tx('Name (optional)'), x.pn || ''); if (n == null) return; x.pn = n.trim(); await savePayees(l); return render(); }
+  const pd = t.closest('[data-pydel]'); if (pd) { const l = payees(); if (!confirm('Delete this?')) return; const [x] = l.splice(+pd.dataset.pydel, 1);
+    if (S.isAdmin && S.settings?.upi) { const u = Object.fromEntries(Object.entries(S.settings.upi).filter(([, v]) => v.pa !== x.pa)); try { await api.saveSettings({upi: u}); S.settings.upi = u; } catch {} }
+    try { Object.keys(localStorage).filter(k => k.startsWith('upi_') && (JSON.parse(localStorage.getItem(k) || '{}').pa === x.pa)).forEach(k => localStorage.removeItem(k)); } catch {}
+    await savePayees(l); return render(); }
+  if (t.closest('[data-pyscan]')) return openQrScanner(async tq => { const p = parseUpi(tq); if (!p) return toast('Not a UPI QR'); await addPayee(p); toast('UPI saved: ' + (p.pn || p.pa)); render(); });
+  if (t.closest('[data-pyadd]')) { const pa = prompt(tx('UPI ID (e.g. shop@okaxis)'), ''); if (!pa || !pa.includes('@')) return; const pn = prompt(tx('Name (optional)'), '') || ''; await addPayee({pa: pa.trim(), pn: pn.trim()}); return render(); }
   if (t.closest('#pushRetry')) { S.pushState = 'checking'; render(); return setupPush(true); }
   if (t.closest('#pushTest')) return testPush();
   if (t.closest('#notifBtn')) { try { const r = await Notification.requestPermission(); toast(r === 'granted' ? 'Alerts on' : 'Alerts not allowed'); if (r === 'granted') await setupPush(true); } catch {} return render(); }
@@ -2569,7 +2613,7 @@ $('#sheet').addEventListener('click', ev => {
   if (dl && confirm('Delete this entry for everyone?')) {
     const id = dl.dataset.delete, e = findEntry(id);
     api.deleteEntry(id).catch(err => toast(errText(err)));
-    if (e?.hasPhoto) api.deletePhoto(id).catch(() => {});
+    if (e) photoIdsOf(e).forEach(x => api.deletePhoto(x).catch(() => {}));
     closeSheet(); toast('Deleted');
   }
 });
