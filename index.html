@@ -879,7 +879,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '37 · Blinkit auto-fill';
+const APP_VERSION = '38 · Blinkit fill via Safari';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1542,7 +1542,7 @@ function openList(id) {
       ${l.paid ? `<button class="fgroup paidbox" data-open="${l.paid.entryId}" id="clPaidBox"><b>✓ Paid ${money(l.paid.amount)}</b> · ${esc(l.paid.mode)} · ${shortDate(l.paid.on)}<div class="hint" style="margin:2px 0 0">Added to ${esc(BOOKS[l.paid.book]?.name || '')} · tap to see</div></button>`
         : got.length ? `<button class="btn amber" id="clPay">💳 Order paid – add amount to ${esc(BOOKS.blinkit.name)}</button>` : ''}
       ${left.length ? `<button class="btn amber" id="clFill">⚡ Fill Blinkit cart automatically · ${left.length} item${left.length === 1 ? '' : 's'}</button>
-        <p class="hint" style="margin-top:-4px">Opens blinkit.com, then tap your <b>ANP Fill</b> bookmark – it adds everything by itself. <a href="#" id="clFillHelp">First time? Set it up (1 min)</a></p>` : ''}
+        <p class="hint" style="margin-top:-4px">Copies the list. Then in Safari on <b>blinkit.com</b> tap your <b>ANP Fill</b> bookmark – it adds everything by itself. <a href="#" id="clFillHelp">First time? Set it up (1 min)</a></p>` : ''}
       ${left.length ? `<button class="btn pri" id="clShopAll">🛒 Shop all on Blinkit · ${left.length} item${left.length === 1 ? '' : 's'}</button>
         <p class="hint" style="margin-top:-4px">Opens Blinkit for each item one by one. Add it to the cart, come back, tap ✓ – the next one opens.</p>` : ''}
       <button class="btn sec" id="clShare">📤 Share list (WhatsApp)</button>
@@ -1641,9 +1641,25 @@ function openBlinkitFill(l) {
   const items = left.map(i => ({i: i.k, n: i.name, q: (i.qty && !/^\s*\d+\s*(pcs?|x|nos?|packs?|pkts?)?\s*$/i.test(i.qty) ? i.name + ' ' + i.qty : i.name).trim(), c: fillCount(i.qty), ...(i.pid ? {pid: i.pid} : {})}));
   const data = {list: l.id, back: location.origin + location.pathname, items};
   const enc = btoa(unescape(encodeURIComponent(JSON.stringify(data)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const text = 'ANPLIST:' + enc;
+  const copy = async () => { try { await navigator.clipboard.writeText(text); return true; } catch { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok; } };
+  copy().then(ok => toast(ok ? tx('List copied ✓') : tx('Could not copy – tap Copy again')));
   S.fillRun = {id: l.id, at: Date.now()};
-  const url = `https://blinkit.com/s/?q=${encodeURIComponent(items[0].q)}#anp=${enc}`;
-  window.open(url, '_blank') || (location.href = url);
+  const phone = /iPhone|iPad|Android/.test(navigator.userAgent);
+  let d = $('#upiAsk'); if (!d) { d = document.createElement('div'); d.id = 'upiAsk'; document.body.appendChild(d); }
+  d.innerHTML = `<div class="upibox" style="text-align:left"><div style="font-size:18px;font-weight:800;text-align:center">⚡ ${tx('List copied ✓')} · ${items.length} ${tx('items')}</div>
+    <ol class="steps">
+      <li>${phone ? tx('Open <b>Safari</b> (or Chrome) – not the Blinkit app – and go to <b>blinkit.com</b>.') : tx('Open <b>blinkit.com</b>.')}</li>
+      <li>${tx('Tap your <b>ANP Fill</b> bookmark. If asked, tap <b>Paste</b>.')}</li>
+      <li>${tx('Watch it add everything, check the cart and pay there.')}</li>
+      <li>${tx('Tap <b>📋 Copy result for ANP</b> and come back here.')}</li></ol>
+    <button class="btn sec" id="flCopy">📋 ${tx('Copy list again')}</button>
+    ${phone ? '' : `<a class="btn pri" href="https://blinkit.com/s/?q=${encodeURIComponent(items[0].q)}#anp=${enc}" target="_blank" rel="noopener">${tx('Open blinkit.com')}</a>`}
+    <button class="btn sec" id="flHelp">${tx('Set up the ANP Fill bookmark')}</button><button class="btn sec" id="flClose">${tx('Close')}</button></div>`;
+  d.classList.add('on');
+  $('#flCopy').onclick = () => copy().then(ok => toast(ok ? tx('List copied ✓') : 'Copy failed'));
+  $('#flHelp').onclick = () => { d.classList.remove('on'); openFillHelp(); };
+  $('#flClose').onclick = () => d.classList.remove('on');
 }
 function applyFill(enc) {
   try {
@@ -1685,8 +1701,8 @@ function openFillHelp() {
         <li>Bookmark it (☆), then <b>Edit</b>: name <b>ANP Fill</b>, URL = paste the code → Save.</li>
         <li>To run on Android: tap the address bar, type <b>ANP Fill</b>, tap the bookmark that shows. On a laptop just click it.</li></ol></div>` : ''}
       <div class="fgroup"><h3 style="margin-top:0">🛒 Every time</h3><ol class="steps">
-        <li>In the checklist tap <b>⚡ Fill Blinkit cart automatically</b>.</li>
-        <li>Blinkit opens – tap your <b>ANP Fill</b> bookmark. Watch it add each item.</li>
+        <li>In the checklist tap <b>⚡ Fill Blinkit cart automatically</b> – the list gets copied.</li>
+        <li>Open <b>Safari</b> → <b>blinkit.com</b> (the website, not the Blinkit app) → tap your <b>ANP Fill</b> bookmark → <b>Paste</b> if asked. Watch it add each item.</li>
         <li>Check the cart, pay on Blinkit, tap <b>📋 Copy result for ANP</b>.</li>
         <li>Come back to ANP → <b>Paste result</b>. Items get ticked and the exact products are remembered for next time.</li></ol>
         <p class="hint">${tx('Blinkit app and website carts are separate – pay on the website where the items were added.')}</p></div>

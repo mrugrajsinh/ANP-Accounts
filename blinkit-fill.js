@@ -4,10 +4,14 @@
 (async () => {
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   if (!/blinkit\.com$/.test(location.hostname)) { alert('Open blinkit.com first (from the ANP checklist), then tap this bookmark.'); return; }
-  const m = location.hash.match(/anp=([^&]+)/);
-  if (!m) { alert('No ANP list found. In the ANP app open the checklist and tap "Fill Blinkit cart" first.'); return; }
+  // the list comes from the address (#anp=...) or from what the ANP app copied (ANPLIST:...)
+  let raw = (location.hash.match(/anp=([^&]+)/) || [])[1];
+  if (!raw) { let t = ''; try { t = await navigator.clipboard.readText(); } catch (e) {}
+    if (!/ANPLIST:/.test(t)) t = prompt('Paste the list copied from the ANP app (long-press → Paste):') || '';
+    raw = (t.match(/ANPLIST:([A-Za-z0-9_-]+)/) || [])[1]; }
+  if (!raw) { alert('No ANP list found. In the ANP app open the checklist and tap "Fill Blinkit cart" first.'); return; }
   let data;
-  try { data = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/'))))); } catch (e) { alert('Could not read the ANP list.'); return; }
+  try { data = JSON.parse(decodeURIComponent(escape(atob(raw.replace(/-/g, '+').replace(/_/g, '/'))))); } catch (e) { alert('Could not read the ANP list.'); return; }
   const items = data.items || [], back = data.back || '';
 
   const box = document.createElement('div');
@@ -22,7 +26,12 @@
   const nameOf = c => (c.innerText || '').split('\n').map(s => s.trim()).find(s => s && !/^\d+\s*mins?$/i.test(s) && !/% ?off/i.test(s) && !/^₹/.test(s) && s !== 'ADD' && !/^ad$/i.test(s)) || '';
 
   async function search(q) {
+    if (!input()) {   // e.g. on the home page: move to the search page without reloading
+      history.pushState({}, '', '/s/?q=' + encodeURIComponent(q)); window.dispatchEvent(new PopStateEvent('popstate', {state: {}}));
+      for (let t = 0; t < 30 && !input(); t++) await sleep(250);
+    }
     const inp = input(); if (!inp) return false;
+    if (decodeURIComponent(location.search).toLowerCase().replace(/\+/g, ' ').includes('q=' + q.toLowerCase()) && cards().length) { await sleep(500); return true; }
     const before = cards().map(c => c.id).join(',');
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(inp, q);
     inp.dispatchEvent(new Event('input', {bubbles: true}));
