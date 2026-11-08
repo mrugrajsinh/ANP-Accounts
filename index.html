@@ -149,6 +149,7 @@ table.items .a{text-align:right;font-weight:600;font-variant-numeric:tabular-num
 .stat.danger{background:#fdecea;border-color:#f3b8b0}.stat.danger small,.stat.danger b{color:#b3261e}
 tr.notback td{background:#fdf1ef}tr.notback td:first-child{box-shadow:inset 4px 0 0 #c62828}
 .bulkbtn{margin:0 0 8px}
+.chip.linked{background:#e7f4ea;border-color:#b9dfc3;color:#1e5e23}
 .paylist{display:flex;flex-direction:column;gap:6px}.payee{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:1px solid #cfdcf5;background:#fff;border-radius:12px;padding:9px 12px;font:inherit}
 .payee span{font-size:12.5px;color:var(--muted)}.payee.on{border-color:#1a3d8f;box-shadow:inset 0 0 0 1px #1a3d8f}
 .upipay{background:#f3f7ff;border:1px solid #cfdcf5;border-radius:14px;padding:10px 12px;margin:8px 0 10px}
@@ -719,7 +720,8 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Added to cart': ['Cart mein daala', 'કાર્ટમાં નાખ્યું'], 'next': ['agla', 'આગળનું'], 'left': ['baaki', 'બાકી'], 'Open again': ['Fir kholo', 'ફરી ખોલો'], 'Stop': ['Ruko', 'બંધ કરો'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Did the items show in the Blinkit cart?': ['Kya saaman Blinkit cart mein aaya?', 'શું વસ્તુઓ Blinkit કાર્ટમાં આવી?'], 'Yes – tick them': ['Haan – tick karo', 'હા – ટિક કરો'], 'No, it did not work': ['Nahi, nahi chala', 'ના, ન ચાલ્યું'],
+  'Paste the Blinkit product link (Blinkit app → product → Share → Copy link)': ['Blinkit product link paste karo (Blinkit → product → Share → Copy link)', 'Blinkit પ્રોડક્ટ લિંક પેસ્ટ કરો (Blinkit → પ્રોડક્ટ → Share → Copy link)'], 'Added to cart': ['Cart mein daala', 'કાર્ટમાં નાખ્યું'], 'next': ['agla', 'આગળનું'], 'left': ['baaki', 'બાકી'], 'Open again': ['Fir kholo', 'ફરી ખોલો'], 'Stop': ['Ruko', 'બંધ કરો'],
   'Opens Blinkit for each item one by one. Add it to the cart, come back, tap ✓ – the next one opens.': ['Har saaman ke liye Blinkit ek-ek karke khulega. Cart mein daalo, wapas aao, ✓ dabao – agla khulega.', 'દરેક વસ્તુ માટે Blinkit એક પછી એક ખુલશે. કાર્ટમાં નાખો, પાછા આવો, ✓ દબાવો – આગળનું ખુલશે.'], 'Pay to which saved UPI ID?': ['Kis saved UPI ID ko pay karna hai?', 'કયા સેવ કરેલા UPI ID ને ચૂકવવું?'], '📷 Scan new QR': ['📷 Naya QR scan', '📷 નવો QR સ્કૅન'], '⌨️ Type new ID': ['⌨️ Nayi ID likho', '⌨️ નવું ID લખો'],
   'Add more': ['Aur jodo', 'વધુ ઉમેરો'], 'Rename': ['Naam badlo', 'નામ બદલો'], 'Remove': ['Hatao', 'કાઢો'], '📷 Scan QR': ['📷 QR scan', '📷 QR સ્કૅન'], 'Max 8 photos': ['Zyada se zyada 8 photo', 'વધુમાં વધુ 8 ફોટા'], 'Did the payment go through?': ['Payment ho gaya?', 'ચુકવણી થઈ ગઈ?'], 'Yes, paid': ['Haan, ho gaya', 'હા, થઈ ગઈ'], 'No / failed': ['Nahi / fail', 'ના / નિષ્ફળ'],
   'Pay to': ['Kisko', 'કોને'], 'Change': ['Badlo', 'બદલો'], 'Other UPI': ['Aur UPI', 'બીજું UPI'], 'Amount fills in automatically. After paying, come back here.': ['Rakam apne aap bhar jayegi. Pay karke yahan wapas aao.', 'રકમ આપોઆપ ભરાશે. ચૂકવીને અહીં પાછા આવો.'],
@@ -875,7 +877,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '35 · Blinkit shop-all';
+const APP_VERSION = '36 · Blinkit fill cart (beta)';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1505,6 +1507,10 @@ function openEmpForm(x) {
 // item.st: '' = to get, 'got' = done / added, 'na' = not available
 const findList = id => (S.lists?.check || []).find(x => x.id === id);
 const blinkit = q => 'https://blinkit.com/s/?q=' + encodeURIComponent(q);
+// Blinkit product link → product id (e.g. blinkit.com/prn/vim-bar/prid/12345)
+const pidFrom = t => { const m = String(t || '').match(/prid\/(\d+)/i) || String(t || '').match(/product_id[s]?=(\d+)/i) || String(t || '').match(/^\s*(\d{3,9})\s*$/); return m ? m[1] : ''; };
+function pidMap() { let m = {}; try { m = JSON.parse(localStorage.getItem('pidMap') || '{}'); } catch {} (S.lists?.check || []).forEach(l => (l.items || []).forEach(i => { if (i.pid) m[i.name.trim().toLowerCase()] = m[i.name.trim().toLowerCase()] || i.pid; })); return m; }
+function rememberPid(name, pid) { try { const m = JSON.parse(localStorage.getItem('pidMap') || '{}'); m[name.trim().toLowerCase()] = pid; localStorage.setItem('pidMap', JSON.stringify(m)); } catch {} }
 function saveList(l) { l.updatedAt = Date.now(); l.updatedByName = S.me.name; api.saveEntry(strip(l)).catch(e => toast(errText(e))); }
 function listsHTML() {
   const ls = S.lists.check;
@@ -1521,7 +1527,7 @@ function openList(id) {
   const row = (i) => { const k = it.indexOf(i);
     return `<div class="clrow ${i.st}"><button class="clbox" data-clst="${k}" aria-label="Done">${i.st === 'got' ? '✓' : i.st === 'na' ? '✗' : ''}</button>
       <div class="main"><div class="t" data-nt>${esc(i.name)}</div>${i.qty || i.st === 'na' ? `<div class="s">${i.qty ? esc(i.qty) : ''}${i.st === 'na' ? `${i.qty ? ' · ' : ''}<b style="color:#c62828">Not available</b>` : ''}</div>` : ''}</div>
-      ${i.st ? `<button class="chip" data-clundo="${k}">Undo</button>` : `<a class="chip bl" href="${blinkit(i.name)}" target="_blank" rel="noopener">Blinkit</a><button class="chip" data-clna="${k}">N/A</button>`}
+      ${i.st ? `<button class="chip" data-clundo="${k}">Undo</button>` : `<a class="chip bl" href="${blinkit(i.name)}" target="_blank" rel="noopener">Blinkit</a><button class="chip ${i.pid ? 'linked' : ''}" data-cllink="${k}" aria-label="Blinkit product link">${i.pid ? '🔗✓' : '🔗'}</button><button class="chip" data-clna="${k}">N/A</button>`}
       <button class="pdel" data-cldel="${k}" aria-label="Remove">×</button></div>`; };
   openSheet(`<div class="sh-head"><button data-close>Close</button><h2 data-nt>${esc(l.name)}</h2><button id="clRename">Rename</button></div>
     <div class="sh-body">
@@ -1532,6 +1538,8 @@ function openList(id) {
         ${na.length ? `<div class="flabel" style="margin-top:12px;color:#c62828">Not available (${na.length})</div>` + na.map(row).join('') : ''}</div>
       ${l.paid ? `<button class="fgroup paidbox" data-open="${l.paid.entryId}" id="clPaidBox"><b>✓ Paid ${money(l.paid.amount)}</b> · ${esc(l.paid.mode)} · ${shortDate(l.paid.on)}<div class="hint" style="margin:2px 0 0">Added to ${esc(BOOKS[l.paid.book]?.name || '')} · tap to see</div></button>`
         : got.length ? `<button class="btn amber" id="clPay">💳 Order paid – add amount to ${esc(BOOKS.blinkit.name)}</button>` : ''}
+      ${left.some(i => i.pid) ? `<button class="btn amber" id="clFill">⚡ Fill Blinkit cart · ${left.filter(i => i.pid).length} linked item${left.filter(i => i.pid).length === 1 ? '' : 's'} (beta)</button>
+        <p class="hint" style="margin-top:-4px">Opens the Blinkit app with these items in the cart. Check quantities there. Items without 🔗 still need adding by hand.</p>` : ''}
       ${left.length ? `<button class="btn pri" id="clShopAll">🛒 Shop all on Blinkit · ${left.length} item${left.length === 1 ? '' : 's'}</button>
         <p class="hint" style="margin-top:-4px">Opens Blinkit for each item one by one. Add it to the cart, come back, tap ✓ – the next one opens.</p>` : ''}
       <button class="btn sec" id="clShare">📤 Share list (WhatsApp)</button>
@@ -1539,15 +1547,23 @@ function openList(id) {
     </div>`);
   const upd = f => { f(l); saveList(l); openList(id); };
   const add = () => { const n = $('#clNew').value.trim(); if (!n) return $('#clNew').focus();
-    l.items = [...(l.items || []), {name: n, qty: $('#clQty').value.trim(), st: ''}]; saveList(l); openList(id); setTimeout(() => $('#clNew')?.focus(), 50); };
+    const pid = pidMap()[n.toLowerCase()];
+    l.items = [...(l.items || []), {name: n, qty: $('#clQty').value.trim(), st: '', ...(pid ? {pid} : {})}]; saveList(l); openList(id); setTimeout(() => $('#clNew')?.focus(), 50); };
   $('#clAdd').onclick = add; $('#clNew').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); $('#clQty').focus(); } }; $('#clQty').onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); add(); } };
-  $('#sheet .sh-body').onclick = ev => { const b = ev.target.closest('[data-clst],[data-clna],[data-clundo],[data-cldel]'); if (!b) return;
+  $('#sheet .sh-body').onclick = ev => { const b = ev.target.closest('[data-clst],[data-clna],[data-clundo],[data-cldel],[data-cllink]'); if (!b) return;
     if (b.dataset.clst != null) return upd(o => { const i = o.items[+b.dataset.clst]; i.st = i.st === 'got' ? '' : 'got'; });
     if (b.dataset.clna != null) return upd(o => { o.items[+b.dataset.clna].st = 'na'; });
     if (b.dataset.clundo != null) return upd(o => { o.items[+b.dataset.clundo].st = ''; });
-    if (b.dataset.cldel != null) return upd(o => { o.items.splice(+b.dataset.cldel, 1); }); };
+    if (b.dataset.cldel != null) return upd(o => { o.items.splice(+b.dataset.cldel, 1); });
+    if (b.dataset.cllink != null) { const it = l.items[+b.dataset.cllink];
+      const v = prompt(tx('Paste the Blinkit product link (Blinkit app → product → Share → Copy link)'), it.pid ? 'https://blinkit.com/prn/x/prid/' + it.pid : ''); if (v == null) return;
+      if (!v.trim()) return upd(o => { delete o.items[+b.dataset.cllink].pid; });
+      const pid = pidFrom(v); if (!pid) return toast(tx('Could not read a product id from that link – send it to Claude'));
+      rememberPid(it.name, pid); return upd(o => { o.items[+b.dataset.cllink].pid = pid; }); } };
   $('#clPay') && ($('#clPay').onclick = () => openListPay(id));
   $('#clShopAll') && ($('#clShopAll').onclick = () => shopNext(id));
+  $('#clFill') && ($('#clFill').onclick = () => { const ids = left.filter(i => i.pid).map(i => i.pid);
+    S.fillRun = {id, at: Date.now(), ids}; location.href = 'grofers://cart?product_ids=' + ids.join(','); });
   $('#clPaidBox') && ($('#clPaidBox').onclick = () => { const e = findEntry(l.paid.entryId); if (e) openDetail(e.id); else toast('Entry not found'); });
   $('#clRename').onclick = () => { const n = prompt(tx('List name'), l.name); if (n && n.trim()) upd(o => { o.name = n.trim(); }); };
   $('#clDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(l.id).catch(e => toast(errText(e))); closeSheet(); toast('Deleted'); };
@@ -1615,7 +1631,17 @@ function askShopResult() {
   $('#shAgain').onclick = () => { d.classList.remove('on'); S.shopRun.at = Date.now(); window.open(blinkit(i.name), '_blank') || (location.href = blinkit(i.name)); };
   $('#shStop').onclick = () => { d.classList.remove('on'); S.shopRun = null; };
 }
-document.addEventListener('visibilitychange', () => { if (!document.hidden && S.shopRun) setTimeout(askShopResult, 400); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.shopRun) setTimeout(askShopResult, 400); if (!document.hidden && S.fillRun) setTimeout(askFillResult, 400); });
+function askFillResult() {
+  const r = S.fillRun; if (!r || Date.now() - r.at < 1500) return; S.fillRun = null;
+  const l = findList(r.id); if (!l) return;
+  let d = $('#upiAsk'); if (!d) { d = document.createElement('div'); d.id = 'upiAsk'; document.body.appendChild(d); }
+  d.innerHTML = `<div class="upibox"><div style="font-size:18px;font-weight:700">${tx('Did the items show in the Blinkit cart?')}</div>
+    <button class="btn pri" id="fYes" style="margin-top:12px">✓ ${tx('Yes – tick them')}</button><button class="btn sec" id="fNo">✗ ${tx('No, it did not work')}</button></div>`;
+  d.classList.add('on');
+  $('#fYes').onclick = () => { d.classList.remove('on'); l.items.forEach(i => { if (!i.st && r.ids.includes(i.pid)) i.st = 'got'; }); saveList(l); if (S.listOpen === r.id) openList(r.id); toast('Ticked'); };
+  $('#fNo').onclick = () => { d.classList.remove('on'); toast(tx('Thanks – tell Claude it did not work')); };
+}
 window.addEventListener('focus', () => { if (S.shopRun) setTimeout(askShopResult, 600); });
 
 function openListForm() {
