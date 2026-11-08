@@ -206,12 +206,13 @@ a.btn{display:block;text-align:center;text-decoration:none}
 .daynav{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;margin:6px 0 12px;box-shadow:var(--shadow)}
 .daynav button{width:38px;height:38px;border-radius:50%;font-size:22px;color:var(--accent)}
 .daynav span{font-weight:650}
-.urow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.urow{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:10px 0;border-bottom:1px solid var(--line)}
 .urow:last-child{border-bottom:0}
 .urow .main{flex:1;min-width:0}
 .urow .t{font-weight:600}
 .urow .s{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.urow .acts{display:flex;gap:6px;flex:none}
+.urow .acts{display:flex;gap:6px;flex-wrap:wrap}
+.urow .acts:has(.sbtn){width:100%}
 
 /* auth */
 .auth{max-width:400px;margin:0 auto;padding:calc(40px + var(--safe-t)) 20px 40px}
@@ -839,7 +840,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '24 · salary, checklists';
+const APP_VERSION = '25 · users page order';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1208,14 +1209,14 @@ function moreHTML() {
   const me = S.me || {};
   const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
   const notif = 'Notification' in window ? Notification.permission : 'unsupported';
-  let html = `<div class="more">
-    <div class="fgroup"><h3 data-nt>${esc(me.name || '')}</h3><p>${esc(S.user.email)} · ${S.isOwner ? 'Main admin' : S.isAdmin ? 'Admin' : S.isStaff ? 'Staff' : 'Family'}${api.demo ? ' · DEMO' : ''}</p><p class="hint">App version: ${APP_VERSION}</p>
+  let html = `<div class="more">`;
+  const mine = `<div class="fgroup"><h3 data-nt>${esc(me.name || '')}</h3><p>${esc(S.user.email)} · ${S.isOwner ? 'Main admin' : S.isAdmin ? 'Admin' : S.isStaff ? 'Staff' : 'Family'}${api.demo ? ' · DEMO' : ''}</p><p class="hint">App version: ${APP_VERSION}</p>
       <div class="flabel" style="margin-top:10px">Language</div>${langSwitch()}
       <button class="btn sec" id="renameBtn">Change my name</button>
       ${notif === 'default' ? `<button class="btn sec" id="notifBtn">🔔 Turn on task alerts</button>` : notif === 'granted' ? `<p class="hint">🔔 Task alerts are on for this phone.</p>` : ''}
       <button class="btn dan" id="signOutBtn">Sign out</button></div>`;
   if (S.isAdmin) {
-    const groups = [['pending', 'Waiting for approval'], ['approved', 'Have access'], ['removed', 'Access removed']];
+    const groups = [['approved', 'Have access'], ['pending', 'Waiting for approval'], ['removed', 'Access removed']];
     for (const [st, label] of groups) {
       const us = S.users.filter(u => (u.status === 'rejected' ? 'removed' : u.status) === st);
       if (!us.length && st !== 'pending') continue;
@@ -1227,6 +1228,7 @@ function moreHTML() {
       }).join('')}</div>`;
     }
   }
+  html += mine;
   if (!standalone) html += `<div class="fgroup"><h3>Add to home screen</h3><ol><li>iPhone: open in <b>Safari</b> → <b>Share</b> → <b>Add to Home Screen</b>.</li><li>Android: open in <b>Chrome</b> → <b>⋮</b> → <b>Add to Home screen</b>.</li></ol></div>`;
   return html + `</div>`;
 }
