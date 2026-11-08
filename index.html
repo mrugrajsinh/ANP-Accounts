@@ -874,7 +874,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '33 · saved UPI, more photos';
+const APP_VERSION = '34 · admin alerts for everything';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1352,6 +1352,7 @@ function setReturned(id, idx) {   // idx = item index, or null for all
   const u = {...strip(e), items, ...retTotals(items), retByName: S.me.name, updatedAt: Date.now(), updatedByName: S.me.name};
   api.saveEntry(u).catch(er => toast(errText(er))); Object.assign(e, u); mergeEntries(); render(); openDetail(id);
   toast(idx == null ? 'All returned' : items[idx].retOn ? 'Returned' : 'Undone');
+  tellAdmins(`👕 ${who()}: ${idx == null ? 'all clothes returned' : items[idx].retOn ? (items[idx].other ? items[idx].note || 'Others' : items[idx].name) + ' returned' : 'return undone'}`, `${BOOKS.iron.name} · given ${shortDate(e.date)}`, 'r-' + e.id);
 }
 
 function openMarkPaid(id) {
@@ -1372,6 +1373,7 @@ function openMarkPaid(id) {
   $('#confirmPay').onclick = () => {
     const upd = {...strip(e), paidOn: $('#payDate').value || today(), paidMode: mode, paidRef: mode === 'Cash' ? '' : $('#payRef').value.trim(), paidByName: S.me.name, updatedAt: Date.now(), updatedByName: S.me.name};
     api.saveEntry(upd).catch(err => toast(errText(err))); Object.assign(e, upd); openDetail(e.id); toast('Marked as paid');
+    tellAdmins(`💰 ${who()} paid ${money(total(e))} · ${BOOKS[bookOf(e)].name}`, `${mode}${upd.paidRef ? ' · UTR ' + upd.paidRef : ''} · ${itemsText(e)}`, 'e-' + e.id);
   };
 }
 
@@ -1434,8 +1436,9 @@ function openEmp(id) {
     </div>`);
   const upd = f => { f(x); saveEmp(x); openEmp(id); };
   $('#sheet .calgrid').onclick = ev => { const b = ev.target.closest('[data-cday]'); if (!b) return; const d = b.dataset.cday, nx = {'': 'F', F: 'H', H: 'A', A: ''}[att[d] || ''];
-    upd(o => { o.att = {...(o.att || {})}; if (nx) o.att[d] = nx; else delete o.att[d]; }); };
-  $('#empFill').onclick = () => upd(o => { o.att = {...(o.att || {})}; for (let i = 1; i <= n; i++) { const d = `${m}-${String(i).padStart(2, '0')}`; if (d <= t && !o.att[d]) o.att[d] = 'F'; } });
+    upd(o => { o.att = {...(o.att || {})}; if (nx) o.att[d] = nx; else delete o.att[d]; });
+    tellAdmins(`🗓 ${x.name}: ${nx === 'F' ? 'Full day' : nx === 'H' ? 'Half day' : nx === 'A' ? 'Absent' : 'cleared'} · ${shortDate(d)}`, `Marked by ${who()}`, 'att-' + x.id + d, 'salary'); };
+  $('#empFill').onclick = () => (tellAdmins(`🗓 ${x.name}: empty days marked Full`, `${monthLabel(m)} · by ${who()}`, 'att-' + x.id, 'salary'), upd(o => { o.att = {...(o.att || {})}; for (let i = 1; i <= n; i++) { const d = `${m}-${String(i).padStart(2, '0')}`; if (d <= t && !o.att[d]) o.att[d] = 'F'; } }));
   $('#empAdv').onclick = () => openAdvance(id);
   document.querySelectorAll('#sheet [data-advdel]').forEach(b => b.onclick = () => { if (confirm('Delete this?')) upd(o => { o.adv = (o.adv || []).filter(a => a.id !== b.dataset.advdel); }); });
   $('#empEdit') && ($('#empEdit').onclick = () => openEmpForm(x));
@@ -1453,7 +1456,8 @@ function openAdvance(id) {
   setTimeout(() => $('#advAmt')?.focus(), 300);
   const save = () => { const a = num($('#advAmt').value); if (!a) return toast('Enter the amount');
     const d = $('#advDate').value || today(); x.adv = [...(x.adv || []), {id: api.newId(), date: d, amount: a, note: $('#advNote').value.trim(), byName: S.me.name}];
-    saveEmp(x); S.salMonth = d.slice(0, 7); render(); openEmp(id); toast('Advance saved'); };
+    saveEmp(x); S.salMonth = d.slice(0, 7); render(); openEmp(id); toast('Advance saved');
+    tellAdmins(`💸 Advance ${money(a)} to ${x.name}`, `${shortDate(d)} · by ${who()}${$('#advNote')?.value ? ' · ' + $('#advNote').value : ''}`, null, 'salary'); };
   $('#advSave').onclick = save; $('#advSave2').onclick = save;
 }
 function openEmpPay(id) {
@@ -1470,7 +1474,8 @@ function openEmpPay(id) {
   $('#spModes').onclick = ev => { const b = ev.target.closest('[data-pm]'); if (!b) return; mode = b.dataset.pm; $('#spModes').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); $('#spRefWrap').classList.toggle('hidden', mode === 'Cash'); };
   mountUpi($('#spUpi'), {key: 'emp:' + x.id, amount: () => num($('#spAmt').value), note: () => `Salary ${monthLabel(m)}`, onPaid: u => { $('#spRef').value = u || ''; save(); }});
   const save = () => { x.paid = {...(x.paid || {}), [m]: {on: $('#spDate').value || today(), amount: num($('#spAmt').value), mode, ref: mode === 'Cash' ? '' : $('#spRef').value.trim(), byName: S.me.name}};
-    saveEmp(x); render(); openEmp(id); toast('Salary paid'); };
+    saveEmp(x); render(); openEmp(id); toast('Salary paid');
+    tellAdmins(`💰 Salary paid to ${x.name} · ${money(x.paid[m].amount)}`, `${monthLabel(m)} · ${mode} · by ${who()}`, null, 'salary'); };
   $('#spSave').onclick = save; $('#spSave2').onclick = save;
 }
 function openEmpForm(x) {
@@ -1490,7 +1495,7 @@ function openEmpForm(x) {
   const save = () => { const name = $('#efName').value.trim(); if (!name) return toast('Write the name');
     const o = x ? findEmp(x.id) || x : {id: api.newId(), book: 'emp', date: today(), att: {}, adv: [], paid: {}, items: [], createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name};
     Object.assign(o, {name, salary: num($('#efSal').value), halfPct: Math.min(100, Math.max(0, num($('#efHalf').value))), basis});
-    saveEmp(o); if (!x) S.lists.emp.push(o); render(); x ? openEmp(o.id) : closeSheet(); toast('Saved'); };
+    saveEmp(o); if (!x) S.lists.emp.push(o); tellAdmins(`💰 ${who()} ${x ? 'edited' : 'added'} ${o.name} in Salary`, `${money(o.salary)}/month`, null, 'salary'); render(); x ? openEmp(o.id) : closeSheet(); toast('Saved'); };
   $('#efSave').onclick = save; $('#efSave2').onclick = save;
   $('#efDel') && ($('#efDel').onclick = () => { if (!confirm(`Delete ${x.name} and all attendance?`)) return; api.deleteEntry(x.id).catch(er => toast(errText(er))); closeSheet(); toast('Deleted'); });
 }
@@ -1578,6 +1583,7 @@ function openListPay(id) {
     api.saveEntry(e).catch(er => toast('Not saved: ' + errText(er)));
     l.paid = {entryId: e.id, amount: amt, on: date, mode, book}; saveList(l);
     openList(id); toast(`Saved · ${money(amt)} in ${BOOKS[book].name}`);
+    tellAdmins(`🛍️ ${who()} paid Blinkit order · ${money(amt)}`, `${l.name} · ${got.map(i => i.name).slice(0, 6).join(', ')}`, 'e-' + e.id);
   };
   $('#lpSave').onclick = save; $('#lpSave2').onclick = save;
 }
@@ -1585,7 +1591,7 @@ function openListPay(id) {
 function openListForm() {
   const n = prompt(tx('List name'), tx('Blinkit order')); if (!n || !n.trim()) return;
   const l = {id: api.newId(), book: 'check', date: today(), name: n.trim(), items: [], createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name};
-  saveList(l); S.lists.check.unshift(l); render(); openList(l.id);
+  saveList(l); S.lists.check.unshift(l); render(); openList(l.id); tellAdmins(`🧾 ${who()} made a checklist`, l.name, 'l-' + l.id, 'lists');
 }
 function refreshOpenSheet(k) {
   if (!$('#sheet').classList.contains('open') || document.activeElement?.matches?.('#sheet input, #sheet textarea')) return;
@@ -1638,6 +1644,7 @@ function openBulkPay() {
     const base = {paidOn: $('#bkDate').value || today(), paidMode: mode, paidRef: mode === 'Cash' ? '' : $('#bkRef').value.trim(), paidByName: S.me.name, updatedAt: Date.now(), updatedByName: S.me.name};
     for (const e of chosen) { const u = {...strip(e), ...base}; api.saveEntry(u).catch(err => toast(errText(err))); Object.assign(e, u); }
     closeSheet(); mergeEntries(); render(); toast(`${chosen.length} paid · ${money(amt)}`);
+    tellAdmins(`💰 ${who()} paid ${chosen.length} bills · ${money(amt)}`, `${BOOKS[k].name} · ${mode}${base.paidRef ? ' · UTR ' + base.paidRef : ''}`);
   };
   sync();
   mountUpi($('#bkUpi'), {key: k, amount: () => sum(list.filter(e => sel.has(e.id)), total), note: () => `${BOOKS[k].name} ${sel.size} bills`,
@@ -1817,6 +1824,8 @@ function saveForm() {
     e.photoIds = ids; e.hasPhoto = ids.length > 0; }
   api.saveEntry(e).catch(err => toast('Not saved: ' + errText(err)));
   S.month = e.date.slice(0, 7); ensureMonth();
+  tellAdmins(`${BOOKS[bookOf(e)].icon} ${who()} ${isNew ? 'added' : 'edited'} ${money(total(e))} · ${BOOKS[bookOf(e)].name}`,
+    `${itemsText(e)} · ${e.status === 'paid' ? 'Paid ' + (e.mode || '') : 'Pay later'}${shortDate(e.date) !== shortDate(today()) ? ' · ' + shortDate(e.date) : ''}`, 'e-' + e.id);
   closeSheet(); toast(isNew ? `Saved · ${money(total(e))}` : 'Updated');
 }
 
@@ -2160,12 +2169,16 @@ async function testPush() {
     if (!r.ok || j.error) toast('Test failed: ' + (j.error || r.status)); else if (j.people === 0) toast('No phone saved yet – tap Retry');
   } catch (e) { toast('Test failed: ' + (e.message || e)); }
 }
-async function pushTo(to, title, body, tag) {
+async function pushTo(to, title, body, tag, go = 'tasks') {
   if (!PUSH_URL || api.demo) return;
   try { const idToken = await api.idToken(); if (!idToken) return;
-    fetch(PUSH_URL, {method: 'POST', headers: {'content-type': 'text/plain'}, body: JSON.stringify({idToken, to, title, body, url: './?go=tasks', tag})}).catch(() => {});
+    fetch(PUSH_URL, {method: 'POST', headers: {'content-type': 'text/plain'}, body: JSON.stringify({idToken, to, title, body, url: './?go=' + go, tag})}).catch(() => {});
   } catch {}
 }
+// every change in the app is reported to all admins (except the person who made it)
+const tellAdmins = (title, body, tag, go = 'home') => pushTo('admins', title, body, tag || 'a' + Date.now(), go);
+const who = () => S.me?.name || 'Someone';
+const itemsText = e => bookOf(e) === 'iron' ? (() => { const c = ironCounts(e); return `Wash ${c.wash} · Iron ${c.iron}`; })() : (e.items || []).map(i => i.name).slice(0, 6).join(', ');
 async function notify(title, body, url = './?go=tasks') {
   try {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
@@ -2290,6 +2303,7 @@ function openTaskForm() {
     if (photo.data) api.savePhoto('tp_' + t.id, photo.data).catch(e => toast('Photo: ' + errText(e)));
     api.saveTask(t).catch(e => toast(errText(e)));
     pushTo(t.assignedTo ? [t.assignedTo] : 'all', `${t.urgent ? '🚨 Urgent task' : 'New task'} · ${S.me.name}`, t.title, 'task-' + t.id);
+    if (t.assignedTo) pushTo('admins', `${t.urgent ? '🚨 Urgent task' : 'New task'} · ${S.me.name}${t.assignedName ? ' → ' + t.assignedName : ''}`, t.title, 'task-' + t.id);
     closeSheet(); toast('Task added');
   };
   $('#ntSave').onclick = save; $('#ntSave2').onclick = save;
@@ -2329,7 +2343,7 @@ function openTask(id) {
   const upd = patch => api.saveTask({...strip(t), ...patch, updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
   $('#tSubmit') && ($('#tSubmit').onclick = () => openSubmit(id));
   $('#tStart') && ($('#tStart').onclick = () => { const mine = t.assignedTo ? {} : {assignedTo: S.user.uid, assignedName: S.me.name};
-    upd({...mine, status: 'working', startedAt: Date.now(), startedByName: S.me.name}); closeSheet(); toast('Started'); });
+    upd({...mine, status: 'working', startedAt: Date.now(), startedByName: S.me.name}); closeSheet(); toast('Started'); tellAdmins(`▶ ${who()} started a task`, t.title, 'task-' + t.id, 'tasks'); });
   $('#tUnstart') && ($('#tUnstart').onclick = () => { upd({status: 'open', startedAt: null}); closeSheet(); });
   $('#tReassign') && ($('#tReassign').onclick = () => openReassign(id));
   $('#tApprove') && ($('#tApprove').onclick = () => { upd({status: 'done', done: true, approvedBy: S.user.uid, approvedByName: S.me.name, approvedAt: Date.now(), doneDate: today()}); pushTo([t.submittedBy || t.assignedTo].filter(Boolean), 'Approved ✓', t.title, 'task-' + t.id); closeSheet(); toast('Approved ✓'); });
@@ -2559,7 +2573,8 @@ async function mainClick(ev) {
   if (t.closest('[data-bulkpay]')) return openBulkPay();
   const sm = t.closest('[data-salm]'); if (sm) { const [y, mo] = (S.salMonth || today().slice(0, 7)).split('-').map(Number), d = new Date(y, mo - 1 + +sm.dataset.salm, 1); S.salMonth = ds(d).slice(0, 7); return render(); }
   const at = t.closest('[data-att]'); if (at) { const x = findEmp(at.dataset.att); if (!x) return; x.att = {...(x.att || {})};
-    if (x.att[at.dataset.day] === at.dataset.v) delete x.att[at.dataset.day]; else x.att[at.dataset.day] = at.dataset.v; saveEmp(x); return render(); }
+    if (x.att[at.dataset.day] === at.dataset.v) delete x.att[at.dataset.day]; else x.att[at.dataset.day] = at.dataset.v; saveEmp(x);
+    const v = x.att[at.dataset.day]; tellAdmins(`🗓 ${x.name}: ${v === 'F' ? 'Full day' : v === 'H' ? 'Half day' : v === 'A' ? 'Absent' : 'cleared'} · ${shortDate(at.dataset.day)}`, `Marked by ${who()}`, 'att-' + x.id + at.dataset.day, 'salary'); return render(); }
   const em = t.closest('[data-emp]'); if (em) return openEmp(em.dataset.emp);
   const li = t.closest('[data-list]'); if (li) return openList(li.dataset.list);
   const db = t.closest('[data-dbook]'); if (db) { S.dash.book = db.dataset.dbook; return renderDash(); }
@@ -2586,7 +2601,8 @@ async function mainClick(ev) {
   if (ss) { const id = ss.dataset.sstart || ss.dataset.sunstart || ss.dataset.sdone, x = findTask(id); if (!x) return;
     if (ss.dataset.sdone) return openSubmit(id);
     const patch = ss.dataset.sstart ? {status: 'working', startedAt: Date.now(), startedByName: S.me.name, ...(x.assignedTo ? {} : {assignedTo: S.user.uid, assignedName: S.me.name})} : {status: 'open', startedAt: null};
-    api.saveTask({...strip(x), ...patch, updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e))); return toast(ss.dataset.sstart ? 'Started' : 'OK'); }
+    api.saveTask({...strip(x), ...patch, updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
+    if (ss.dataset.sstart) tellAdmins(`▶ ${who()} started a task`, x.title, 'task-' + x.id, 'tasks'); return toast(ss.dataset.sstart ? 'Started' : 'OK'); }
   const tr = t.closest('[data-task]'); if (tr) return openTask(tr.dataset.task);
 }
 function mainChange(ev) {
@@ -2608,12 +2624,13 @@ $('#sheet').addEventListener('click', ev => {
   const ir = t.closest('[data-iret]'); if (ir) return setReturned(ir.dataset.iret, +ir.dataset.idx);
   const up = t.closest('[data-unpay]');
   if (up) { const e = findEntry(up.dataset.unpay); const u = {...strip(e), paidOn: null, paidMode: null, paidRef: null, paidByName: null, updatedAt: Date.now(), updatedByName: S.me.name};
-    api.saveEntry(u).catch(err => toast(errText(err))); Object.assign(e, u); return openDetail(e.id); }
+    api.saveEntry(u).catch(err => toast(errText(err))); Object.assign(e, u); tellAdmins(`↩ ${who()} undid a payment · ${BOOKS[bookOf(e)].name}`, `${money(total(e))} · ${itemsText(e)}`, 'e-' + e.id); return openDetail(e.id); }
   const dl = t.closest('[data-delete]');
   if (dl && confirm('Delete this entry for everyone?')) {
     const id = dl.dataset.delete, e = findEntry(id);
     api.deleteEntry(id).catch(err => toast(errText(err)));
     if (e) photoIdsOf(e).forEach(x => api.deletePhoto(x).catch(() => {}));
+    if (e) tellAdmins(`🗑 ${who()} deleted ${money(total(e))} · ${BOOKS[bookOf(e)].name}`, `${itemsText(e)} · ${shortDate(e.date)}`, 'e-' + e.id);
     closeSheet(); toast('Deleted');
   }
 });
