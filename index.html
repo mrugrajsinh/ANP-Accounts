@@ -146,6 +146,16 @@ table.items .a{text-align:right;font-weight:600;font-variant-numeric:tabular-num
 .stat.danger{background:#fdecea;border-color:#f3b8b0}.stat.danger small,.stat.danger b{color:#b3261e}
 tr.notback td{background:#fdf1ef}tr.notback td:first-child{box-shadow:inset 4px 0 0 #c62828}
 .bulkbtn{margin:0 0 8px}
+.upipay{background:#f3f7ff;border:1px solid #cfdcf5;border-radius:14px;padding:10px 12px;margin:8px 0 10px}
+@media (prefers-color-scheme:dark){.upipay{background:#1b2436;border-color:#2c3a57}}
+.upito{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}.upito .chip{margin:0 0 0 auto;padding:4px 10px;font-size:13px}
+.upiapps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.upiapp{border:1px solid #9fb6e6;background:#fff;border-radius:12px;padding:10px 2px;font-weight:700;font-size:13px;color:#1a3d8f}
+#upiAsk,#qrScan{position:fixed;inset:0;z-index:1000;display:none}#upiAsk.on{display:flex;align-items:flex-end;background:rgba(0,0,0,.45)}
+#upiAsk .upibox{background:var(--bg);width:100%;border-radius:22px 22px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));text-align:center}
+#qrScan.on{display:block;background:#000}#qrScan video{width:100%;height:100%;object-fit:cover}
+#qrScan .qrframe{position:absolute;left:50%;top:45%;width:64vw;height:64vw;max-width:320px;max-height:320px;transform:translate(-50%,-50%);border:3px solid #fff;border-radius:18px;box-shadow:0 0 0 2000px rgba(0,0,0,.35)}
+#qrScan .qrtop{position:absolute;top:calc(env(safe-area-inset-top) + 10px);right:12px}#qrScan .pvx{background:rgba(255,255,255,.9);border:0;border-radius:20px;padding:8px 14px;font-weight:700}
+#qrScan .qrbot{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 16px);color:#fff;text-align:center;font-weight:600}#qrScan .qrbot .btn{margin-top:10px}
 .paidbox{display:block;width:100%;text-align:left;background:#e7f4ea;border-color:#b9dfc3;color:#1e5e23;font:inherit}
 .big-num{font-size:24px;font-weight:700}
 textarea.field.big{font-size:18px;line-height:1.5;min-height:130px;resize:vertical}
@@ -703,7 +713,11 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], '🔔 Send me a test alert': ['🔔 Mujhe test alert bhejo', '🔔 મને ટેસ્ટ અલર્ટ મોકલો'], '↻ Set up lock-screen alerts': ['↻ Lock-screen alert chalu karo', '↻ લૉક-સ્ક્રીન અલર્ટ ચાલુ કરો'], 'Empty': ['Khaali', 'ખાલી'], 'Online orders': ['Online order', 'ઑનલાઇન ઑર્ડર'], 'Order paid': ['Order ka payment', 'ઑર્ડરની ચુકવણી'], 'Final amount paid ₹ (from the Blinkit bill)': ['Kul kitna diya ₹ (Blinkit bill se)', 'કુલ કેટલા ચૂકવ્યા ₹ (Blinkit બિલમાંથી)'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Did the payment go through?': ['Payment ho gaya?', 'ચુકવણી થઈ ગઈ?'], 'Yes, paid': ['Haan, ho gaya', 'હા, થઈ ગઈ'], 'No / failed': ['Nahi / fail', 'ના / નિષ્ફળ'],
+  'Pay to': ['Kisko', 'કોને'], 'Change': ['Badlo', 'બદલો'], 'Other UPI': ['Aur UPI', 'બીજું UPI'], 'Amount fills in automatically. After paying, come back here.': ['Rakam apne aap bhar jayegi. Pay karke yahan wapas aao.', 'રકમ આપોઆપ ભરાશે. ચૂકવીને અહીં પાછા આવો.'],
+  "Pay from here: scan the shop's UPI QR once, it is remembered.": ['Yahin se pay karo: dukaan ka UPI QR ek baar scan karo, yaad rahega.', 'અહીંથી ચૂકવો: દુકાનનો UPI QR એક વાર સ્કૅન કરો, યાદ રહેશે.'], '📷 Scan UPI QR': ['📷 UPI QR scan', '📷 UPI QR સ્કૅન'], '⌨️ Type UPI ID': ['⌨️ UPI ID likho', '⌨️ UPI ID લખો'],
+  "Point at the shop's UPI QR": ['Dukaan ke UPI QR par camera rakho', 'દુકાનના UPI QR સામે કૅમેરા રાખો'], 'Pick QR photo instead': ['QR ki photo chuno', 'QR નો ફોટો પસંદ કરો'], 'Scan a new QR?': ['Naya QR scan karein?', 'નવો QR સ્કૅન કરવો?'],
+  'UPI ID (e.g. shop@okaxis)': ['UPI ID (jaise shop@okaxis)', 'UPI ID (દા.ત. shop@okaxis)'], 'Name (optional)': ['Naam (optional)', 'નામ (વૈકલ્પિક)'], 'Not marked paid': ['Paid nahi kiya', 'ચૂકવ્યું નથી કર્યું'], '🔔 Send me a test alert': ['🔔 Mujhe test alert bhejo', '🔔 મને ટેસ્ટ અલર્ટ મોકલો'], '↻ Set up lock-screen alerts': ['↻ Lock-screen alert chalu karo', '↻ લૉક-સ્ક્રીન અલર્ટ ચાલુ કરો'], 'Empty': ['Khaali', 'ખાલી'], 'Online orders': ['Online order', 'ઑનલાઇન ઑર્ડર'], 'Order paid': ['Order ka payment', 'ઑર્ડરની ચુકવણી'], 'Final amount paid ₹ (from the Blinkit bill)': ['Kul kitna diya ₹ (Blinkit bill se)', 'કુલ કેટલા ચૂકવ્યા ₹ (Blinkit બિલમાંથી)'],
   'Add to': ['Kis mein jode', 'શેમાં ઉમેરવું'], 'Bill screenshot (optional)': ['Bill ki photo (optional)', 'બિલનો ફોટો (વૈકલ્પિક)'], '📷 Add bill photo': ['📷 Bill ki photo', '📷 બિલનો ફોટો'], 'Save to purchases': ['Kharidi mein save karo', 'ખરીદીમાં સેવ કરો'], 'Edit task': ['Kaam badlo', 'કામ સુધારો'], 'Write the task in any language, e.g. bed theek karwana hai': ['Kisi bhi bhasha mein kaam likho, jaise bed theek karwana hai', 'કોઈપણ ભાષામાં કામ લખો, દા.ત. bed theek karwana hai'],
   '🎤 The voice note stays with the task.': ['🎤 Voice note kaam ke saath rahega.', '🎤 વૉઇસ નોટ કામ સાથે રહેશે.'], 'Write the task': ['Kaam likho', 'કામ લખો'], 'Salary': ['Pagaar', 'પગાર'], 'Checklists': ['Checklist', 'ચેકલિસ્ટ'], 'Attendance, advance & payouts': ['Haaziri, advance aur pagaar', 'હાજરી, ઉપાડ અને પગાર'], 'Shopping lists, Blinkit…': ['Kharidi list, Blinkit…', 'ખરીદી યાદી, Blinkit…'],
   'Full': ['Poora', 'પૂરો'], 'Half': ['Aadha', 'અડધો'], 'Absent': ['Gair-haazir', 'ગેરહાજર'], 'Earned so far': ['Ab tak kamaya', 'અત્યાર સુધી'], 'To pay (after advance)': ['Dena hai (advance ke baad)', 'આપવાના (ઉપાડ પછી)'], 'This month': ['Is mahine', 'આ મહિને'],
@@ -853,7 +867,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '31 · alert test';
+const APP_VERSION = '32 · UPI pay';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1336,8 +1350,9 @@ function openMarkPaid(id) {
         <label class="flabel">Paid on</label><input type="date" class="field" id="payDate" value="${today()}">
         <label class="flabel" style="margin-top:12px">Paid by</label>
         <div class="modes" id="payModes">${PAY.map(m => `<button type="button" class="chip big ${m === mode ? 'on' : ''}" data-pm="${m}">${m === 'Cash' ? '💵' : '📱'} ${m}</button>`).join('')}</div>
-        <div id="payRefWrap" class="hidden"><label class="flabel">UTR (optional)</label><input class="field" id="payRef" autocomplete="off" autocapitalize="characters" placeholder="e.g. 431245678901"></div>
+        <div id="payRefWrap" class="hidden"><div id="payUpi"></div><label class="flabel">UTR (optional)</label><input class="field" id="payRef" autocomplete="off" autocapitalize="characters" placeholder="e.g. 431245678901"></div>
       </div></div>`);
+  mountUpi($('#payUpi'), {key: bookOf(e), amount: () => total(e), note: () => `${BOOKS[bookOf(e)].name} ${shortDate(e.date)}`, onPaid: u => { $('#payRef').value = u || ''; $('#confirmPay').click(); }});
   $('#payModes').onclick = ev => { const b = ev.target.closest('[data-pm]'); if (!b) return; mode = b.dataset.pm;
     $('#payModes').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); $('#payRefWrap').classList.toggle('hidden', mode === 'Cash'); };
   $('#confirmPay').onclick = () => {
@@ -1436,9 +1451,10 @@ function openEmpPay(id) {
         <label class="flabel" style="margin-top:10px">Paid on</label><input class="field" type="date" id="spDate" value="${today()}">
         <label class="flabel" style="margin-top:12px">Paid by</label>
         <div class="modes" id="spModes">${PAY.map(p => `<button type="button" class="chip big ${p === mode ? 'on' : ''}" data-pm="${p}">${p === 'Cash' ? '💵' : '📱'} ${p}</button>`).join('')}</div>
-        <div id="spRefWrap" class="hidden"><label class="flabel">UTR (optional)</label><input class="field" id="spRef" autocomplete="off"></div></div>
+        <div id="spRefWrap" class="hidden"><div id="spUpi"></div><label class="flabel">UTR (optional)</label><input class="field" id="spRef" autocomplete="off"></div></div>
       <button class="btn amber" id="spSave2">Mark salary paid</button></div>`);
   $('#spModes').onclick = ev => { const b = ev.target.closest('[data-pm]'); if (!b) return; mode = b.dataset.pm; $('#spModes').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); $('#spRefWrap').classList.toggle('hidden', mode === 'Cash'); };
+  mountUpi($('#spUpi'), {key: 'emp:' + x.id, amount: () => num($('#spAmt').value), note: () => `Salary ${monthLabel(m)}`, onPaid: u => { $('#spRef').value = u || ''; save(); }});
   const save = () => { x.paid = {...(x.paid || {}), [m]: {on: $('#spDate').value || today(), amount: num($('#spAmt').value), mode, ref: mode === 'Cash' ? '' : $('#spRef').value.trim(), byName: S.me.name}};
     saveEmp(x); render(); openEmp(id); toast('Salary paid'); };
   $('#spSave').onclick = save; $('#spSave2').onclick = save;
@@ -1584,7 +1600,7 @@ function openBulkPay() {
         <label class="flabel">Paid on</label><input type="date" class="field" id="bkDate" value="${today()}">
         <label class="flabel" style="margin-top:12px">Paid by</label>
         <div class="modes" id="bkModes">${PAY.map(m => `<button type="button" class="chip big ${m === mode ? 'on' : ''}" data-pm="${m}">${m === 'Cash' ? '💵' : '📱'} ${m}</button>`).join('')}</div>
-        <div id="bkRefWrap" class="hidden"><label class="flabel">UTR (optional)</label><input class="field" id="bkRef" autocomplete="off" autocapitalize="characters" placeholder="e.g. 431245678901"></div></div>
+        <div id="bkRefWrap" class="hidden"><div id="bkUpi"></div><label class="flabel">UTR (optional)</label><input class="field" id="bkRef" autocomplete="off" autocapitalize="characters" placeholder="e.g. 431245678901"></div></div>
       <div class="bk-foot"><button class="btn amber" id="bkSave" disabled>Select entries to pay</button></div>
     </div>`);
   const sync = () => {
@@ -1604,12 +1620,14 @@ function openBulkPay() {
   $('#bkSave').onclick = () => {
     const chosen = list.filter(e => sel.has(e.id)); if (!chosen.length) return;
     const amt = sum(chosen, total);
-    if (!confirm(`${tx('Mark as paid')}: ${chosen.length} · ${money(amt)}?`)) return;
+    if (!S.bulkSkipAsk && !confirm(`${tx('Mark as paid')}: ${chosen.length} · ${money(amt)}?`)) return; S.bulkSkipAsk = false;
     const base = {paidOn: $('#bkDate').value || today(), paidMode: mode, paidRef: mode === 'Cash' ? '' : $('#bkRef').value.trim(), paidByName: S.me.name, updatedAt: Date.now(), updatedByName: S.me.name};
     for (const e of chosen) { const u = {...strip(e), ...base}; api.saveEntry(u).catch(err => toast(errText(err))); Object.assign(e, u); }
     closeSheet(); mergeEntries(); render(); toast(`${chosen.length} paid · ${money(amt)}`);
   };
   sync();
+  mountUpi($('#bkUpi'), {key: k, amount: () => sum(list.filter(e => sel.has(e.id)), total), note: () => `${BOOKS[k].name} ${sel.size} bills`,
+    onPaid: u => { $('#bkRef').value = u || ''; S.bulkSkipAsk = true; $('#bkSave').click(); }});
 }
 
 /* ================= add / edit form ================= */
@@ -1681,7 +1699,7 @@ function openForm(existing, book) {
         <div class="seg" id="statusSeg"><button type="button" data-st="paid" class="${e.status === 'paid' ? 'on' : ''}">Paid now</button><button type="button" data-st="credit" class="cr ${e.status === 'credit' ? 'on' : ''}">Pay later</button></div>
         <div id="paidBox" class="${e.status === 'paid' ? '' : 'hidden'}">
           <div class="modes" id="modeChips">${PAY.map(m => `<button type="button" class="chip big ${m === e.mode ? 'on' : ''}" data-mode="${m}">${m === 'Cash' ? '💵' : '📱'} ${m}</button>`).join('')}</div>
-          <div id="refWrap" class="${e.mode === 'Cash' ? 'hidden' : ''}"><label class="flabel">UTR (optional)</label>
+          <div id="refWrap" class="${e.mode === 'Cash' ? 'hidden' : ''}"><div id="fUpi"></div><label class="flabel">UTR (optional)</label>
             <input class="field" id="fRef" value="${esc(e.ref)}" autocomplete="off" autocapitalize="characters" placeholder="e.g. 431245678901"></div>
         </div>
         <div id="creditBox" class="${e.status === 'credit' ? '' : 'hidden'}">
@@ -1694,6 +1712,7 @@ function openForm(existing, book) {
       <button class="btn pri" id="saveBtn2">Save</button>
     </div>`);
   renderPhoto(); updateTotal();
+  mountUpi($('#fUpi'), {key: k, amount: () => formTotal(), note: () => `${B.name} ${shortDate($('#fDate').value || today())}`, onPaid: u => { $('#fRef').value = u || ''; saveForm(); }});
   if (existing && e.hasPhoto) api.getPhoto(e.id).then(p => { if (S.editing === e && !S.photo.changed) { S.photo.data = p; renderPhoto(); } }).catch(() => {});
   if (!existing) setTimeout(() => (iron ? $('#items .n-w') : $('#items .i-name'))?.focus(), 350);
   const form = $('#form');
@@ -1750,10 +1769,8 @@ function readIronItems() {
   });
   return items;
 }
-function updateTotal() {
-  const t = S.editing && bookOf(S.editing) === 'iron' ? readIronItems().reduce((s, i) => s + i.amount, 0) : [...document.querySelectorAll('#items .i-amt')].reduce((s, a) => s + num(a.value), 0);
-  $('#fTotal').textContent = money(t);
-}
+function formTotal() { return S.editing && bookOf(S.editing) === 'iron' ? readIronItems().reduce((s, i) => s + i.amount, 0) : [...document.querySelectorAll('#items .i-amt')].reduce((s, a) => s + num(a.value), 0); }
+function updateTotal() { $('#fTotal').textContent = money(formTotal()); }
 
 function saveForm() {
   const e = S.editing, iron = bookOf(e) === 'iron';
@@ -1812,6 +1829,92 @@ async function onPicked(ev) {
   URL.revokeObjectURL(url);
 }
 $('#photoInput').onchange = onPicked; $('#taskPhotoInput').onchange = onPicked;
+
+/* ================= UPI: pay from the app, scan a shop's QR, confirm on return ================= */
+// UPI apps never report back to a web app, so when the person returns we simply ask "Did it go through?"
+function upiOf(key) { let l = null; try { l = JSON.parse(localStorage.getItem('upi_' + key) || 'null'); } catch {} return (S.settings?.upi || {})[key] || l; }
+async function saveUpi(key, p) {
+  try { localStorage.setItem('upi_' + key, JSON.stringify(p)); } catch {}
+  if (S.isAdmin) { const all = {...(S.settings?.upi || {}), [key]: p}; try { await api.saveSettings({upi: all}); S.settings.upi = all; } catch {} }
+}
+function parseUpi(text) {
+  const m = String(text || '').trim().match(/^upi:\/\/pay\?(.*)$/i); if (!m) return null;
+  const q = new URLSearchParams(m[1]); const pa = q.get('pa'); if (!pa) return null;
+  return {pa, pn: q.get('pn') || '', am: num(q.get('am')), mc: q.get('mc') || ''};
+}
+function upiLink(app, p, amt, note) {
+  const q = `pa=${encodeURIComponent(p.pa)}&pn=${encodeURIComponent(p.pn || p.pa)}${p.mc ? '&mc=' + encodeURIComponent(p.mc) : ''}&am=${num(amt).toFixed(2)}&cu=INR&tn=${encodeURIComponent((note || 'ANP').slice(0, 40))}`;
+  return ({gpay: 'gpay://upi/pay?', phonepe: 'phonepe://pay?', paytm: 'paytmmp://pay?', any: 'upi://pay?'})[app] + q;
+}
+function mountUpi(el, {key, amount, note, onPaid}) {
+  if (!el) return;
+  const draw = () => { const p = upiOf(key);
+    el.innerHTML = p ? `<div class="upipay"><div class="upito">Pay to <b data-nt>${esc(p.pn || p.pa)}</b><span class="hint" style="margin:0" data-nt>${esc(p.pa)}</span><button type="button" class="chip" data-upichg>Change</button></div>
+        <div class="upiapps">${[['gpay', 'GPay'], ['phonepe', 'PhonePe'], ['paytm', 'Paytm'], ['any', 'Other UPI']].map(([k, l]) => `<button type="button" class="upiapp" data-upiapp="${k}">${l}</button>`).join('')}</div>
+        <div class="hint" style="margin:6px 0 0">Amount fills in automatically. After paying, come back here.</div></div>`
+      : `<div class="upipay"><div class="hint" style="margin:0 0 8px">Pay from here: scan the shop's UPI QR once, it is remembered.</div>
+        <div class="row2"><button type="button" class="btn sec" data-upiscan style="margin:0">📷 Scan UPI QR</button><button type="button" class="btn sec" data-upitype style="margin:0">⌨️ Type UPI ID</button></div></div>`; };
+  const setP = p => { saveUpi(key, {pa: p.pa, pn: p.pn || '', ...(p.mc ? {mc: p.mc} : {})}); draw(); toast('UPI saved: ' + (p.pn || p.pa)); };
+  el.onclick = ev => {
+    if (ev.target.closest('[data-upiscan]')) return openQrScanner(t => { const p = parseUpi(t); if (!p) return toast('Not a UPI QR'); setP(p); });
+    if (ev.target.closest('[data-upitype]') || ev.target.closest('[data-upichg]')) {
+      if (ev.target.closest('[data-upichg]') && confirm(tx('Scan a new QR?'))) return openQrScanner(t => { const p = parseUpi(t); if (!p) return toast('Not a UPI QR'); setP(p); });
+      const pa = prompt(tx('UPI ID (e.g. shop@okaxis)'), upiOf(key)?.pa || ''); if (!pa || !pa.includes('@')) return;
+      const pn = prompt(tx('Name (optional)'), upiOf(key)?.pn || '') || ''; return setP({pa: pa.trim(), pn: pn.trim()});
+    }
+    const a = ev.target.closest('[data-upiapp]'); if (!a) return;
+    const amt = num(typeof amount === 'function' ? amount() : amount); if (!amt) return toast('Enter the amount first');
+    S.upiWait = {onPaid, amt, at: Date.now(), who: upiOf(key)};
+    location.href = upiLink(a.dataset.upiapp, upiOf(key), amt, typeof note === 'function' ? note() : note);
+  };
+  draw();
+}
+function askUpiResult() {
+  const w = S.upiWait; if (!w || Date.now() - w.at < 1500) return; S.upiWait = null;
+  let d = $('#upiAsk'); if (!d) { d = document.createElement('div'); d.id = 'upiAsk'; document.body.appendChild(d); }
+  d.innerHTML = `<div class="upibox"><div style="font-size:18px;font-weight:700">${tx('Did the payment go through?')}</div>
+    <div class="amt" style="font-size:30px;font-weight:800;margin:6px 0">${money(w.amt)}</div><div class="hint" style="margin:0 0 10px" data-nt>${esc(w.who?.pn || w.who?.pa || '')}</div>
+    <label class="flabel">UTR / Ref no. (optional)</label><input class="field" id="upiUtr" autocomplete="off" inputmode="numeric" placeholder="e.g. 431245678901">
+    <button class="btn pri" id="upiYes" style="margin-top:12px">✓ ${tx('Yes, paid')}</button><button class="btn sec" id="upiNo">✗ ${tx('No / failed')}</button></div>`;
+  d.classList.add('on');
+  $('#upiYes').onclick = () => { const u = $('#upiUtr').value.trim(); d.classList.remove('on'); w.onPaid(u); };
+  $('#upiNo').onclick = () => { d.classList.remove('on'); toast('Not marked paid'); };
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.upiWait) setTimeout(askUpiResult, 400); });
+window.addEventListener('focus', () => { if (S.upiWait) setTimeout(askUpiResult, 600); });
+
+// QR scanner: camera (BarcodeDetector where available, else jsQR) or a photo of the QR
+async function loadJsQR() {
+  if (window.jsQR) return window.jsQR;
+  await new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'; sc.onload = res; sc.onerror = () => rej(new Error('QR reader could not load')); document.head.appendChild(sc); });
+  return window.jsQR;
+}
+async function decodeCanvas(cv) {
+  if ('BarcodeDetector' in window) { try { const r = await new BarcodeDetector({formats: ['qr_code']}).detect(cv); if (r[0]) return r[0].rawValue; } catch {} }
+  const J = await loadJsQR(), ctx = cv.getContext('2d', {willReadFrequently: true}), im = ctx.getImageData(0, 0, cv.width, cv.height);
+  const r = J(im.data, cv.width, cv.height, {inversionAttempts: 'attemptBoth'}); return r ? r.data : null;
+}
+async function openQrScanner(cb) {
+  let d = $('#qrScan'); if (!d) { d = document.createElement('div'); d.id = 'qrScan'; document.body.appendChild(d); }
+  d.innerHTML = `<video playsinline muted autoplay></video><div class="qrframe"></div><div class="qrtop"><button class="pvx" id="qrClose">Close</button></div>
+    <div class="qrbot"><div>${tx("Point at the shop's UPI QR")}</div><button class="btn sec" id="qrPhoto">🖼 ${tx('Pick QR photo instead')}</button><input type="file" accept="image/*" id="qrFile" hidden></div>`;
+  d.classList.add('on');
+  const video = d.querySelector('video'), cv = document.createElement('canvas'); let stream = null, alive = true;
+  const stop = () => { alive = false; stream?.getTracks().forEach(t => t.stop()); d.classList.remove('on'); d.innerHTML = ''; };
+  const got = t => { if (!t || !alive) return; stop(); cb(t); };
+  $('#qrClose').onclick = stop;
+  $('#qrPhoto').onclick = () => $('#qrFile').click();
+  $('#qrFile').onchange = async ev => { const f = ev.target.files[0]; if (!f) return; const img = await loadImg(URL.createObjectURL(f));
+    const sc = Math.min(1, 1200 / Math.max(img.naturalWidth, img.naturalHeight)); cv.width = img.naturalWidth * sc; cv.height = img.naturalHeight * sc;
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height); const t = await decodeCanvas(cv).catch(() => null); t ? got(t) : toast('No QR found in that photo'); };
+  try { stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}, audio: false}); video.srcObject = stream; await video.play(); }
+  catch (e) { toast('Camera not available – pick a QR photo'); return; }
+  const tick = async () => { if (!alive) return;
+    if (video.videoWidth) { cv.width = Math.min(800, video.videoWidth); cv.height = cv.width * video.videoHeight / video.videoWidth; cv.getContext('2d', {willReadFrequently: true}).drawImage(video, 0, 0, cv.width, cv.height);
+      const t = await decodeCanvas(cv).catch(() => null); if (t) return got(t); }
+    setTimeout(tick, 250); };
+  tick();
+}
 
 /* ================= voice notes ================= */
 const VLANGS = [['hi-IN', 'हिन्दी / Hinglish'], ['gu-IN', 'ગુજરાતી'], ['en-IN', 'English']];
