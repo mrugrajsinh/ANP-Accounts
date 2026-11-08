@@ -146,6 +146,8 @@ table.items .a{text-align:right;font-weight:600;font-variant-numeric:tabular-num
 .stat.danger{background:#fdecea;border-color:#f3b8b0}.stat.danger small,.stat.danger b{color:#b3261e}
 tr.notback td{background:#fdf1ef}tr.notback td:first-child{box-shadow:inset 4px 0 0 #c62828}
 .bulkbtn{margin:0 0 8px}
+.paidbox{display:block;width:100%;text-align:left;background:#e7f4ea;border-color:#b9dfc3;color:#1e5e23;font:inherit}
+.big-num{font-size:24px;font-weight:700}
 textarea.field.big{font-size:18px;line-height:1.5;min-height:130px;resize:vertical}
 .bookbtn .bicon.sal{background:#e3f1e0}.bookbtn .bicon.chk{background:#e6ecfb}
 @media (prefers-color-scheme:dark){.bookbtn .bicon.sal{background:#1f3a22}.bookbtn .bicon.chk{background:#22304d}}
@@ -694,7 +696,8 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Edit task': ['Kaam badlo', 'કામ સુધારો'], 'Write the task in any language, e.g. bed theek karwana hai': ['Kisi bhi bhasha mein kaam likho, jaise bed theek karwana hai', 'કોઈપણ ભાષામાં કામ લખો, દા.ત. bed theek karwana hai'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Order paid': ['Order ka payment', 'ઑર્ડરની ચુકવણી'], 'Final amount paid ₹ (from the Blinkit bill)': ['Kul kitna diya ₹ (Blinkit bill se)', 'કુલ કેટલા ચૂકવ્યા ₹ (Blinkit બિલમાંથી)'],
+  'Add to': ['Kis mein jode', 'શેમાં ઉમેરવું'], 'Bill screenshot (optional)': ['Bill ki photo (optional)', 'બિલનો ફોટો (વૈકલ્પિક)'], '📷 Add bill photo': ['📷 Bill ki photo', '📷 બિલનો ફોટો'], 'Save to purchases': ['Kharidi mein save karo', 'ખરીદીમાં સેવ કરો'], 'Edit task': ['Kaam badlo', 'કામ સુધારો'], 'Write the task in any language, e.g. bed theek karwana hai': ['Kisi bhi bhasha mein kaam likho, jaise bed theek karwana hai', 'કોઈપણ ભાષામાં કામ લખો, દા.ત. bed theek karwana hai'],
   '🎤 The voice note stays with the task.': ['🎤 Voice note kaam ke saath rahega.', '🎤 વૉઇસ નોટ કામ સાથે રહેશે.'], 'Write the task': ['Kaam likho', 'કામ લખો'], 'Salary': ['Pagaar', 'પગાર'], 'Checklists': ['Checklist', 'ચેકલિસ્ટ'], 'Attendance, advance & payouts': ['Haaziri, advance aur pagaar', 'હાજરી, ઉપાડ અને પગાર'], 'Shopping lists, Blinkit…': ['Kharidi list, Blinkit…', 'ખરીદી યાદી, Blinkit…'],
   'Full': ['Poora', 'પૂરો'], 'Half': ['Aadha', 'અડધો'], 'Absent': ['Gair-haazir', 'ગેરહાજર'], 'Earned so far': ['Ab tak kamaya', 'અત્યાર સુધી'], 'To pay (after advance)': ['Dena hai (advance ke baad)', 'આપવાના (ઉપાડ પછી)'], 'This month': ['Is mahine', 'આ મહિને'],
   'Advance this month': ['Is mahine advance', 'આ મહિને ઉપાડ'], 'No advance.': ['Koi advance nahi.', 'કોઈ ઉપાડ નથી.'], '＋ Add advance': ['＋ Advance jodo', '＋ ઉપાડ ઉમેરો'], 'Advance': ['Advance', 'ઉપાડ'], 'Advance saved': ['Advance save hua', 'ઉપાડ સેવ થયો'],
@@ -842,7 +845,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '26 · task edit';
+const APP_VERSION = '27 · blinkit amount';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1480,6 +1483,8 @@ function openList(id) {
       <div class="fgroup">${left.length ? `<div class="flabel">To get (${left.length})</div>` + left.map(row).join('') : '<p class="hint" style="margin:0">Nothing left to get. 🎉</p>'}
         ${got.length ? `<div class="flabel" style="margin-top:12px">Done (${got.length})</div>` + got.map(row).join('') : ''}
         ${na.length ? `<div class="flabel" style="margin-top:12px;color:#c62828">Not available (${na.length})</div>` + na.map(row).join('') : ''}</div>
+      ${l.paid ? `<button class="fgroup paidbox" data-open="${l.paid.entryId}" id="clPaidBox"><b>✓ Paid ${money(l.paid.amount)}</b> · ${esc(l.paid.mode)} · ${shortDate(l.paid.on)}<div class="hint" style="margin:2px 0 0">Added to ${esc(BOOKS[l.paid.book]?.name || '')} · tap to see</div></button>`
+        : got.length ? `<button class="btn amber" id="clPay">💳 Order paid – add amount to ${esc(BOOKS.ganesh.name)}</button>` : ''}
       ${left.length ? `<a class="btn pri" id="clBlink" href="${blinkit(left[0].name)}" target="_blank" rel="noopener">🛒 Open Blinkit · ${esc(left[0].name)}</a>` : ''}
       <button class="btn sec" id="clShare">📤 Share list (WhatsApp)</button>
       <button class="btn dan" id="clDel">Delete list</button>
@@ -1493,12 +1498,51 @@ function openList(id) {
     if (b.dataset.clna != null) return upd(o => { o.items[+b.dataset.clna].st = 'na'; });
     if (b.dataset.clundo != null) return upd(o => { o.items[+b.dataset.clundo].st = ''; });
     if (b.dataset.cldel != null) return upd(o => { o.items.splice(+b.dataset.cldel, 1); }); };
+  $('#clPay') && ($('#clPay').onclick = () => openListPay(id));
+  $('#clPaidBox') && ($('#clPaidBox').onclick = () => { const e = findEntry(l.paid.entryId); if (e) openDetail(e.id); else toast('Entry not found'); });
   $('#clRename').onclick = () => { const n = prompt(tx('List name'), l.name); if (n && n.trim()) upd(o => { o.name = n.trim(); }); };
   $('#clDel').onclick = () => { if (!confirm('Delete this?')) return; api.deleteEntry(l.id).catch(e => toast(errText(e))); closeSheet(); toast('Deleted'); };
   $('#clShare').onclick = async () => {
     const txt = `🧾 ${l.name}\n` + (l.items || []).map(i => `${i.st === 'got' ? '✅' : i.st === 'na' ? '❌' : '⬜'} ${i.name}${i.qty ? ' – ' + i.qty : ''}${i.st === 'na' ? ' (not available)' : ''}`).join('\n');
     try { if (navigator.share) await navigator.share({text: txt}); else { await navigator.clipboard.writeText(txt); toast('Copied'); } } catch {} };
 }
+// Blinkit doesn't send anything back, so the final bill amount is entered here once and saved as a purchase
+function openListPay(id) {
+  const l = findList(id); if (!l) return;
+  const got = (l.items || []).filter(i => i.st === 'got');
+  let mode = 'UPI', book = 'ganesh'; const photo = {data: null};
+  openSheet(`<div class="sh-head"><button data-listback="${id}">Back</button><h2>Order paid</h2><button class="save" id="lpSave">Save</button></div>
+    <div class="sh-body">
+      <div class="fgroup"><div style="font-weight:700" data-nt>${esc(l.name)}</div><div class="hint" data-nt>${got.map(i => esc(i.name) + (i.qty ? ' ×' + esc(i.qty) : '')).join(', ')}</div>
+        <label class="flabel" style="margin-top:12px">Final amount paid ₹ (from the Blinkit bill)</label><input class="field big-num" id="lpAmt" type="number" inputmode="decimal" step="any" min="0" placeholder="0">
+        <label class="flabel" style="margin-top:10px">Paid on</label><input class="field" type="date" id="lpDate" value="${today()}">
+        <label class="flabel" style="margin-top:12px">Paid by</label>
+        <div class="modes" id="lpModes">${PAY.map(m => `<button type="button" class="chip big ${m === mode ? 'on' : ''}" data-pm="${m}">${m === 'Cash' ? '💵' : '📱'} ${m}</button>`).join('')}</div>
+        <label class="flabel" style="margin-top:12px">Add to</label>
+        <div class="modes" id="lpBook">${['ganesh', 'veg'].map(k => `<button type="button" class="chip ${k === book ? 'on' : ''}" data-bk="${k}">${BOOKS[k].icon} <span data-nt>${esc(BOOKS[k].name)}</span></button>`).join('')}</div></div>
+      <div class="fgroup"><label class="flabel">Bill screenshot (optional)</label><div class="photo-box" id="lpPhoto"></div></div>
+      <button class="btn amber" id="lpSave2">Save to purchases</button>
+    </div>`);
+  setTimeout(() => $('#lpAmt')?.focus(), 300);
+  const drawP = () => { $('#lpPhoto').innerHTML = photo.data ? `<img src="${photo.data}" alt=""><button type="button" class="pbtn" id="lpPh">Change</button>` : `<button type="button" class="pbtn" id="lpPh">📷 Add bill photo</button>`; $('#lpPh').onclick = () => pickPhoto(false, d => { photo.data = d; drawP(); }); };
+  drawP();
+  $('#lpModes').onclick = ev => { const b = ev.target.closest('[data-pm]'); if (!b) return; mode = b.dataset.pm; $('#lpModes').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); };
+  $('#lpBook').onclick = ev => { const b = ev.target.closest('[data-bk]'); if (!b) return; book = b.dataset.bk; $('#lpBook').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); };
+  const save = () => {
+    const amt = num($('#lpAmt').value); if (!amt) return toast('Enter the amount');
+    const date = $('#lpDate').value || today();
+    const e = {id: api.newId(), book, date, vendor: 'Blinkit', status: 'paid', mode, ref: '', dueDate: null,
+      items: [{name: `Blinkit · ${l.name}`, qty: 1, unit: 'pcs', rate: amt, amount: amt, priceOnly: true}],
+      notes: got.map(i => i.name + (i.qty ? ' ×' + i.qty : '')).join(', '), hasPhoto: !!photo.data, fromList: l.id,
+      createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name, updatedAt: Date.now(), updatedByName: S.me.name};
+    if (photo.data) api.savePhoto(e.id, photo.data).catch(er => toast('Photo: ' + errText(er)));
+    api.saveEntry(e).catch(er => toast('Not saved: ' + errText(er)));
+    l.paid = {entryId: e.id, amount: amt, on: date, mode, book}; saveList(l);
+    openList(id); toast(`Saved · ${money(amt)} in ${BOOKS[book].name}`);
+  };
+  $('#lpSave').onclick = save; $('#lpSave2').onclick = save;
+}
+
 function openListForm() {
   const n = prompt(tx('List name'), tx('Blinkit order')); if (!n || !n.trim()) return;
   const l = {id: api.newId(), book: 'check', date: today(), name: n.trim(), items: [], createdAt: Date.now(), createdBy: S.user.uid, createdByName: S.me.name};
@@ -2362,6 +2406,7 @@ $('#sheet').addEventListener('click', ev => {
   const t = ev.target;
   if (t.closest('[data-close]')) return closeSheet();
   const eb = t.closest('[data-empback]'); if (eb) return openEmp(eb.dataset.empback);
+  const lb = t.closest('[data-listback]'); if (lb) return openList(lb.dataset.listback);
   const back = t.closest('[data-back]'); if (back) return openDetail(back.dataset.back);
   const bt = t.closest('[data-back-task]'); if (bt) { Rec.cancel(); return openTask(bt.dataset.backTask); }
   const ed = t.closest('[data-edit]'); if (ed) return openForm(findEntry(ed.dataset.edit));
