@@ -146,6 +146,7 @@ table.items .a{text-align:right;font-weight:600;font-variant-numeric:tabular-num
 .stat.danger{background:#fdecea;border-color:#f3b8b0}.stat.danger small,.stat.danger b{color:#b3261e}
 tr.notback td{background:#fdf1ef}tr.notback td:first-child{box-shadow:inset 4px 0 0 #c62828}
 .bulkbtn{margin:0 0 8px}
+textarea.field.big{font-size:18px;line-height:1.5;min-height:130px;resize:vertical}
 .bookbtn .bicon.sal{background:#e3f1e0}.bookbtn .bicon.chk{background:#e6ecfb}
 @media (prefers-color-scheme:dark){.bookbtn .bicon.sal{background:#1f3a22}.bookbtn .bicon.chk{background:#22304d}}
 .attrow{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 10px;margin-bottom:8px}
@@ -693,7 +694,8 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Salary': ['Pagaar', 'પગાર'], 'Checklists': ['Checklist', 'ચેકલિસ્ટ'], 'Attendance, advance & payouts': ['Haaziri, advance aur pagaar', 'હાજરી, ઉપાડ અને પગાર'], 'Shopping lists, Blinkit…': ['Kharidi list, Blinkit…', 'ખરીદી યાદી, Blinkit…'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Edit task': ['Kaam badlo', 'કામ સુધારો'], 'Write the task in any language, e.g. bed theek karwana hai': ['Kisi bhi bhasha mein kaam likho, jaise bed theek karwana hai', 'કોઈપણ ભાષામાં કામ લખો, દા.ત. bed theek karwana hai'],
+  '🎤 The voice note stays with the task.': ['🎤 Voice note kaam ke saath rahega.', '🎤 વૉઇસ નોટ કામ સાથે રહેશે.'], 'Write the task': ['Kaam likho', 'કામ લખો'], 'Salary': ['Pagaar', 'પગાર'], 'Checklists': ['Checklist', 'ચેકલિસ્ટ'], 'Attendance, advance & payouts': ['Haaziri, advance aur pagaar', 'હાજરી, ઉપાડ અને પગાર'], 'Shopping lists, Blinkit…': ['Kharidi list, Blinkit…', 'ખરીદી યાદી, Blinkit…'],
   'Full': ['Poora', 'પૂરો'], 'Half': ['Aadha', 'અડધો'], 'Absent': ['Gair-haazir', 'ગેરહાજર'], 'Earned so far': ['Ab tak kamaya', 'અત્યાર સુધી'], 'To pay (after advance)': ['Dena hai (advance ke baad)', 'આપવાના (ઉપાડ પછી)'], 'This month': ['Is mahine', 'આ મહિને'],
   'Advance this month': ['Is mahine advance', 'આ મહિને ઉપાડ'], 'No advance.': ['Koi advance nahi.', 'કોઈ ઉપાડ નથી.'], '＋ Add advance': ['＋ Advance jodo', '＋ ઉપાડ ઉમેરો'], 'Advance': ['Advance', 'ઉપાડ'], 'Advance saved': ['Advance save hua', 'ઉપાડ સેવ થયો'],
   'Calculation': ['Hisaab', 'હિસાબ'], 'Monthly salary': ['Mahine ki pagaar', 'માસિક પગાર'], 'Full days': ['Poore din', 'પૂરા દિવસ'], 'Earned': ['Kamaya', 'કમાણી'], 'Advance taken': ['Advance liya', 'ઉપાડ લીધો'], 'To pay': ['Dena hai', 'આપવાના'],
@@ -840,7 +842,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '25 · users page order';
+const APP_VERSION = '26 · task edit';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1986,9 +1988,9 @@ function renderTasks() {
     ${isToday ? teamHTML() : ''}
     <button class="btn pri" data-newtask style="margin:0 0 6px">＋ New task${isToday ? '' : ' for ' + shortDate(d)}</button>
     ${!isToday ? `<button class="chip" data-tday="0" style="margin:6px 0">↩ Back to today</button>` : ''}
-    ${review.length ? `<div class="section-t">${S.isAdmin ? 'Waiting for your approval' : 'Waiting for approval'} (${review.length})</div>` + review.map(x => taskRow(x, x.date < d)).join('') : ''}
     <div class="section-t">To do (${open.length})</div>
     ${open.length ? open.map(x => taskRow(x, x.date < d)).join('') : `<div class="empty" style="padding:22px">${isToday ? 'Nothing pending. 🎉' : 'No tasks for this day.'}</div>`}
+    ${review.length ? `<div class="section-t">${S.isAdmin ? 'Waiting for your approval' : 'Waiting for approval'} (${review.length})</div>` + review.map(x => taskRow(x, x.date < d)).join('') : ''}
     ${done.length ? `<div class="section-t">Done (${done.length})</div>` + done.map(x => taskRow(x)).join('') : ''}`;
 }
 
@@ -2030,7 +2032,7 @@ function openTaskForm() {
     <div class="sh-body">
       <div class="fgroup"><label class="flabel">Voice note (task name fills in from what you say)</label><div class="voice" id="ntVoice"></div></div>
       <div class="fgroup"><label class="flabel">Task</label>
-        <textarea class="field" id="ntTitle" rows="2" placeholder="Type in any language, e.g. bed theek karwana hai"></textarea>
+        <textarea class="field big" id="ntTitle" rows="4" placeholder="Type in any language, e.g. bed theek karwana hai"></textarea>
         <div class="row2" style="margin-top:10px">
           <div><label class="flabel">For</label><select class="field" id="ntWho" data-nt><option value="">${tx('Anyone')}</option>${team.map(({u}) => `<option value="${u.uid}">${esc(personOptLabel(u))}</option>`).join('')}${others.map(u => `<option value="${u.uid}">${esc(u.name)}</option>`).join('')}</select></div>
           <div><label class="flabel">Day</label><input type="date" class="field" id="ntDate" value="${S.taskDay}"></div></div>
@@ -2108,9 +2110,29 @@ function openTask(id) {
   $('#tApprove') && ($('#tApprove').onclick = () => { upd({status: 'done', done: true, approvedBy: S.user.uid, approvedByName: S.me.name, approvedAt: Date.now(), doneDate: today()}); closeSheet(); toast('Approved ✓'); });
   $('#tDecline') && ($('#tDecline').onclick = () => openDecline(id));
   $('#tReopen') && ($('#tReopen').onclick = () => { upd({status: 'open', done: false, approvedAt: null, approvedBy: null, approvedByName: null, doneDate: null}); closeSheet(); });
-  $('#tEdit') && ($('#tEdit').onclick = () => { const v = prompt('Edit task', t.title); if (v && v.trim()) { upd({title: v.trim()}); closeSheet(); } });
+  $('#tEdit') && ($('#tEdit').onclick = () => openTaskEdit(id));
   $('#tDel') && ($('#tDel').onclick = () => { if (!confirm('Delete this task?')) return; api.deleteTask(t.id).catch(e => toast(errText(e)));
     ['tv_', 'tp_', 'tproof_', 'tdv_', 'tpv_'].forEach(p => api.deletePhoto(p + t.id).catch(() => {})); closeSheet(); toast('Deleted'); });
+}
+
+function openTaskEdit(id) {
+  const t = findTask(id); if (!t) return;
+  const isVoiceTitle = t.title.startsWith('🎤');
+  openSheet(`<div class="sh-head"><button data-back-task="${id}">Cancel</button><h2>Edit task</h2><button class="save" id="teSave">Save</button></div>
+    <div class="sh-body">
+      <div class="fgroup"><label class="flabel">Task</label>
+        <textarea class="field big" id="teTitle" rows="5" placeholder="Write the task in any language, e.g. bed theek karwana hai">${isVoiceTitle ? '' : esc(t.title)}</textarea>
+        ${t.hasVoice ? `<p class="hint">🎤 The voice note stays with the task.</p>` : ''}
+        <div class="row2" style="margin-top:10px"><div><label class="flabel">Day</label><input type="date" class="field" id="teDate" value="${t.date}"></div><div></div></div>
+        <label class="urg"><input type="checkbox" id="teUrgent" ${t.urgent ? 'checked' : ''}> 🚨 Urgent – do it now</label></div>
+      <button class="btn pri" id="teSave2">Save</button>
+    </div>`);
+  const el = $('#teTitle'); setTimeout(() => { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }, 300);
+  const save = () => { const v = el.value.trim();
+    const title = v || (t.hasVoice ? '🎤 Voice task' : ''); if (!title) return toast('Write the task');
+    api.saveTask({...strip(t), title, date: $('#teDate').value || t.date, urgent: $('#teUrgent').checked, updatedBy: S.user.uid, updatedAt: Date.now()}).catch(e => toast(errText(e)));
+    Object.assign(t, {title, urgent: $('#teUrgent').checked}); openTask(id); toast('Saved'); };
+  $('#teSave').onclick = save; $('#teSave2').onclick = save;
 }
 
 function openReassign(id) {
