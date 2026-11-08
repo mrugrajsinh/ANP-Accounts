@@ -879,7 +879,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '39 · Blinkit fill via Safari';
+const APP_VERSION = '40 · Blinkit one-by-one';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1541,10 +1541,8 @@ function openList(id) {
         ${na.length ? `<div class="flabel" style="margin-top:12px;color:#c62828">Not available (${na.length})</div>` + na.map(row).join('') : ''}</div>
       ${l.paid ? `<button class="fgroup paidbox" data-open="${l.paid.entryId}" id="clPaidBox"><b>✓ Paid ${money(l.paid.amount)}</b> · ${esc(l.paid.mode)} · ${shortDate(l.paid.on)}<div class="hint" style="margin:2px 0 0">Added to ${esc(BOOKS[l.paid.book]?.name || '')} · tap to see</div></button>`
         : got.length ? `<button class="btn amber" id="clPay">💳 Order paid – add amount to ${esc(BOOKS.blinkit.name)}</button>` : ''}
-      ${left.length ? `<button class="btn amber" id="clFill">⚡ Fill Blinkit cart automatically · ${left.length} item${left.length === 1 ? '' : 's'}</button>
-        <p class="hint" style="margin-top:-4px">Copies the list. Then in Safari on <b>blinkit.com</b> tap your <b>ANP Fill</b> bookmark – it adds everything by itself. <a href="#" id="clFillHelp">First time? Set it up (1 min)</a></p>` : ''}
       ${left.length ? `<button class="btn pri" id="clShopAll">🛒 Shop all on Blinkit · ${left.length} item${left.length === 1 ? '' : 's'}</button>
-        <p class="hint" style="margin-top:-4px">Opens Blinkit for each item one by one. Add it to the cart, come back, tap ✓ – the next one opens.</p>` : ''}
+        <p class="hint" style="margin-top:-4px">Blinkit opens on each item. Tap <b>ADD</b> there, then <b>◀ ANP Accounts</b> (top-left) – the next item opens by itself.</p>` : ''}
       <button class="btn sec" id="clShare">📤 Share list (WhatsApp)</button>
       <button class="btn dan" id="clDel">Delete list</button>
     </div>`);
@@ -1625,14 +1623,16 @@ function askShopResult() {
   let d = $('#upiAsk'); if (!d) { d = document.createElement('div'); d.id = 'upiAsk'; document.body.appendChild(d); }
   d.innerHTML = `<div class="upibox"><div class="hint" style="margin:0">${tx('Blinkit')} · ${left} ${tx('left')}</div>
     <div style="font-size:22px;font-weight:800;margin:6px 0" data-nt>${esc(i.name)}${i.qty ? ' × ' + esc(i.qty) : ''}</div>
-    <button class="btn pri" id="shAdded">✓ ${tx('Added to cart')}${left > 1 ? ' · ' + tx('next') : ''}</button>
+    <button class="btn pri" id="shAdded">✓ ${tx('Added to cart')}${left > 1 ? ' · ' + tx('next') : ''} <span id="shCd">3</span></button>
     <button class="btn sec" id="shNA" style="color:#c62828">✗ ${tx('Not available')}${left > 1 ? ' · ' + tx('next') : ''}</button>
     <div class="row2"><button class="btn sec" id="shAgain" style="margin:0">↻ ${tx('Open again')}</button><button class="btn sec" id="shStop" style="margin:0">${tx('Stop')}</button></div></div>`;
   d.classList.add('on');
   const mark = st => { d.classList.remove('on'); l.items[r.k].st = st; saveList(l); if (S.listOpen === r.id) openList(r.id); S.shopRun = null; setTimeout(() => shopNext(r.id), 250); };
-  $('#shAdded').onclick = () => mark('got'); $('#shNA').onclick = () => mark('na');
-  $('#shAgain').onclick = () => { d.classList.remove('on'); S.shopRun.at = Date.now(); window.open(blinkit(i.name), '_blank') || (location.href = blinkit(i.name)); };
-  $('#shStop').onclick = () => { d.classList.remove('on'); S.shopRun = null; };
+  let n = 3; const tick = setInterval(() => { n--; const el = $('#shCd'); if (!el || !d.classList.contains('on')) return clearInterval(tick); el.textContent = n; if (n <= 0) { clearInterval(tick); mark('got'); } }, 1000);
+  const stopCd = () => clearInterval(tick);
+  $('#shAdded').onclick = () => { stopCd(); mark('got'); }; $('#shNA').onclick = () => { stopCd(); mark('na'); };
+  $('#shAgain').onclick = () => { stopCd(); d.classList.remove('on'); S.shopRun.at = Date.now(); window.open(blinkit(i.name), '_blank') || (location.href = blinkit(i.name)); };
+  $('#shStop').onclick = () => { stopCd(); d.classList.remove('on'); S.shopRun = null; };
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S.shopRun) setTimeout(askShopResult, 400); if (!document.hidden && S.fillRun) setTimeout(askFillResult, 400); });
 function fillCount(q) { const m = String(q || '').match(/^\s*(\d+)\s*(pcs?|x|nos?|packs?|pkts?)?\s*$/i); return m ? Math.max(1, Math.min(20, +m[1])) : 1; }
