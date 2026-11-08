@@ -879,7 +879,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '38 · Blinkit fill via Safari';
+const APP_VERSION = '39 · Blinkit fill via Safari';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1653,6 +1653,7 @@ function openBlinkitFill(l) {
       <li>${tx('Tap your <b>ANP Fill</b> bookmark. If asked, tap <b>Paste</b>.')}</li>
       <li>${tx('Watch it add everything, check the cart and pay there.')}</li>
       <li>${tx('Tap <b>📋 Copy result for ANP</b> and come back here.')}</li></ol>
+    ${/iPhone|iPad/.test(navigator.userAgent) ? `<a class="btn pri" href="x-safari-https://blinkit.com/#anp=${enc}">🧭 ${tx('Open blinkit.com in Safari')}</a>` : ''}
     <button class="btn sec" id="flCopy">📋 ${tx('Copy list again')}</button>
     ${phone ? '' : `<a class="btn pri" href="https://blinkit.com/s/?q=${encodeURIComponent(items[0].q)}#anp=${enc}" target="_blank" rel="noopener">${tx('Open blinkit.com')}</a>`}
     <button class="btn sec" id="flHelp">${tx('Set up the ANP Fill bookmark')}</button><button class="btn sec" id="flClose">${tx('Close')}</button></div>`;
