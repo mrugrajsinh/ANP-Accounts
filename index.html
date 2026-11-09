@@ -724,7 +724,7 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Total – everyone': ['Total – sabka', 'કુલ – બધાનું'], 'Total': ['Total', 'કુલ'], 'Edit person': ['Vyakti badlo', 'વ્યક્તિ સુધારો'], 'Delete this person': ['Is vyakti ko hatao', 'આ વ્યક્તિ કાઢો'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Everyone': ['Sabka', 'બધાનું'], 'Total – everyone': ['Total – sabka', 'કુલ – બધાનું'], 'Total': ['Total', 'કુલ'], 'Edit person': ['Vyakti badlo', 'વ્યક્તિ સુધારો'], 'Delete this person': ['Is vyakti ko hatao', 'આ વ્યક્તિ કાઢો'],
   'App user (entries they add go here)': ['App user (inki entry yahan aayegi)', 'એપ યુઝર (તેમની એન્ટ્રી અહીં આવશે)'], 'entries moved': ['entry shift hui', 'એન્ટ્રી ખસેડી'],
   'Deleting keeps the entries – they still count in Total.': ['Hatane par entry rahegi – Total mein gini jayegi.', 'કાઢવાથી એન્ટ્રી રહેશે – કુલમાં ગણાશે.'],
   'Rate list': ['Bhaav list', 'ભાવ યાદી'], 'add prices': ['bhaav jodo', 'ભાવ ઉમેરો'], 'Add item': ['Saaman jodo', 'વસ્તુ ઉમેરો'], 'Item': ['Saaman', 'વસ્તુ'], 'per': ['har', 'દીઠ'], 'Unit': ['Unit', 'એકમ'], 'No items yet.': ['Abhi koi saaman nahi.', 'હજી કોઈ વસ્તુ નથી.'],
@@ -1133,7 +1133,7 @@ function render() {
   $('#search').placeholder = tx('Search item…');
   $('#xlBtn').classList.toggle('hidden', v !== 'dash');
   $('#hdrLang').classList.toggle('hidden', v !== 'home');
-  $('#fab').classList.toggle('hidden', !(sub || (v === 'tasks' && !S.isStaff)) || (v === 'salary' && !S.isAdmin) || (inBook && S.book === 'iron' && ironPeople().length && S.ironPerson == null));
+  $('#fab').classList.toggle('hidden', !(sub || (v === 'tasks' && !S.isStaff)) || (v === 'salary' && !S.isAdmin));
   $('#mLabel').textContent = monthLabel(S.month);
   const act = myTaskActions().length;
   $('#dot-tasks').textContent = act; $('#dot-tasks').classList.toggle('hidden', !act);
@@ -1271,26 +1271,29 @@ function ironPeopleHTML() {
       ${!tot && S.isAdmin ? `<button class="pedit" data-iedit="${pid}" aria-label="Edit">✏️</button>` : ''}</div>`; };
   return `<div class="books">${ps.map(p => card(p.id, p.name)).join('')}</div>
     ${S.isAdmin ? `<button class="btn sec" data-iadd style="margin-top:6px">＋ ${tx('Add person')}</button>` : ''}
-    <button class="btn sec" data-rates style="margin-top:8px">📋 Rate card</button>
-    <div class="books" style="margin-top:12px">${card('*', tx('Total – everyone'))}</div>`;
+    <div class="section-t" style="margin-top:16px">🧺 ${tx('Total – everyone')}</div>`;
 }
 function ironHTML() {
-  if (ironPeople().length && S.ironPerson == null) return ironPeopleHTML();
-  const all = ironOf(ironPeople().length ? S.ironPerson : null), mon = all.filter(e => e.date.startsWith(S.month));
+  const list = ironPeople().length && S.ironPerson == null;   // people cards on top, everyone's entries below
+  const pid = list ? '*' : (ironPeople().length ? S.ironPerson : null);
+  return (list ? ironPeopleHTML() : '') + ironBody(pid);
+}
+function ironBody(pid) {
+  const all = ironOf(pid), mon = all.filter(e => e.date.startsWith(S.month));
   const st = bookStats(mon), due = sum(all.filter(isPending), total);
   const cnt = mon.reduce((a, e) => { const c = ironCounts(e); return {wash: a.wash + c.wash, iron: a.iron + c.iron}; }, {wash: 0, iron: 0});
   const notBack = all.reduce((t, e) => { const g = ironCounts(e); return t + Math.max(0, g.wash + g.iron - num(e.retWash) - num(e.retIron)); }, 0);
   const unset = ironRates().every(r => !num(r.wash) && !num(r.iron));
   let html = `<div class="stats">
     ${!ironPeople().length && S.isAdmin ? `<button class="btn sec" data-iadd style="margin:0 0 8px">👤 ${tx('Make separate accounts per person')}</button>` : ''}
-    <div class="stat wide"><div><small>${S.ironPerson != null && S.ironPerson !== '*' && ironPeople().length ? `<span data-nt>${esc(personName(S.ironPerson))}</span>` : S.ironPerson === '*' ? tx('Total – everyone') : 'Iron'} · ${monthLabel(S.month)}</small><b>${money(st.t)}</b></div><small>Wash ${cnt.wash} · Iron ${cnt.iron}</small></div>
+    <div class="stat wide"><div><small>${pid && pid !== '*' ? `<span data-nt>${esc(personName(pid))}</span>` : pid === '*' ? tx('Everyone') : 'Iron'} · ${monthLabel(S.month)}</small><b>${money(st.t)}</b></div><small>Wash ${cnt.wash} · Iron ${cnt.iron}</small></div>
     <div class="stat ${due ? 'warn' : ''}"><small>To pay (all)</small><b>${money(due)}</b></div>
     <div class="stat ${notBack ? 'danger' : ''}"><small>Not returned yet</small><b>${notBack} clothes</b></div></div>
   ${bulkBtn(all)}
   <button class="btn sec" data-rates style="margin:0 0 6px">📋 Rate card${unset ? ' · not set yet' : ''}</button>`;
   if (!mon.length) return html + `<div class="empty"><div class="big">👕</div>Nothing given this month.<br>Tap <b>+</b> when you give clothes.</div>`;
   html += `<div class="tscroll" style="margin:10px 0 0;padding:0;max-height:none"><table class="dt nb" style="min-width:0"><thead><tr><th>Date</th><th class="num">Wash</th><th class="num">Iron</th><th class="num">Others</th><th class="num">Total</th><th>Return</th></tr></thead><tbody>
-    ${mon.map(e => { const c = ironCounts(e), r = returnState(e); return `<tr data-open="${e.id}" class="${r.txt && !r.done ? 'notback' : ''}"><td>${shortDate(e.date)}${S.ironPerson === '*' && ironPeople().length ? `<div class="sub-amt" data-nt>${esc(personName(e.person || '') || '—')}</div>` : ''}</td><td class="num">${c.wash || '–'}</td><td class="num">${c.iron || '–'}</td><td class="num">${ironOthers(e) ? money(ironOthers(e)) : '–'}</td><td class="num"><b>${c.wash + c.iron}</b><div class="sub-amt">${money(total(e))}</div></td><td>${r.txt ? `<span class="badge ${r.cls}">${r.txt}</span>` : ''}</td></tr>`; }).join('')}
+    ${mon.map(e => { const c = ironCounts(e), r = returnState(e); return `<tr data-open="${e.id}" class="${r.txt && !r.done ? 'notback' : ''}"><td>${shortDate(e.date)}${pid === '*' ? `<div class="sub-amt" data-nt>${esc(personName(e.person || '') || '—')}</div>` : ''}</td><td class="num">${c.wash || '–'}</td><td class="num">${c.iron || '–'}</td><td class="num">${ironOthers(e) ? money(ironOthers(e)) : '–'}</td><td class="num"><b>${c.wash + c.iron}</b><div class="sub-amt">${money(total(e))}</div></td><td>${r.txt ? `<span class="badge ${r.cls}">${r.txt}</span>` : ''}</td></tr>`; }).join('')}
     </tbody><tfoot><tr><td>Total</td><td class="num">${cnt.wash}</td><td class="num">${cnt.iron}</td><td class="num">${money(mon.reduce((t, e) => t + ironOthers(e), 0))}</td><td class="num">${cnt.wash + cnt.iron}<div class="sub-amt strong">${money(st.t)}</div></td><td></td></tr></tfoot></table></div>
     <p class="hint" style="text-align:center">Tap a row to see details, mark returned or pay.</p>`;
   return html;
