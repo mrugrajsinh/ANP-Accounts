@@ -721,7 +721,8 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Blinkit cart filled?': ['Blinkit cart bhar gaya?', 'Blinkit કાર્ટ ભરાઈ ગઈ?'], 'Paste result – tick the list': ['Result paste karo – list tick karo', 'પરિણામ પેસ્ટ કરો – યાદી ટિક કરો'], 'Tick all as added': ['Sab tick karo', 'બધું ટિક કરો'], 'Not now': ['Abhi nahi', 'હમણાં નહીં'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Whose clothes?': ['Kiske kapde?', 'કોનાં કપડાં?'], 'Whose clothes': ['Kiske kapde', 'કોનાં કપડાં'], 'Common (no name)': ['Common (bina naam)', 'સામાન્ય (નામ વગર)'], 'Common': ['Common', 'સામાન્ય'],
+  'Add person': ['Vyakti jodo', 'વ્યક્તિ ઉમેરો'], 'Edit names': ['Naam badlo', 'નામ સુધારો'], 'Name (e.g. Mrugraj)': ['Naam (jaise Mrugraj)', 'નામ (દા.ત. Mrugraj)'], 'Make separate accounts per person': ['Har vyakti ka alag khata banao', 'દરેક વ્યક્તિનું અલગ ખાતું બનાવો'], 'Iron accounts': ['Iron khate', 'ઇસ્ત્રી ખાતાં'], 'Blinkit cart filled?': ['Blinkit cart bhar gaya?', 'Blinkit કાર્ટ ભરાઈ ગઈ?'], 'Paste result – tick the list': ['Result paste karo – list tick karo', 'પરિણામ પેસ્ટ કરો – યાદી ટિક કરો'], 'Tick all as added': ['Sab tick karo', 'બધું ટિક કરો'], 'Not now': ['Abhi nahi', 'હમણાં નહીં'],
   'Copy bookmark code': ['Bookmark code copy karo', 'બુકમાર્ક કોડ કૉપિ કરો'], 'Did the items show in the Blinkit cart?': ['Kya saaman Blinkit cart mein aaya?', 'શું વસ્તુઓ Blinkit કાર્ટમાં આવી?'], 'Yes – tick them': ['Haan – tick karo', 'હા – ટિક કરો'], 'No, it did not work': ['Nahi, nahi chala', 'ના, ન ચાલ્યું'],
   'Paste the Blinkit product link (Blinkit app → product → Share → Copy link)': ['Blinkit product link paste karo (Blinkit → product → Share → Copy link)', 'Blinkit પ્રોડક્ટ લિંક પેસ્ટ કરો (Blinkit → પ્રોડક્ટ → Share → Copy link)'], 'Added to cart': ['Cart mein daala', 'કાર્ટમાં નાખ્યું'], 'next': ['agla', 'આગળનું'], 'left': ['baaki', 'બાકી'], 'Open again': ['Fir kholo', 'ફરી ખોલો'], 'Stop': ['Ruko', 'બંધ કરો'],
   'Opens Blinkit for each item one by one. Add it to the cart, come back, tap ✓ – the next one opens.': ['Har saaman ke liye Blinkit ek-ek karke khulega. Cart mein daalo, wapas aao, ✓ dabao – agla khulega.', 'દરેક વસ્તુ માટે Blinkit એક પછી એક ખુલશે. કાર્ટમાં નાખો, પાછા આવો, ✓ દબાવો – આગળનું ખુલશે.'], 'Pay to which saved UPI ID?': ['Kis saved UPI ID ko pay karna hai?', 'કયા સેવ કરેલા UPI ID ને ચૂકવવું?'], '📷 Scan new QR': ['📷 Naya QR scan', '📷 નવો QR સ્કૅન'], '⌨️ Type new ID': ['⌨️ Nayi ID likho', '⌨️ નવું ID લખો'],
@@ -879,7 +880,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '41 · alerts open the exact item';
+const APP_VERSION = '42 · iron per person';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1061,7 +1062,7 @@ function startApp() {
       `<button data-view="${v}"><span id="dot-${v}" class="dot hidden"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[v]}</svg>${l}</button>`).join('')}
   </div></nav>`;
   document.querySelector('nav').onclick = ev => { const b = ev.target.closest('[data-view]'); if (b) { S.view = b.dataset.view; render(); scrollTo(0, 0); } };
-  $('#backBtn').onclick = () => { S.view = 'home'; S.q = ''; $('#search').value = ''; render(); scrollTo(0, 0); };
+  $('#backBtn').onclick = () => { if (S.view === 'book' && S.book === 'iron' && S.ironPerson != null && ironPeople().length) { S.ironPerson = null; render(); return scrollTo(0, 0); } S.view = 'home'; S.q = ''; $('#search').value = ''; render(); scrollTo(0, 0); };
   $('#fab').onclick = () => S.view === 'tasks' ? openTaskForm() : S.view === 'salary' ? openEmpForm() : S.view === 'lists' ? openListForm() : openForm(null, S.book);
   $('#renameBook').onclick = async () => { const k = S.book, n = prompt(tx('Book name'), BOOKS[k].name); if (n == null) return;
     const names = {...(S.settings.bookNames || {}), [k]: n.trim()}; try { await api.saveSettings({bookNames: names}); S.settings.bookNames = names; applyBookNames(); render(); toast('Saved'); } catch (e) { toast(errText(e)); } };
@@ -1115,7 +1116,7 @@ function render() {
   if (S.isStaff && S.view !== 'tasks' && S.view !== 'more') S.view = 'tasks';
   const v = S.view, inBook = v === 'book', sub = inBook || v === 'salary' || v === 'lists';
   document.querySelectorAll('nav [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v || (sub && b.dataset.view === 'home')));
-  $('#title').textContent = inBook ? BOOKS[S.book].name : {home: 'ANP Accounts', tasks: S.isStaff ? 'My tasks' : 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account', salary: 'Salary', lists: 'Checklists'}[v];
+  $('#title').textContent = inBook ? BOOKS[S.book].name + (S.book === 'iron' && S.ironPerson != null && ironPeople().length ? ' · ' + (personName(S.ironPerson) || tx('Common')) : '') : {home: 'ANP Accounts', tasks: S.isStaff ? 'My tasks' : 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account', salary: 'Salary', lists: 'Checklists'}[v];
   $('#title').toggleAttribute('data-nt', inBook);
   $('#renameBook').classList.toggle('hidden', !(inBook && S.isAdmin));
   $('#backBtn').classList.toggle('hidden', !sub);
@@ -1124,7 +1125,7 @@ function render() {
   $('#search').placeholder = tx('Search item…');
   $('#xlBtn').classList.toggle('hidden', v !== 'dash');
   $('#hdrLang').classList.toggle('hidden', v !== 'home');
-  $('#fab').classList.toggle('hidden', !(sub || (v === 'tasks' && !S.isStaff)) || (v === 'salary' && !S.isAdmin));
+  $('#fab').classList.toggle('hidden', !(sub || (v === 'tasks' && !S.isStaff)) || (v === 'salary' && !S.isAdmin) || (inBook && S.book === 'iron' && ironPeople().length && S.ironPerson == null));
   $('#mLabel').textContent = monthLabel(S.month);
   const act = myTaskActions().length;
   $('#dot-tasks').textContent = act; $('#dot-tasks').classList.toggle('hidden', !act);
@@ -1210,14 +1211,46 @@ function bookHTML() {
 }
 
 /* ================= iron book ================= */
+/* ---- Iron: one account per person (names added by admins) ---- */
+function openIronPeople() {
+  const list = ironPeople().map(p => ({...p}));
+  const draw = () => { $('#ipRows').innerHTML = list.map((p, k) => `<div class="urow"><input class="field" data-ipn="${k}" value="${esc(p.name)}"><div class="acts"><button class="sbtn ghost" data-ipdel="${k}">Remove</button></div></div>`).join('') || '<p class="hint">No names yet.</p>'; };
+  openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>Iron accounts</h2><button class="save" id="ipSave">Save</button></div>
+    <div class="sh-body"><div class="fgroup" id="ipRows"></div><button class="btn sec" id="ipAdd">＋ ${tx('Add person')}</button>
+      <p class="hint">Removing a name keeps its entries – they move to "Common (no name)".</p><button class="btn pri" id="ipSave2">Save</button></div>`);
+  draw();
+  $('#ipRows').oninput = ev => { const i = ev.target.dataset.ipn; if (i != null) list[+i].name = ev.target.value; };
+  $('#ipRows').onclick = ev => { const d = ev.target.closest('[data-ipdel]'); if (d && confirm('Delete this?')) { list.splice(+d.dataset.ipdel, 1); draw(); } };
+  $('#ipAdd').onclick = () => { list.push({id: api.newId().slice(0, 10), name: ''}); draw(); document.querySelector(`[data-ipn="${list.length - 1}"]`)?.focus(); };
+  const save = () => { closeSheet(); saveIronPeople(list.filter(p => p.name.trim()).map(p => ({id: p.id, name: p.name.trim()}))); };
+  $('#ipSave').onclick = save; $('#ipSave2').onclick = save;
+}
+const ironPeople = () => (S.settings?.ironPeople || []).filter(p => p && p.id);
+const personName = id => (ironPeople().find(p => p.id === id) || {}).name || '';
+const ironOf = pid => S.entries.filter(e => bookOf(e) === 'iron' && (pid == null || (e.person || '') === pid));
+async function saveIronPeople(list) { try { await api.saveSettings({ironPeople: list}); S.settings.ironPeople = list; render(); } catch (e) { toast(errText(e)); } }
+function ironPeopleHTML() {
+  const ps = ironPeople(), m = S.month, noName = ironOf('');
+  const card = (pid, name) => { const all = ironOf(pid), mon = all.filter(e => e.date.startsWith(m)), due = sum(all.filter(isPending), total);
+    const nb = all.reduce((t, e) => { const g = ironCounts(e); return t + Math.max(0, g.wash + g.iron - num(e.retWash) - num(e.retIron)); }, 0);
+    const c = mon.reduce((a, e) => { const x = ironCounts(e); return a + x.wash + x.iron; }, 0);
+    return `<button class="bookbtn" data-iperson="${pid}"><span class="bicon">👤</span><span class="bmain"><span class="bname" data-nt>${esc(name)}</span>
+      <span class="bsub">${monthLabel(m)} · <b>${money(sum(mon, total))}</b> · ${c} clothes</span>
+      <span class="bbadges">${due ? `<span class="badge b-credit">To pay ${money(due)}</span>` : ''}${nb ? `<span class="badge b-over">${nb} not returned</span>` : ''}</span></span><span class="chev">›</span></button>`; };
+  return `<div class="books">${ps.map(p => card(p.id, p.name)).join('')}${noName.length ? card('', tx('Common (no name)')) : ''}</div>
+    ${S.isAdmin ? `<div class="row2" style="margin-top:6px"><button class="btn sec" data-iadd style="margin:0">＋ ${tx('Add person')}</button><button class="btn sec" data-imanage style="margin:0">✏️ ${tx('Edit names')}</button></div>` : ''}
+    <button class="btn sec" data-rates style="margin-top:8px">📋 Rate card</button>`;
+}
 function ironHTML() {
-  const all = S.entries.filter(e => bookOf(e) === 'iron'), mon = all.filter(e => e.date.startsWith(S.month));
+  if (ironPeople().length && S.ironPerson == null) return ironPeopleHTML();
+  const all = ironOf(ironPeople().length ? S.ironPerson : null), mon = all.filter(e => e.date.startsWith(S.month));
   const st = bookStats(mon), due = sum(all.filter(isPending), total);
   const cnt = mon.reduce((a, e) => { const c = ironCounts(e); return {wash: a.wash + c.wash, iron: a.iron + c.iron}; }, {wash: 0, iron: 0});
   const notBack = all.reduce((t, e) => { const g = ironCounts(e); return t + Math.max(0, g.wash + g.iron - num(e.retWash) - num(e.retIron)); }, 0);
   const unset = ironRates().every(r => !num(r.wash) && !num(r.iron));
   let html = `<div class="stats">
-    <div class="stat wide"><div><small>Iron · ${monthLabel(S.month)}</small><b>${money(st.t)}</b></div><small>Wash ${cnt.wash} · Iron ${cnt.iron}</small></div>
+    ${!ironPeople().length && S.isAdmin ? `<button class="btn sec" data-iadd style="margin:0 0 8px">👤 ${tx('Make separate accounts per person')}</button>` : ''}
+    <div class="stat wide"><div><small>${S.ironPerson != null && ironPeople().length ? `<span data-nt>${esc(personName(S.ironPerson) || tx('Common (no name)'))}</span>` : 'Iron'} · ${monthLabel(S.month)}</small><b>${money(st.t)}</b></div><small>Wash ${cnt.wash} · Iron ${cnt.iron}</small></div>
     <div class="stat ${due ? 'warn' : ''}"><small>To pay (all)</small><b>${money(due)}</b></div>
     <div class="stat ${notBack ? 'danger' : ''}"><small>Not returned yet</small><b>${notBack} clothes</b></div></div>
   ${bulkBtn(all)}
@@ -1349,6 +1382,7 @@ function openDetail(id) {
       <div class="fgroup"><table class="items">${rows}</table></div>
       <div class="fgroup">${pay}
         ${iron && r.txt ? `<div class="kv"><span>Return</span><span><span class="badge ${r.cls}" style="margin:0">${r.txt}</span></span></div>` : ''}
+        ${iron && e.person ? `<div class="kv"><span>${tx('Whose clothes')}</span><span data-nt>${esc(personName(e.person) || '—')}</span></div>` : ''}
         <div class="kv"><span>Added by</span><span>${esc(e.createdByName || '—')}</span></div>
         ${e.notes ? `<div class="kv"><span>Notes</span><span data-nt>${esc(e.notes)}</span></div>` : ''}</div>
       ${photoIdsOf(e).length ? `<div class="fgroup"><div class="flabel">Photos (${photoIdsOf(e).length}) · tap to open</div><div class="rpics" id="photoSlot">${photoIdsOf(e).map(pid => `<div class="rp" data-pslot="${pid}"><p class="hint">Loading…</p></div>`).join('')}</div></div>` : ''}
@@ -1750,7 +1784,7 @@ function bulkBtn(all) {
   return pend.length > 1 ? `<button class="btn amber bulkbtn" data-bulkpay>✓ Mark many as paid · ${pend.length} entries · ${money(sum(pend, total))}</button>` : '';
 }
 function openBulkPay() {
-  const k = S.book, list = S.entries.filter(e => bookOf(e) === k && isPending(e)).sort((a, b) => (a.dueDate || a.date).localeCompare(b.dueDate || b.date) || a.date.localeCompare(b.date));
+  const k = S.book, list = S.entries.filter(e => bookOf(e) === k && isPending(e) && (k !== 'iron' || !ironPeople().length || S.ironPerson == null || (e.person || '') === S.ironPerson)).sort((a, b) => (a.dueDate || a.date).localeCompare(b.dueDate || b.date) || a.date.localeCompare(b.date));
   if (!list.length) return toast('Nothing to pay');
   const sel = new Set(); let mode = 'Cash';
   const groups = new Map(); for (const e of list) { const d = e.dueDate || ''; if (!groups.has(d)) groups.set(d, []); groups.get(d).push(e); }
@@ -1840,7 +1874,8 @@ function openForm(existing, book) {
   const k = existing ? bookOf(existing) : (book || 'ganesh'), iron = k === 'iron', B = BOOKS[k];
   const e = existing ? strip(JSON.parse(JSON.stringify(existing))) : {
     id: null, book: k, date: today(), vendor: B.name, items: iron ? [] : [{name: '', qty: 1, unit: B.unit, rate: '', amount: ''}],
-    status: iron ? 'credit' : 'paid', mode: k === 'blinkit' ? 'UPI' : 'Cash', ref: '', dueDate: addDays(today(), 30), notes: '', hasPhoto: false
+    status: iron ? 'credit' : 'paid', mode: k === 'blinkit' ? 'UPI' : 'Cash', ref: '', dueDate: addDays(today(), 30), notes: '', hasPhoto: false,
+    ...(iron ? {person: S.ironPerson || ''} : {})
   };
   if (!e.dueDate) e.dueDate = addDays(e.date, 30);
   if (!PAY.includes(e.mode)) e.mode = 'Cash';
@@ -1849,6 +1884,7 @@ function openForm(existing, book) {
   const ironItems = iron ? e.items.filter(i => !i.other) : [], others = iron ? e.items.filter(i => i.other) : [];
   openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>${existing ? 'Edit' : 'Add'} · ${B.icon} ${B.name}</h2><button class="save" id="saveBtn">Save</button></div>
     <div class="sh-body" id="form">
+      ${iron && ironPeople().length ? `<div class="fgroup"><label class="flabel">Whose clothes?</label><div class="modes" id="fPerson">${[...ironPeople(), {id: '', name: tx('Common')}].map(p => `<button type="button" class="chip ${(e.person || '') === p.id ? 'on' : ''}" data-fp="${p.id}" data-nt>${esc(p.name)}</button>`).join('')}</div></div>` : ''}
       <div class="fgroup"><label class="flabel">Date</label><input type="date" class="field" id="fDate" value="${e.date}"></div>
       ${iron ? `<div class="fgroup"><h3>Clothes given</h3>
           <div id="items">${(ironItems.length ? ironItems : [{}]).map(ironRow).join('')}</div>
@@ -1879,6 +1915,7 @@ function openForm(existing, book) {
       <button class="btn pri" id="saveBtn2">Save</button>
     </div>`);
   renderPhoto(); updateTotal();
+  $('#fPerson') && ($('#fPerson').onclick = ev => { const b = ev.target.closest('[data-fp]'); if (!b) return; e.person = b.dataset.fp; $('#fPerson').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); });
   mountUpi($('#fUpi'), {key: k, amount: () => formTotal(), note: () => `${B.name} ${shortDate($('#fDate').value || today())}`, onPaid: u => { $('#fRef').value = u || ''; saveForm(); }});
   S.photos.forEach(ph => api.getPhoto(ph.id).then(p => { if (S.editing === e && p) { ph.data = p; renderPhoto(); } }).catch(() => {}));
   if (!existing) setTimeout(() => (iron ? $('#items .n-w') : $('#items .i-name'))?.focus(), 350);
@@ -2331,7 +2368,7 @@ async function pushTo(to, title, body, tag, go) {
 // every change in the app is reported to all admins (except the person who made it)
 const tellAdmins = (title, body, tag, go) => pushTo('admins', title, body, tag || 'a' + Date.now(), go);
 const who = () => S.me?.name || 'Someone';
-const itemsText = e => bookOf(e) === 'iron' ? (() => { const c = ironCounts(e); return `Wash ${c.wash} · Iron ${c.iron}`; })() : (e.items || []).map(i => i.name).slice(0, 6).join(', ');
+const itemsText = e => bookOf(e) === 'iron' ? (() => { const c = ironCounts(e); return `${e.person && personName(e.person) ? personName(e.person) + ' · ' : ''}Wash ${c.wash} · Iron ${c.iron}`; })() : (e.items || []).map(i => i.name).slice(0, 6).join(', ');
 async function notify(title, body, url = './?go=tasks') {
   try {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
@@ -2683,8 +2720,8 @@ function reportRows() {
     ...BOOK_KEYS.map(k => { const s = bookStats(list.filter(e => bookOf(e) === k)); return [BOOKS[k].name, s.t, s.paid, s.p]; }), ['TOTAL', st.t, st.paid, st.p]];
   for (const k of BOOK_KEYS) {
     const es = list.filter(e => bookOf(e) === k); if (d.book && d.book !== k) continue;
-    if (k === 'iron') sheets.Iron = [['Date', 'Cloth', 'Wash', 'Iron', 'Wash rate', 'Iron rate', 'Amount', 'Entry total', 'Returned wash', 'Returned iron', 'Returned on', 'Status', 'Paid by', 'UTR', 'Added by'],
-      ...es.flatMap(e => (e.items || []).map((i, n) => [e.date, i.other ? 'Others: ' + (i.note || '') + (!num(i.wash) && !num(i.iron) && num(i.rate) ? ` (${num(i.qty)} × ${num(i.rate)})` : '') : i.name, num(i.wash), num(i.iron), num(i.washRate), num(i.ironRate), num(i.amount),
+    if (k === 'iron') sheets.Iron = [['Date', 'Person', 'Cloth', 'Wash', 'Iron', 'Wash rate', 'Iron rate', 'Amount', 'Entry total', 'Returned wash', 'Returned iron', 'Returned on', 'Status', 'Paid by', 'UTR', 'Added by'],
+      ...es.flatMap(e => (e.items || []).map((i, n) => [e.date, personName(e.person || '') || '', i.other ? 'Others: ' + (i.note || '') + (!num(i.wash) && !num(i.iron) && num(i.rate) ? ` (${num(i.qty)} × ${num(i.rate)})` : '') : i.name, num(i.wash), num(i.iron), num(i.washRate), num(i.ironRate), num(i.amount),
         n ? '' : total(e), n ? '' : num(e.retWash), n ? '' : num(e.retIron), n ? '' : (e.retOn || ''), n ? '' : statusText(e), n ? '' : (e.status === 'paid' ? e.mode : e.paidMode || ''), n ? '' : (e.ref || e.paidRef || ''), n ? '' : (e.createdByName || '')]))];
     else sheets[BOOKS[k].name] = [['Date', 'Item', 'Qty', 'Unit', 'Price', 'Entry total', 'Status', 'Paid by', 'Paid on', 'UTR', 'Added by', 'Notes'],
       ...es.flatMap(e => (e.items || []).map((i, n) => [e.date, i.name, num(i.qty), i.unit, num(i.amount), n ? '' : total(e), n ? '' : statusText(e),
@@ -2718,11 +2755,14 @@ async function exportExcel() {
 /* ================= events ================= */
 async function mainClick(ev) {
   const t = ev.target;
-  const bk = t.closest('[data-book]'); if (bk) { S.book = bk.dataset.book; S.view = 'book'; S.filter = 'all'; S.q = ''; $('#search').value = ''; render(); return scrollTo(0, 0); }
+  const bk = t.closest('[data-book]'); if (bk) { if (bk.dataset.book === 'iron') S.ironPerson = null; S.book = bk.dataset.book; S.view = 'book'; S.filter = 'all'; S.q = ''; $('#search').value = ''; render(); return scrollTo(0, 0); }
   const o = t.closest('[data-open]'); if (o) return openDetail(o.dataset.open);
   const f = t.closest('[data-filter]'); if (f) { S.filter = f.dataset.filter; return render(); }
   const g = t.closest('[data-goto]'); if (g) { S.view = g.dataset.goto; S.q = ''; $('#search').value = ''; render(); return scrollTo(0, 0); }
   if (t.closest('[data-rates]')) return openRateCard();
+  const ip = t.closest('[data-iperson]'); if (ip) { S.ironPerson = ip.dataset.iperson; render(); return scrollTo(0, 0); }
+  if (t.closest('[data-iadd]')) { const n = prompt(tx('Name (e.g. Mrugraj)')); if (!n || !n.trim()) return; return saveIronPeople([...ironPeople(), {id: api.newId().slice(0, 10), name: n.trim()}]); }
+  if (t.closest('[data-imanage]')) return openIronPeople();
   if (t.closest('[data-bulkpay]')) return openBulkPay();
   const sm = t.closest('[data-salm]'); if (sm) { const [y, mo] = (S.salMonth || today().slice(0, 7)).split('-').map(Number), d = new Date(y, mo - 1 + +sm.dataset.salm, 1); S.salMonth = ds(d).slice(0, 7); return render(); }
   const at = t.closest('[data-att]'); if (at) { const x = findEmp(at.dataset.att); if (!x) return; x.att = {...(x.att || {})};
