@@ -887,7 +887,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '43 · iron total, rate list';
+const APP_VERSION = '44 · iron total at bottom';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -1269,9 +1269,10 @@ function ironPeopleHTML() {
       <span class="bsub">${monthLabel(m)} · <b>${money(sum(mon, total))}</b> · ${c} clothes</span>
       <span class="bbadges">${due ? `<span class="badge b-credit">To pay ${money(due)}</span>` : ''}${nb ? `<span class="badge b-over">${nb} not returned</span>` : ''}</span></span><span class="chev">›</span></button>
       ${!tot && S.isAdmin ? `<button class="pedit" data-iedit="${pid}" aria-label="Edit">✏️</button>` : ''}</div>`; };
-  return `<div class="books">${card('*', tx('Total – everyone'))}${ps.map(p => card(p.id, p.name)).join('')}</div>
+  return `<div class="books">${ps.map(p => card(p.id, p.name)).join('')}</div>
     ${S.isAdmin ? `<button class="btn sec" data-iadd style="margin-top:6px">＋ ${tx('Add person')}</button>` : ''}
-    <button class="btn sec" data-rates style="margin-top:8px">📋 Rate card</button>`;
+    <button class="btn sec" data-rates style="margin-top:8px">📋 Rate card</button>
+    <div class="books" style="margin-top:12px">${card('*', tx('Total – everyone'))}</div>`;
 }
 function ironHTML() {
   if (ironPeople().length && S.ironPerson == null) return ironPeopleHTML();
