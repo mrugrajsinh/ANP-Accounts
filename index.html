@@ -149,6 +149,9 @@ table.items .a{text-align:right;font-weight:600;font-variant-numeric:tabular-num
 .stat.danger{background:#fdecea;border-color:#f3b8b0}.stat.danger small,.stat.danger b{color:#b3261e}
 tr.notback td{background:#fdf1ef}tr.notback td:first-child{box-shadow:inset 4px 0 0 #c62828}
 .bulkbtn{margin:0 0 8px}
+.rlrow{display:grid;grid-template-columns:1.7fr 1fr 1fr 32px;gap:6px;align-items:center;margin-bottom:6px}.rlrow .field{padding:9px 8px}.rlhead span{font-size:12px;color:var(--muted);font-weight:700}
+.pcard-wrap{position:relative}.pcard-wrap .bookbtn{width:100%}.pedit{position:absolute;top:10px;right:44px;border:0;background:rgba(255,255,255,.7);border-radius:50%;width:36px;height:36px;font-size:16px}
+.bookbtn.totalcard{border:2px solid var(--accent)}.bookbtn.totalcard .bicon{background:#fbe3cf}
 ol.steps{margin:6px 0 0;padding-left:20px;line-height:1.55}ol.steps li{margin-bottom:6px}
 .chip.linked{background:#e7f4ea;border-color:#b9dfc3;color:#1e5e23}
 .paylist{display:flex;flex-direction:column;gap:6px}.payee{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:1px solid #cfdcf5;background:#fff;border-radius:12px;padding:9px 12px;font:inherit}
@@ -721,7 +724,11 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Whose clothes?': ['Kiske kapde?', 'કોનાં કપડાં?'], 'Whose clothes': ['Kiske kapde', 'કોનાં કપડાં'], 'Common (no name)': ['Common (bina naam)', 'સામાન્ય (નામ વગર)'], 'Common': ['Common', 'સામાન્ય'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Total – everyone': ['Total – sabka', 'કુલ – બધાનું'], 'Total': ['Total', 'કુલ'], 'Edit person': ['Vyakti badlo', 'વ્યક્તિ સુધારો'], 'Delete this person': ['Is vyakti ko hatao', 'આ વ્યક્તિ કાઢો'],
+  'App user (entries they add go here)': ['App user (inki entry yahan aayegi)', 'એપ યુઝર (તેમની એન્ટ્રી અહીં આવશે)'], 'entries moved': ['entry shift hui', 'એન્ટ્રી ખસેડી'],
+  'Deleting keeps the entries – they still count in Total.': ['Hatane par entry rahegi – Total mein gini jayegi.', 'કાઢવાથી એન્ટ્રી રહેશે – કુલમાં ગણાશે.'],
+  'Rate list': ['Bhaav list', 'ભાવ યાદી'], 'add prices': ['bhaav jodo', 'ભાવ ઉમેરો'], 'Add item': ['Saaman jodo', 'વસ્તુ ઉમેરો'], 'Item': ['Saaman', 'વસ્તુ'], 'per': ['har', 'દીઠ'], 'Unit': ['Unit', 'એકમ'], 'No items yet.': ['Abhi koi saaman nahi.', 'હજી કોઈ વસ્તુ નથી.'],
+  'For g / ml the rate is per kg / per litre. When you add an entry and pick an item from this list, the price fills in by itself (rate × qty).': ['g / ml ke liye bhaav kilo / litre ka. Entry mein is list ka saaman chuno to daam apne aap bharega (bhaav × qty).', 'g / ml માટે ભાવ કિલો / લિટરનો. એન્ટ્રીમાં આ યાદીની વસ્તુ પસંદ કરો તો કિંમત આપોઆપ ભરાશે (ભાવ × qty).'], 'Whose clothes?': ['Kiske kapde?', 'કોનાં કપડાં?'], 'Whose clothes': ['Kiske kapde', 'કોનાં કપડાં'], 'Common (no name)': ['Common (bina naam)', 'સામાન્ય (નામ વગર)'], 'Common': ['Common', 'સામાન્ય'],
   'Add person': ['Vyakti jodo', 'વ્યક્તિ ઉમેરો'], 'Edit names': ['Naam badlo', 'નામ સુધારો'], 'Name (e.g. Mrugraj)': ['Naam (jaise Mrugraj)', 'નામ (દા.ત. Mrugraj)'], 'Make separate accounts per person': ['Har vyakti ka alag khata banao', 'દરેક વ્યક્તિનું અલગ ખાતું બનાવો'], 'Iron accounts': ['Iron khate', 'ઇસ્ત્રી ખાતાં'], 'Blinkit cart filled?': ['Blinkit cart bhar gaya?', 'Blinkit કાર્ટ ભરાઈ ગઈ?'], 'Paste result – tick the list': ['Result paste karo – list tick karo', 'પરિણામ પેસ્ટ કરો – યાદી ટિક કરો'], 'Tick all as added': ['Sab tick karo', 'બધું ટિક કરો'], 'Not now': ['Abhi nahi', 'હમણાં નહીં'],
   'Copy bookmark code': ['Bookmark code copy karo', 'બુકમાર્ક કોડ કૉપિ કરો'], 'Did the items show in the Blinkit cart?': ['Kya saaman Blinkit cart mein aaya?', 'શું વસ્તુઓ Blinkit કાર્ટમાં આવી?'], 'Yes – tick them': ['Haan – tick karo', 'હા – ટિક કરો'], 'No, it did not work': ['Nahi, nahi chala', 'ના, ન ચાલ્યું'],
   'Paste the Blinkit product link (Blinkit app → product → Share → Copy link)': ['Blinkit product link paste karo (Blinkit → product → Share → Copy link)', 'Blinkit પ્રોડક્ટ લિંક પેસ્ટ કરો (Blinkit → પ્રોડક્ટ → Share → Copy link)'], 'Added to cart': ['Cart mein daala', 'કાર્ટમાં નાખ્યું'], 'next': ['agla', 'આગળનું'], 'left': ['baaki', 'બાકી'], 'Open again': ['Fir kholo', 'ફરી ખોલો'], 'Stop': ['Ruko', 'બંધ કરો'],
@@ -880,7 +887,7 @@ const BOOKS = {
 const BOOK_KEYS = ['ganesh', 'veg', 'blinkit', 'iron'];
 const BOOK_DEFAULT = Object.fromEntries(BOOK_KEYS.map(k => [k, BOOKS[k].name]));
 function applyBookNames() { const n = S.settings?.bookNames || {}; BOOK_KEYS.forEach(k => { BOOKS[k].name = (n[k] || '').trim() || BOOK_DEFAULT[k]; }); }
-const APP_VERSION = '42 · iron per person';
+const APP_VERSION = '43 · iron total, rate list';
 const PAY = ['Cash', 'UPI'];
 const unitFactor = u => (u === 'g' || u === 'ml') ? 0.001 : 1;          // rate is per kg / per L for g / ml
 const rateUnit = u => u === 'g' ? '/kg' : u === 'ml' ? '/L' : '';
@@ -922,7 +929,8 @@ function itemHistory(book) {
     const k = (i.name || '').trim().toLowerCase();
     if (k && !items.has(k)) items.set(k, {name: i.name.trim(), rate: i.rate, unit: i.unit, qty: i.qty, amount: i.amount});
   }
-  $('#dl-items').innerHTML = [...items.values()].map(i => `<option value="${esc(i.name)}">`).join('');
+  const names = new Set([...rateList(book).map(r => r.name), ...[...items.values()].map(i => i.name)]);
+  $('#dl-items').innerHTML = [...names].map(n => `<option value="${esc(n)}">`).join('');
   return items;
 }
 
@@ -1116,7 +1124,7 @@ function render() {
   if (S.isStaff && S.view !== 'tasks' && S.view !== 'more') S.view = 'tasks';
   const v = S.view, inBook = v === 'book', sub = inBook || v === 'salary' || v === 'lists';
   document.querySelectorAll('nav [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v || (sub && b.dataset.view === 'home')));
-  $('#title').textContent = inBook ? BOOKS[S.book].name + (S.book === 'iron' && S.ironPerson != null && ironPeople().length ? ' · ' + (personName(S.ironPerson) || tx('Common')) : '') : {home: 'ANP Accounts', tasks: S.isStaff ? 'My tasks' : 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account', salary: 'Salary', lists: 'Checklists'}[v];
+  $('#title').textContent = inBook ? BOOKS[S.book].name + (S.book === 'iron' && S.ironPerson != null && ironPeople().length ? ' · ' + (S.ironPerson === '*' ? tx('Total') : personName(S.ironPerson)) : '') : {home: 'ANP Accounts', tasks: S.isStaff ? 'My tasks' : 'Tasks', dash: 'Dashboard', more: S.isAdmin ? 'Users' : 'Account', salary: 'Salary', lists: 'Checklists'}[v];
   $('#title').toggleAttribute('data-nt', inBook);
   $('#renameBook').classList.toggle('hidden', !(inBook && S.isAdmin));
   $('#backBtn').classList.toggle('hidden', !sub);
@@ -1196,6 +1204,7 @@ function bookHTML() {
     <div class="stat"><small>Paid</small><b>${money(st.paid)}</b></div>
     <div class="stat ${due ? 'warn' : ''}"><small>Credit to pay (all)</small><b>${money(due)}</b></div></div>
   ${bulkBtn(all)}
+  ${['ganesh', 'veg'].includes(k) ? `<button class="btn sec" data-ratelist style="margin:0 0 8px">📋 ${tx('Rate list')}${rateList(k).length ? ` · ${rateList(k).length} ${tx('items')}` : S.isAdmin ? ' · ' + tx('add prices') : ''}</button>` : ''}
   <div class="chips">${[['all', 'All'], ['paid', 'Paid'], ['credit', 'Credit pending']].map(([f, l]) => `<button class="chip ${S.filter === f ? 'on' : ''}" data-filter="${f}">${l}</button>`).join('')}</div>`;
   if (!list.length) return html + `<div class="empty"><div class="big">${BOOKS[k].icon}</div>${q ? 'Nothing matches that search.' : 'Nothing written this month.<br>Tap <b>+</b> to add.'}</div>`;
   const groups = new Map();
@@ -1212,6 +1221,27 @@ function bookHTML() {
 
 /* ================= iron book ================= */
 /* ---- Iron: one account per person (names added by admins) ---- */
+function openIronPerson(id) {
+  const p = ironPeople().find(x => x.id === id); if (!p) return;
+  const users = (S.users || []).filter(u => u.status === 'approved');
+  const loose = ironOf('').length;
+  openSheet(`<div class="sh-head"><button data-close>Cancel</button><h2>Edit person</h2><button class="save" id="pSave">Save</button></div>
+    <div class="sh-body"><div class="fgroup">
+      <label class="flabel">Name</label><input class="field" id="pName" value="${esc(p.name)}" autocomplete="off" autocapitalize="words">
+      <label class="flabel" style="margin-top:12px">${tx('App user (entries they add go here)')}</label>
+      <select class="field" id="pUser"><option value="">—</option>${users.map(u => `<option value="${u.uid}" ${p.uid === u.uid ? 'selected' : ''}>${esc(u.name || u.email)}</option>`).join('')}</select>
+      ${loose ? `<p class="hint">${loose} ${tx('older entries have no name. Entries added by the chosen user will be moved here when you save.')}</p>` : ''}</div>
+      <button class="btn pri" id="pSave2">Save</button>
+      <button class="btn dan" id="pDel">${tx('Delete this person')}</button>
+      <p class="hint">${tx('Deleting keeps the entries – they still count in Total.')}</p></div>`);
+  const save = async () => { const name = $('#pName').value.trim(); if (!name) return toast('Write the name'); const uid = $('#pUser').value;
+    const list = ironPeople().map(x => x.id === id ? {id, name, ...(uid ? {uid} : {})} : x);
+    let moved = 0;
+    if (uid) for (const e of ironOf('')) if (e.createdBy === uid) { const u = {...strip(e), person: id, updatedAt: Date.now(), updatedByName: S.me.name}; api.saveEntry(u).catch(er => toast(errText(er))); Object.assign(e, u); moved++; }
+    closeSheet(); await saveIronPeople(list); mergeEntries(); render(); toast(moved ? `${tx('Saved')} · ${moved} ${tx('entries moved')}` : tx('Saved')); };
+  $('#pSave').onclick = save; $('#pSave2').onclick = save;
+  $('#pDel').onclick = () => { if (!confirm(`${tx('Delete')} ${p.name}?`)) return; closeSheet(); if (S.ironPerson === id) S.ironPerson = null; saveIronPeople(ironPeople().filter(x => x.id !== id)); };
+}
 function openIronPeople() {
   const list = ironPeople().map(p => ({...p}));
   const draw = () => { $('#ipRows').innerHTML = list.map((p, k) => `<div class="urow"><input class="field" data-ipn="${k}" value="${esc(p.name)}"><div class="acts"><button class="sbtn ghost" data-ipdel="${k}">Remove</button></div></div>`).join('') || '<p class="hint">No names yet.</p>'; };
@@ -1227,18 +1257,20 @@ function openIronPeople() {
 }
 const ironPeople = () => (S.settings?.ironPeople || []).filter(p => p && p.id);
 const personName = id => (ironPeople().find(p => p.id === id) || {}).name || '';
-const ironOf = pid => S.entries.filter(e => bookOf(e) === 'iron' && (pid == null || (e.person || '') === pid));
+const ironOf = pid => S.entries.filter(e => bookOf(e) === 'iron' && (pid == null || pid === '*' || (e.person || '') === pid));
 async function saveIronPeople(list) { try { await api.saveSettings({ironPeople: list}); S.settings.ironPeople = list; render(); } catch (e) { toast(errText(e)); } }
 function ironPeopleHTML() {
-  const ps = ironPeople(), m = S.month, noName = ironOf('');
+  const ps = ironPeople(), m = S.month;
   const card = (pid, name) => { const all = ironOf(pid), mon = all.filter(e => e.date.startsWith(m)), due = sum(all.filter(isPending), total);
     const nb = all.reduce((t, e) => { const g = ironCounts(e); return t + Math.max(0, g.wash + g.iron - num(e.retWash) - num(e.retIron)); }, 0);
     const c = mon.reduce((a, e) => { const x = ironCounts(e); return a + x.wash + x.iron; }, 0);
-    return `<button class="bookbtn" data-iperson="${pid}"><span class="bicon">👤</span><span class="bmain"><span class="bname" data-nt>${esc(name)}</span>
+    const tot = pid === '*';
+    return `<div class="pcard-wrap"><button class="bookbtn ${tot ? 'totalcard' : ''}" data-iperson="${pid}"><span class="bicon">${tot ? '🧺' : '👤'}</span><span class="bmain"><span class="bname" ${tot ? '' : 'data-nt'}>${esc(name)}</span>
       <span class="bsub">${monthLabel(m)} · <b>${money(sum(mon, total))}</b> · ${c} clothes</span>
-      <span class="bbadges">${due ? `<span class="badge b-credit">To pay ${money(due)}</span>` : ''}${nb ? `<span class="badge b-over">${nb} not returned</span>` : ''}</span></span><span class="chev">›</span></button>`; };
-  return `<div class="books">${ps.map(p => card(p.id, p.name)).join('')}${noName.length ? card('', tx('Common (no name)')) : ''}</div>
-    ${S.isAdmin ? `<div class="row2" style="margin-top:6px"><button class="btn sec" data-iadd style="margin:0">＋ ${tx('Add person')}</button><button class="btn sec" data-imanage style="margin:0">✏️ ${tx('Edit names')}</button></div>` : ''}
+      <span class="bbadges">${due ? `<span class="badge b-credit">To pay ${money(due)}</span>` : ''}${nb ? `<span class="badge b-over">${nb} not returned</span>` : ''}</span></span><span class="chev">›</span></button>
+      ${!tot && S.isAdmin ? `<button class="pedit" data-iedit="${pid}" aria-label="Edit">✏️</button>` : ''}</div>`; };
+  return `<div class="books">${card('*', tx('Total – everyone'))}${ps.map(p => card(p.id, p.name)).join('')}</div>
+    ${S.isAdmin ? `<button class="btn sec" data-iadd style="margin-top:6px">＋ ${tx('Add person')}</button>` : ''}
     <button class="btn sec" data-rates style="margin-top:8px">📋 Rate card</button>`;
 }
 function ironHTML() {
@@ -1250,14 +1282,14 @@ function ironHTML() {
   const unset = ironRates().every(r => !num(r.wash) && !num(r.iron));
   let html = `<div class="stats">
     ${!ironPeople().length && S.isAdmin ? `<button class="btn sec" data-iadd style="margin:0 0 8px">👤 ${tx('Make separate accounts per person')}</button>` : ''}
-    <div class="stat wide"><div><small>${S.ironPerson != null && ironPeople().length ? `<span data-nt>${esc(personName(S.ironPerson) || tx('Common (no name)'))}</span>` : 'Iron'} · ${monthLabel(S.month)}</small><b>${money(st.t)}</b></div><small>Wash ${cnt.wash} · Iron ${cnt.iron}</small></div>
+    <div class="stat wide"><div><small>${S.ironPerson != null && S.ironPerson !== '*' && ironPeople().length ? `<span data-nt>${esc(personName(S.ironPerson))}</span>` : S.ironPerson === '*' ? tx('Total – everyone') : 'Iron'} · ${monthLabel(S.month)}</small><b>${money(st.t)}</b></div><small>Wash ${cnt.wash} · Iron ${cnt.iron}</small></div>
     <div class="stat ${due ? 'warn' : ''}"><small>To pay (all)</small><b>${money(due)}</b></div>
     <div class="stat ${notBack ? 'danger' : ''}"><small>Not returned yet</small><b>${notBack} clothes</b></div></div>
   ${bulkBtn(all)}
   <button class="btn sec" data-rates style="margin:0 0 6px">📋 Rate card${unset ? ' · not set yet' : ''}</button>`;
   if (!mon.length) return html + `<div class="empty"><div class="big">👕</div>Nothing given this month.<br>Tap <b>+</b> when you give clothes.</div>`;
   html += `<div class="tscroll" style="margin:10px 0 0;padding:0;max-height:none"><table class="dt nb" style="min-width:0"><thead><tr><th>Date</th><th class="num">Wash</th><th class="num">Iron</th><th class="num">Others</th><th class="num">Total</th><th>Return</th></tr></thead><tbody>
-    ${mon.map(e => { const c = ironCounts(e), r = returnState(e); return `<tr data-open="${e.id}" class="${r.txt && !r.done ? 'notback' : ''}"><td>${shortDate(e.date)}</td><td class="num">${c.wash || '–'}</td><td class="num">${c.iron || '–'}</td><td class="num">${ironOthers(e) ? money(ironOthers(e)) : '–'}</td><td class="num"><b>${c.wash + c.iron}</b><div class="sub-amt">${money(total(e))}</div></td><td>${r.txt ? `<span class="badge ${r.cls}">${r.txt}</span>` : ''}</td></tr>`; }).join('')}
+    ${mon.map(e => { const c = ironCounts(e), r = returnState(e); return `<tr data-open="${e.id}" class="${r.txt && !r.done ? 'notback' : ''}"><td>${shortDate(e.date)}${S.ironPerson === '*' && ironPeople().length ? `<div class="sub-amt" data-nt>${esc(personName(e.person || '') || '—')}</div>` : ''}</td><td class="num">${c.wash || '–'}</td><td class="num">${c.iron || '–'}</td><td class="num">${ironOthers(e) ? money(ironOthers(e)) : '–'}</td><td class="num"><b>${c.wash + c.iron}</b><div class="sub-amt">${money(total(e))}</div></td><td>${r.txt ? `<span class="badge ${r.cls}">${r.txt}</span>` : ''}</td></tr>`; }).join('')}
     </tbody><tfoot><tr><td>Total</td><td class="num">${cnt.wash}</td><td class="num">${cnt.iron}</td><td class="num">${money(mon.reduce((t, e) => t + ironOthers(e), 0))}</td><td class="num">${cnt.wash + cnt.iron}<div class="sub-amt strong">${money(st.t)}</div></td><td></td></tr></tfoot></table></div>
     <p class="hint" style="text-align:center">Tap a row to see details, mark returned or pay.</p>`;
   return html;
@@ -1784,7 +1816,7 @@ function bulkBtn(all) {
   return pend.length > 1 ? `<button class="btn amber bulkbtn" data-bulkpay>✓ Mark many as paid · ${pend.length} entries · ${money(sum(pend, total))}</button>` : '';
 }
 function openBulkPay() {
-  const k = S.book, list = S.entries.filter(e => bookOf(e) === k && isPending(e) && (k !== 'iron' || !ironPeople().length || S.ironPerson == null || (e.person || '') === S.ironPerson)).sort((a, b) => (a.dueDate || a.date).localeCompare(b.dueDate || b.date) || a.date.localeCompare(b.date));
+  const k = S.book, list = S.entries.filter(e => bookOf(e) === k && isPending(e) && (k !== 'iron' || !ironPeople().length || S.ironPerson == null || S.ironPerson === '*' || (e.person || '') === S.ironPerson)).sort((a, b) => (a.dueDate || a.date).localeCompare(b.dueDate || b.date) || a.date.localeCompare(b.date));
   if (!list.length) return toast('Nothing to pay');
   const sel = new Set(); let mode = 'Cash';
   const groups = new Map(); for (const e of list) { const d = e.dueDate || ''; if (!groups.has(d)) groups.set(d, []); groups.get(d).push(e); }
@@ -1832,6 +1864,32 @@ function openBulkPay() {
 }
 
 /* ================= add / edit form ================= */
+/* ---- rate list (Ganesh / Vegetables): item → price per unit; fills the price when adding ---- */
+const rateList = k => (S.settings?.rateLists || {})[k] || [];
+const rateFor = (k, name) => rateList(k).find(r => r.name.trim().toLowerCase() === String(name || '').trim().toLowerCase());
+function openRateList(k) {
+  const rows = rateList(k).map(r => ({...r})), B = BOOKS[k], ed = S.isAdmin;
+  const draw = () => { $('#rlRows').innerHTML = rows.map((r, i) => `<div class="rlrow" data-i="${i}">
+      <input class="field rl-n" value="${esc(r.name)}" placeholder="${tx('Item')}" ${ed ? '' : 'readonly'} autocapitalize="words">
+      <input class="field rl-r" type="number" inputmode="decimal" step="any" min="0" value="${num(r.rate) || ''}" placeholder="₹" ${ed ? '' : 'readonly'}>
+      <select class="field rl-u" ${ed ? '' : 'disabled'}>${UNITS.map(u => `<option ${u === (r.unit || B.unit) ? 'selected' : ''}>${u}</option>`).join('')}</select>
+      ${ed ? `<button type="button" class="i-del" data-rldel="${i}">×</button>` : '<span></span>'}</div>`).join('') || `<p class="hint">${tx('No items yet.')}</p>`; };
+  const read = () => document.querySelectorAll('#rlRows .rlrow').forEach(el => { const r = rows[+el.dataset.i]; r.name = el.querySelector('.rl-n').value.trim(); r.rate = num(el.querySelector('.rl-r').value); r.unit = el.querySelector('.rl-u').value; });
+  openSheet(`<div class="sh-head"><button data-close>${ed ? 'Cancel' : 'Close'}</button><h2>${B.icon} ${tx('Rate list')}</h2>${ed ? '<button class="save" id="rlSave">Save</button>' : '<span></span>'}</div>
+    <div class="sh-body"><div class="fgroup">
+      <div class="rlrow rlhead"><span>${tx('Item')}</span><span>₹ ${tx('per')}</span><span>${tx('Unit')}</span><span></span></div>
+      <div id="rlRows"></div>
+      ${ed ? `<button type="button" class="addi" id="rlAdd">+ ${tx('Add item')}</button>` : ''}
+      <p class="hint">${tx('For g / ml the rate is per kg / per litre. When you add an entry and pick an item from this list, the price fills in by itself (rate × qty).')}</p></div>
+      ${ed ? '<button class="btn pri" id="rlSave2">Save</button>' : ''}</div>`);
+  draw();
+  if (!ed) return;
+  $('#rlAdd').onclick = () => { read(); rows.push({name: '', rate: '', unit: B.unit}); draw(); const n = document.querySelectorAll('.rl-n'); n[n.length - 1].focus(); };
+  $('#rlRows').onclick = ev => { const d = ev.target.closest('[data-rldel]'); if (d) { read(); rows.splice(+d.dataset.rldel, 1); draw(); } };
+  const save = async () => { read(); const clean = rows.filter(r => r.name).map(r => ({name: r.name, rate: num(r.rate), unit: r.unit || B.unit}));
+    try { const all = {...(S.settings.rateLists || {}), [k]: clean}; await api.saveSettings({rateLists: all}); S.settings.rateLists = all; closeSheet(); render(); toast('Saved'); } catch (e) { toast(errText(e)); } };
+  $('#rlSave').onclick = save; $('#rlSave2').onclick = save;
+}
 function itemRow(it = {}, unit = 'pcs') {
   return `<div class="irow">
     <input class="field i-name" list="dl-items" placeholder="Item (e.g. AAA battery)" value="${esc(it.name || '')}" autocomplete="off" autocapitalize="words">
@@ -1875,7 +1933,7 @@ function openForm(existing, book) {
   const e = existing ? strip(JSON.parse(JSON.stringify(existing))) : {
     id: null, book: k, date: today(), vendor: B.name, items: iron ? [] : [{name: '', qty: 1, unit: B.unit, rate: '', amount: ''}],
     status: iron ? 'credit' : 'paid', mode: k === 'blinkit' ? 'UPI' : 'Cash', ref: '', dueDate: addDays(today(), 30), notes: '', hasPhoto: false,
-    ...(iron ? {person: S.ironPerson || ''} : {})
+    ...(iron ? {person: S.ironPerson && S.ironPerson !== '*' ? S.ironPerson : (ironPeople().find(p => p.uid === S.user?.uid) || {}).id || ''} : {})
   };
   if (!e.dueDate) e.dueDate = addDays(e.date, 30);
   if (!PAY.includes(e.mode)) e.mode = 'Cash';
@@ -1923,14 +1981,22 @@ function openForm(existing, book) {
   form.addEventListener('input', ev => {
     const row = ev.target.closest('.irow');
     if (row && iron && !row.classList.contains('orow')) calcIronRow(row);
+    if (row && !iron && ev.target.classList.contains('i-amt')) delete row.dataset.rate;   // typed own price
+    if (row && !iron && ev.target.classList.contains('i-qty') && row.dataset.rate) row.querySelector('.i-amt').value = lineAmt(ev.target.value, row.dataset.rate, row.querySelector('.i-unit').value);
     updateTotal();
     if (ev.target.id === 'fDue') { S.dueDays = null; $('#dueChips').querySelectorAll('.chip').forEach(c => c.classList.remove('on')); }
     if (ev.target.id === 'fDate' && S.dueDays) $('#fDue').value = addDays(ev.target.value || today(), S.dueDays);
   });
   form.addEventListener('change', ev => {
     if (ev.target.classList.contains('n-cat')) { calcIronRow(ev.target.closest('.irow')); updateTotal(); return; }
+    if (!iron && (ev.target.classList.contains('i-qty') || ev.target.classList.contains('i-unit'))) { const row = ev.target.closest('.irow'); if (row.dataset.rate) { row.querySelector('.i-amt').value = lineAmt(row.querySelector('.i-qty').value, row.dataset.rate, row.querySelector('.i-unit').value); updateTotal(); } return; }
     if (!ev.target.classList.contains('i-name')) return;
-    const row = ev.target.closest('.irow'), h = S.history.get(ev.target.value.trim().toLowerCase());
+    const row = ev.target.closest('.irow'), rl = rateFor(k, ev.target.value);
+    if (rl) { row.dataset.rate = rl.rate; row.querySelector('.i-unit').value = rl.unit; row.querySelector('.i-amt').value = lineAmt(row.querySelector('.i-qty').value, rl.rate, rl.unit); updateTotal();
+      let h2 = row.querySelector('.rlhint'); if (!h2) { h2 = document.createElement('div'); h2.className = 'hint rlhint'; h2.style.margin = '4px 2px 0'; row.appendChild(h2); }
+      h2.textContent = `${tx('Rate list')}: ₹${num(rl.rate)}${rl.unit === 'g' ? '/kg' : rl.unit === 'ml' ? '/L' : '/' + rl.unit}`; return; }
+    delete row.dataset.rate; row.querySelector('.rlhint')?.remove();
+    const h = S.history.get(ev.target.value.trim().toLowerCase());
     if (h) { if (h.unit) row.querySelector('.i-unit').value = h.unit; const a = row.querySelector('.i-amt'); if (h.amount) a.placeholder = `${tx('last')} ${num(h.qty)} ${h.unit || ''} = ₹${num(h.amount)}`; }
   });
   form.addEventListener('click', ev => {
@@ -2760,9 +2826,11 @@ async function mainClick(ev) {
   const f = t.closest('[data-filter]'); if (f) { S.filter = f.dataset.filter; return render(); }
   const g = t.closest('[data-goto]'); if (g) { S.view = g.dataset.goto; S.q = ''; $('#search').value = ''; render(); return scrollTo(0, 0); }
   if (t.closest('[data-rates]')) return openRateCard();
+  if (t.closest('[data-ratelist]')) return openRateList(S.book);
   const ip = t.closest('[data-iperson]'); if (ip) { S.ironPerson = ip.dataset.iperson; render(); return scrollTo(0, 0); }
   if (t.closest('[data-iadd]')) { const n = prompt(tx('Name (e.g. Mrugraj)')); if (!n || !n.trim()) return; return saveIronPeople([...ironPeople(), {id: api.newId().slice(0, 10), name: n.trim()}]); }
   if (t.closest('[data-imanage]')) return openIronPeople();
+  const ie = t.closest('[data-iedit]'); if (ie) return openIronPerson(ie.dataset.iedit);
   if (t.closest('[data-bulkpay]')) return openBulkPay();
   const sm = t.closest('[data-salm]'); if (sm) { const [y, mo] = (S.salMonth || today().slice(0, 7)).split('-').map(Number), d = new Date(y, mo - 1 + +sm.dataset.salm, 1); S.salMonth = ds(d).slice(0, 7); return render(); }
   const at = t.closest('[data-att]'); if (at) { const x = findEmp(at.dataset.att); if (!x) return; x.att = {...(x.att || {})};
