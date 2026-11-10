@@ -724,7 +724,7 @@ const D = {
   'Location not allowed. Allow it in phone settings.': ['Location ki permission nahi. Phone settings mein allow karo.', 'લોકેશનની પરવાનગી નથી. ફોન સેટિંગ્સમાં ચાલુ કરો.'], 'Location not available on this phone': ['Is phone mein location nahi', 'આ ફોનમાં લોકેશન નથી'],
   'Where is it?': ['Kahan rakha hai?', 'ક્યાં મૂક્યું છે?'], 'Pooja': ['Pooja', 'પૂજા'], 'Dates, muhurat & samagri checklist': ['Tareekh, muhurat aur samagri list', 'તારીખ, મુહૂર્ત અને સામગ્રી યાદી'],
   'Plan a pooja: date, muhurat time and samagri checklist.': ['Pooja plan karo: tareekh, muhurat aur samagri list.', 'પૂજાનું આયોજન: તારીખ, મુહૂર્ત અને સામગ્રી યાદી.'], 'Coming up': ['Aane wali', 'આવનારી'], 'Done before': ['Pehle ki', 'અગાઉની'],
-  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'Everyone': ['Sabka', 'બધાનું'], 'Total – everyone': ['Total – sabka', 'કુલ – બધાનું'], 'Total': ['Total', 'કુલ'], 'Edit person': ['Vyakti badlo', 'વ્યક્તિ સુધારો'], 'Delete this person': ['Is vyakti ko hatao', 'આ વ્યક્તિ કાઢો'],
+  'Muhurat': ['Muhurat', 'મુહૂર્ત'], 'entries updated with saved rates': ['entry saved bhaav se update hui', 'એન્ટ્રી સેવ ભાવથી અપડેટ થઈ'], 'Everyone': ['Sabka', 'બધાનું'], 'Total – everyone': ['Total – sabka', 'કુલ – બધાનું'], 'Total': ['Total', 'કુલ'], 'Edit person': ['Vyakti badlo', 'વ્યક્તિ સુધારો'], 'Delete this person': ['Is vyakti ko hatao', 'આ વ્યક્તિ કાઢો'],
   'App user (entries they add go here)': ['App user (inki entry yahan aayegi)', 'એપ યુઝર (તેમની એન્ટ્રી અહીં આવશે)'], 'entries moved': ['entry shift hui', 'એન્ટ્રી ખસેડી'],
   'Deleting keeps the entries – they still count in Total.': ['Hatane par entry rahegi – Total mein gini jayegi.', 'કાઢવાથી એન્ટ્રી રહેશે – કુલમાં ગણાશે.'],
   'Rate list': ['Bhaav list', 'ભાવ યાદી'], 'add prices': ['bhaav jodo', 'ભાવ ઉમેરો'], 'Add item': ['Saaman jodo', 'વસ્તુ ઉમેરો'], 'Item': ['Saaman', 'વસ્તુ'], 'per': ['har', 'દીઠ'], 'Unit': ['Unit', 'એકમ'], 'No items yet.': ['Abhi koi saaman nahi.', 'હજી કોઈ વસ્તુ નથી.'],
@@ -895,7 +895,29 @@ const lineAmt = (qty, rate, unit) => r2(num(qty) * num(rate) * unitFactor(unit))
 const bookOf = e => BOOKS[e.book] ? e.book : 'ganesh';
 const DEFAULT_RATES = ['Shirt', 'T-shirt', 'Pant', 'Saree', 'Kurta', 'Dress', 'Bedsheet', 'Blanket'].map(c => ({cat: c, wash: 0, iron: 0}));
 const ironRates = () => (Array.isArray(S.settings?.ironRates) && S.settings.ironRates.length ? S.settings.ironRates : DEFAULT_RATES);
-const rateOf = cat => ironRates().find(r => r.cat.toLowerCase() === String(cat || '').toLowerCase()) || {cat, wash: 0, iron: 0};
+const rateOf = cat => ironRates().find(r => r.cat.trim().toLowerCase() === String(cat || '').trim().toLowerCase()) || {cat, wash: 0, iron: 0};
+// Bring saved rates into entries: unpaid entries take the current rates; paid ones only fill rates that were missing (₹0).
+function syncRates(opts = {}) {
+  if (!S.isAdmin) return 0;
+  let n = 0;
+  for (const e of S.entries) {
+    const k = bookOf(e), pend = e.status !== 'paid' && !e.paidOn;
+    let items;
+    if (k === 'iron' && (opts.iron ?? true)) items = (e.items || []).map(i => { if (i.other) return i;
+      const r = rateOf(i.cat || i.name), w = num(r.wash), ir = num(r.iron);
+      if (!w && !ir) return i;
+      const wr = pend || !num(i.washRate) ? w : num(i.washRate), irr = pend || !num(i.ironRate) ? ir : num(i.ironRate);
+      return {...i, washRate: wr, ironRate: irr, amount: r2(num(i.wash) * wr + num(i.iron) * irr)}; });
+    else if ((k === 'ganesh' || k === 'veg') && (opts.list ?? true)) items = (e.items || []).map(i => { if (num(i.amount)) return i;
+      const r = rateFor(k, i.name); return r && num(r.rate) ? {...i, amount: lineAmt(i.qty || 1, r.rate, i.unit || r.unit), rate: num(r.rate)} : i; });
+    else continue;
+    if (JSON.stringify(items) === JSON.stringify(e.items)) continue;
+    const u = {...strip(e), items, updatedAt: Date.now(), updatedByName: S.me.name};
+    api.saveEntry(u).catch(er => toast(errText(er))); Object.assign(e, u); n++;
+  }
+  if (n) { mergeEntries(); render(); }
+  return n;
+}
 const ironCounts = e => (e.items || []).reduce((a, i) => ({wash: a.wash + num(i.wash), iron: a.iron + num(i.iron)}), {wash: 0, iron: 0});
 const ironOthers = e => (e.items || []).filter(i => i.other).reduce((t, i) => t + num(i.amount), 0);
 function returnState(e) {
@@ -1097,6 +1119,9 @@ function startApp() {
   S.unsub.push(api.watchCredits(list => { S.credits = new Map(list.map(e => [e.id, e])); mergeEntries(); render(); }, err));
   S.unsub.push(api.watchUsers(list => { S.users = list.sort((a, b) => (a.name || '').localeCompare(b.name || '')); render(); }, () => {}));
   S.unsub.push(api.watchSettings(d => { S.settings = d || {}; applyBookNames(); render(); }, () => {}));
+  // admins' phones quietly bring saved rates into entries that came in with ₹0 (old or new)
+  setTimeout(() => { const n = syncRates(); if (n) toast(`${n} ${tx('entries updated with saved rates')}`); }, 7000);
+  S.rateTimer = setInterval(() => syncRates(), 60000);
   S.presence = new Map();
   S.unsub.push(api.watchPresence(l => { S.presence = new Map(l.map(p => [p.uid, p])); if (S.view === 'tasks') render(); }, () => {}));
   startPresence();
@@ -1316,8 +1341,7 @@ function openRateCard() {
         <div id="rateRows"></div>
         ${S.isAdmin ? `<button type="button" class="addi" id="rAdd">+ Add cloth type</button>` : ''}
       </div>
-      ${S.isAdmin ? `<label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="rApply" checked style="width:18px;height:18px"> Also update unpaid iron entries to these rates</label>
-      <p class="hint">Rates are per cloth. Leave 0 if you don't know yet. You can change them any time.</p>` : `<p class="hint">Only the admin can change rates.</p>`}
+      ${S.isAdmin ? `<p class="hint">Saved rates also update old unpaid entries, and any entry that had ₹0.</p>` : ''}
     </div>`);
   draw();
   if (!S.isAdmin) return;
@@ -1327,12 +1351,8 @@ function openRateCard() {
     read(); const clean = rows.filter(r => r.cat);
     try { await api.saveSettings({ironRates: clean}); } catch (e) { return toast(errText(e)); }
     S.settings.ironRates = clean;
-    let n = 0;
-    if ($('#rApply').checked) for (const e of S.entries.filter(x => bookOf(x) === 'iron' && isPending(x))) {
-      const items = (e.items || []).map(i => i.other ? i : (() => { const r = rateOf(i.cat || i.name); return {...i, washRate: num(r.wash), ironRate: num(r.iron), amount: r2(num(i.wash) * num(r.wash) + num(i.iron) * num(r.iron))}; })());
-      if (JSON.stringify(items) !== JSON.stringify(e.items)) { api.saveEntry({...strip(e), items, updatedAt: Date.now(), updatedByName: S.me.name}).catch(er => toast(errText(er))); n++; }
-    }
-    closeSheet(); toast(`Rates saved${n ? ` · ${n} unpaid entr${n === 1 ? 'y' : 'ies'} updated` : ''}`);
+    const n = syncRates({list: false});
+    closeSheet(); render(); toast(`Rates saved${n ? ` · ${n} old entr${n === 1 ? 'y' : 'ies'} updated` : ''}`);
   };
 }
 
@@ -1891,7 +1911,7 @@ function openRateList(k) {
   $('#rlAdd').onclick = () => { read(); rows.push({name: '', rate: '', unit: B.unit}); draw(); const n = document.querySelectorAll('.rl-n'); n[n.length - 1].focus(); };
   $('#rlRows').onclick = ev => { const d = ev.target.closest('[data-rldel]'); if (d) { read(); rows.splice(+d.dataset.rldel, 1); draw(); } };
   const save = async () => { read(); const clean = rows.filter(r => r.name).map(r => ({name: r.name, rate: num(r.rate), unit: r.unit || B.unit}));
-    try { const all = {...(S.settings.rateLists || {}), [k]: clean}; await api.saveSettings({rateLists: all}); S.settings.rateLists = all; closeSheet(); render(); toast('Saved'); } catch (e) { toast(errText(e)); } };
+    try { const all = {...(S.settings.rateLists || {}), [k]: clean}; await api.saveSettings({rateLists: all}); S.settings.rateLists = all; const n = syncRates({iron: false}); closeSheet(); render(); toast(`Saved${n ? ` · ${n} old entr${n === 1 ? 'y' : 'ies'} updated` : ''}`); } catch (e) { toast(errText(e)); } };
   $('#rlSave').onclick = save; $('#rlSave2').onclick = save;
 }
 function itemRow(it = {}, unit = 'pcs') {
